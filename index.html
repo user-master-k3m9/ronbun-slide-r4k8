@@ -1711,7 +1711,7 @@ const SK = [
  { o: "原著論文の本文の並び（IMRaD）", a: ["序論", "方法", "結果", "考察"], n: "なぜ → どうやって → 何が分かった → 何を意味するか" },
  { o: "原著論文の序論の並び", a: ["分かっていること", "分かっていないこと", "目的（PICO の1文）"], n: "「しかし〜は分かっていない」が要" },
  { o: "症例報告の要旨（抄録）の並び", a: ["年齢・性別", "経過と所見", "検査・病理", "診断", "治療と経過", "伝えたいこと"], n: "最後の1文が伝えたいこと。文献は引用しない" },
- { o: "7分の症例発表のスライドの並び", a: ["表紙", "COI 開示", "症例（主訴・現病歴）", "臨床写真", "検査", "病理", "経過図", "考察（既報の表）", "結語"], n: "1枚およそ1分。最後は結語を残す" },
+ { g: "slide", o: "7分の症例発表のスライドの並び", a: ["表紙", "COI 開示", "症例（主訴・現病歴）", "臨床写真", "検査", "病理", "経過図", "考察（既報の表）", "結語"], n: "1枚およそ1分。最後は結語を残す" },
  { o: "原著論文の結果1つの書き方の並び", a: ["時点", "分母と割合", "差や比と 95% 信頼区間", "P 値の実際の値"], n: "例：16週時に 42/60 例（70%）、差 15%（95% CI 5〜25%）、P＝0.003。解釈は書かない" },
  { o: "査読コメント1つへの回答の並び", a: ["コメントの引用", "感謝", "直した内容", "本文の場所（ページ・行）"], n: "同意できないときも、感謝 → 根拠を示して丁寧に" },
  { o: "研究を始めてから投稿するまでの並び", a: ["研究計画書", "倫理審査の承認", "試験登録（介入研究）", "データ収集", "解析", "投稿"], n: "承認・登録は開始前。後からはできない" },
@@ -1726,17 +1726,37 @@ const SK = [
  { p: "原著の結果に書くもの", y: ["分母", "割合", "95% 信頼区間", "P 値の実際の値"], x: ["解釈（有効であった）", "「明らかに」", "小数点以下5桁"], n: "解釈は考察へ" },
  { p: "論文の末尾に書くもの", y: ["患者の同意", "利益相反（COI）", "研究費", "生成AI を使った場合はその記載", "文献"], x: ["書き手の感想", "今後の予定"], n: "形式は投稿規定に従う" },
  { p: "カバーレターに書くもの", y: ["要点と新しさ", "その雑誌に合う理由", "二重投稿でないこと", "全著者の同意", "利益相反"], x: ["がんばった努力", "他誌の不採用への不満"], n: "1ページ程度" },
- { p: "発表スライドで守ること", y: ["タイトル＝結論の文", "文字24ポイント以上", "写真に矢印", "表紙の次に COI", "最後は結語"], x: ["話す内容を全文", "赤と緑だけで区別"], n: "1枚1メッセージ" },
+ { g: "slide", p: "発表スライドで守ること", y: ["タイトル＝結論の文", "文字24ポイント以上", "写真に矢印", "表紙の次に COI", "最後は結語"], x: ["話す内容を全文", "赤と緑だけで区別"], n: "1枚1メッセージ" },
  { p: "著者になる条件（ICMJE、4つすべて）", y: ["構想・データ・解析への貢献", "執筆または重要な見直し", "最終稿の承認", "全体に責任を負う同意"], x: ["診療科の部長であること", "研究費を出しただけ"], n: "満たさない協力者は謝辞へ" },
+ { g: "slide", o: "スライドを作る順番", a: ["伝えたいこと1文", "発表時間から枚数を決める", "各スライドのタイトル（結論の文）を並べる", "写真・図を入れる", "文字を削る", "声に出して時間を計る", "予演会で直す"], n: "いきなり作り込まず、タイトルの並び（話の筋）を先に決める" },
+ { g: "slide", o: "研究発表のスライドの並び", a: ["表紙", "COI 開示", "背景（分かっていないこと）", "目的", "方法", "対象の背景", "主な結果", "考察（既報・限界）", "結語"], n: "論文の IMRaD と同じ流れ。結果のスライドが山場" },
+ { g: "slide", o: "1枚のスライドの中の並び（上から）", a: ["タイトル（結論の文）", "根拠の写真・図", "矢印と短い語句", "出典（右下に小さく）"], n: "主張（タイトル）＋根拠（図）。文章は口で話す" },
+ { g: "slide", o: "臨床写真のスライドの並び", a: ["全体像（どこの皮疹か）", "近接像（皮疹の性状）", "ダーモスコピー像"], n: "所見に矢印と短い言葉を添える" },
+ { g: "slide", o: "病理のスライドの並び", a: ["HE 染色の弱拡大（全体の構築）", "HE 染色の強拡大（所見）", "蛍光抗体法・免疫染色"], n: "スケールバーと矢印。タイトルに所見の結論" },
+ { g: "slide", o: "発表の準備の並び", a: ["発表要項を確認（時間・縦横比）", "スライドを作る", "原稿を作る", "時間を計って通し練習", "予演会", "ファイルを2か所に保存", "会場で試写"], n: "原稿は1分300字前後。少し早く終わるように" },
+ { g: "slide", o: "質疑応答の答え方の並び", a: ["質問への感謝", "質問を短く言い直して確認", "結論から答える", "根拠を一言"], n: "分からなければ正直に「検討しておりません。今後確認します」" },
+ { g: "slide", o: "ポスターの読む順（配置）", a: ["タイトル・演者", "はじめに", "症例", "検査・病理", "経過図", "考察", "結語"], n: "左の列を上から下、次に右の列。結語は目立つ位置に" },
+ { g: "slide", p: "表紙スライドに入れるもの", y: ["演題名", "所属", "演者・共同演者"], x: ["患者のイニシャル", "長い要旨の文章"], n: "演題名は抄録と同じに" },
+ { g: "slide", p: "COI 開示のスライドに入れるもの", y: ["学会指定の書式", "COI の有無", "ある場合は企業名と項目"], x: ["COI があっても「なし」と書く", "COI スライドを省く"], n: "表紙の次に置く。COI があること自体は問題ではない" },
+ { g: "slide", p: "症例スライド（主訴・現病歴）に入れるもの", y: ["年齢・性別", "主訴", "既往・内服（一般名と開始時期）", "経過を時間と短い語句で"], x: ["12行の文章", "正確な年月日"], n: "例：「3か月前　口腔内びらん」「1か月前　体幹に水疱」" },
+ { g: "slide", p: "臨床写真のスライドで守ること", y: ["写真を大きく", "全体像と近接像", "所見に矢印", "所見の短い言葉"], x: ["小さな写真を8枚並べる", "目だけ隠した顔全体の写真"], n: "顔は必要な部分だけ、同意を得る" },
+ { g: "slide", p: "検査のスライドに入れるもの", y: ["診断に関係する値", "除外に使った陰性の値", "単位", "異常値の強調（色・太字）"], x: ["全30項目の小さな表", "「かなり高い」など程度の言葉"], n: "タイトルは「抗 BP180 抗体が高値だった」のような結論の文" },
+ { g: "slide", p: "考察のスライドに入れるもの", y: ["列を絞った既報例の表", "自験例の強調", "本例から言えること", "出典（小さく）"], x: ["文献の文章をそのまま12行", "12列の詳細な表"], n: "既報の表1枚＋言えること1枚が目安" },
+ { g: "slide", p: "最後のスライドに入れるもの", y: ["結語（伝えたいこと1〜2行）", "読者・聴衆がとるべき行動"], x: ["「ご清聴ありがとうございました」だけ", "新しい写真やデータ"], n: "質疑の間ずっと映るので、要点を残す" },
+ { g: "slide", p: "見やすいスライドの原則", y: ["文字24ポイント以上", "ゴシック体", "1枚1メッセージ", "強調は1〜2色", "ページ番号"], x: ["赤と緑だけで区別", "細い明朝体", "背景に写真を全面に敷く"], n: "会場の後ろからも読めるか" },
+ { g: "slide", p: "グラフのスライドで守ること", y: ["伝えたい線だけ色、他は灰色", "軸の名前と単位", "大きな文字", "凡例は線の近くに直接"], x: ["立体（3D）のグラフ", "論文の図をそのまま縮小"], n: "タイトルに「治療群で再発が少なかった」と結論" },
+ { g: "slide", p: "発表中の話し方で守ること", y: ["最初に何の話か・何が特徴かを言う", "聴衆のほうを見る", "時間が足りなければ結語へ飛ぶ"], x: ["スライドを読み上げる", "レーザーポインターを回し続ける", "時間を超えても全部話す"], n: "ポインターは示して止める。矢印をスライドに入れておけばほぼ不要" },
 ];
-let KS = null;
-function skStats() { const d = WD.sk || {}, today = new Date().toDateString(); return { laps: d.laps || 0, today: d.day === today ? (d.todayLaps || 0) : 0, miss: d.miss || {} }; }
+let KS = null, KSG = "paper";
+const gOf = it => it.g || "paper";
+const GN = { paper: "論文", slide: "スライド" };
+function skStats(g) { const d = WD.sk || {}, today = new Date().toDateString(), P = g === "slide" ? "s" : ""; return { laps: d[P + "laps"] || 0, today: d[P + "day"] === today ? (d[P + "todayLaps"] || 0) : 0, miss: Object.fromEntries(Object.entries(d.miss || {}).filter(([i]) => SK[i] && gOf(SK[i]) === (g || "paper"))) }; }
 function skHtml() {
-  const st = skStats(), weak = Object.values(st.miss).filter(n => n > 0).length;
-  return `<section class="path course"><h2>骨組み暗記（${SK.length}問・1周3〜4分）</h2>
-  <p class="pnote"><b>書く順番</b>は並べ替えで、<b>各部分に必ず書くこと</b>は全部えらぶ形で、何周もして覚えます。</p>
-  <p style="margin:0 0 10px;font-size:14px">今日 <b>${st.today}</b>周　累計 <b>${st.laps}</b>周${weak ? `　苦手 ${weak}問` : ""}</p>
-  <div class="row"><button class="btn big" data-act="kstart">${st.laps ? "もう1周" : "1周目をはじめる"}</button>${weak ? `<button class="btn sub big" data-act="kweak">苦手だけ（${weak}問）</button>` : ""}<button class="btn sub big" data-act="ksheet">骨組みシートを見る</button></div></section>`;
+  const row = g => { const st = skStats(g), weak = Object.values(st.miss).filter(n => n > 0).length, n = SK.filter(x => gOf(x) === g).length;
+    return `<h3 style="font-size:16px;margin:12px 0 4px">${GN[g]}の骨組み（${n}問）　<small style="font-weight:400;color:var(--muted)">今日 ${st.today}周・累計 ${st.laps}周${weak ? `・苦手 ${weak}問` : ""}</small></h3>
+    <div class="row"><button class="btn" data-act="kstart" data-g="${g}">${st.laps ? "もう1周" : "1周目をはじめる"}</button>${weak ? `<button class="btn sub" data-act="kweak" data-g="${g}">苦手だけ（${weak}問）</button>` : ""}<button class="btn sub" data-act="ksheet" data-g="${g}">${GN[g]}の骨組みシート</button></div>`; };
+  return `<section class="path course"><h2>骨組み暗記（各1周3〜4分）</h2>
+  <p class="pnote"><b>順番</b>は並べ替えで、<b>必ず入れること</b>は全部えらぶ形で、何周もして覚えます。</p>${row("paper")}${row("slide")}</section>`;
 }
 const chip = (txt, attrs, cls) => `<button class="btn sub" ${attrs} style="padding:9px 12px;font-size:15px;${cls || ""}">${esc(txt)}</button>`;
 function skel() {
@@ -1748,11 +1768,11 @@ function skel() {
     <div style="display:flex;flex-direction:column;gap:6px">${KS.pick.map((v, j) => `<div style="padding:8px 12px;border-radius:10px;background:${KS.done ? (v === it.a[j] ? "var(--acc-soft)" : "var(--em-soft)") : "var(--paper)"};border:1px solid var(--line)"><b>${j + 1}.</b> ${esc(v)}${KS.done && v !== it.a[j] ? `<span style="color:var(--em)">　→ 正しくは「${esc(it.a[j])}」</span>` : ""}</div>`).join("")}</div>`;
     if (!KS.done) h += `<div class="row">${KS.pool.map((v, j) => chip(v, `data-act="kpick" data-j="${j}"`)).join("")}</div>${KS.pick.length ? `<div class="row"><button class="ghost" data-act="kundo">1つ戻す</button></div>` : ""}`;
   } else {
-    h += `<div class="qno">必ず書くもの（してはいけないものは選ばない）を全部タップ</div><div class="qtext">${esc(it.p)}</div><div class="row">${KS.opts.map((v, j) => { const sel = KS.sel.includes(j), good = it.y.includes(v);
+    h += `<div class="qno">必ず入れるもの（入れてはいけないものは選ばない）を全部タップ</div><div class="qtext">${esc(it.p)}</div><div class="row">${KS.opts.map((v, j) => { const sel = KS.sel.includes(j), good = it.y.includes(v);
       const st = KS.done ? (good ? (sel ? "background:var(--acc-soft);border-color:var(--acc)" : "background:var(--card);border:2px dashed var(--acc)") : (sel ? "background:var(--em-soft);border-color:var(--em);color:var(--em)" : "color:var(--muted)")) : (sel ? "background:var(--acc);color:#fff;border-color:var(--acc)" : "");
       return chip((KS.done ? (good ? "○ " : "× ") : "") + v, KS.done ? `aria-disabled="true" tabindex="-1"` : `data-act="ksel" data-j="${j}"`, st); }).join("")}</div>`;
     if (!KS.done) h += `<div class="qnav"><button class="btn" data-act="kcheck">答え合わせ</button></div>`;
-    else h += `<p class="pnote" style="margin:0">○＝書くもの（点線の枠は選び忘れ）、×＝書かないもの</p>`;
+    else h += `<p class="pnote" style="margin:0">○＝入れるもの（点線の枠は選び忘れ）、×＝入れないもの</p>`;
   }
   if (KS.done) h += `<div class="verdict ${KS.ok ? "ok" : "ng"}"><span class="big">${KS.ok ? "○" : "×"}</span><div><h3>${KS.ok ? "正解" : "もう一度覚えよう"}</h3><p>${esc(it.n)}</p></div></div><div class="qnav"><button class="btn big" data-act="knext">${KS.k + 1 < KS.list.length ? "次へ" : "結果を見る"}</button></div>`;
   app.innerHTML = h + `</article>`;
@@ -1761,22 +1781,24 @@ function skLoad() { const it = SK[KS.list[KS.k]]; KS.done = false; KS.ok = false
 function skFinish(ok) { KS.done = true; KS.ok = ok; const i = KS.list[KS.k]; WD.sk = WD.sk || {}; WD.sk.miss = WD.sk.miss || {}; if (ok) { KS.nok++; if (WD.sk.miss[i]) WD.sk.miss[i]--; } else { KS.wrong.push(i); WD.sk.miss[i] = (WD.sk.miss[i] || 0) + 2; } wSave(); }
 function skEnd() {
   const n = KS.list.length, d = WD.sk = WD.sk || {}, today = new Date().toDateString(), sec = Math.round((Date.now() - KS.t0) / 1000);
-  if (n === SK.length) { d.laps = (d.laps || 0) + 1; d.todayLaps = (d.day === today ? (d.todayLaps || 0) : 0) + 1; d.day = today; } wSave();
-  app.innerHTML = header() + `<section class="hero"><h1>${KS.nok} / ${n}問 正解（${sec}秒）</h1><p>${KS.nok === n ? "全問正解。骨組みは頭に入っています。" : "間違えた問題は次の周で先に出ます。"}</p></section>
+  const P = KS.g === "slide" ? "s" : ""; if (n === SK.filter(x => gOf(x) === KS.g).length) { d[P + "laps"] = (d[P + "laps"] || 0) + 1; d[P + "todayLaps"] = (d[P + "day"] === today ? (d[P + "todayLaps"] || 0) : 0) + 1; d[P + "day"] = today; } wSave();
+  app.innerHTML = header() + `<section class="hero"><h1>${KS.nok} / ${n}問 正解（${sec}秒）</h1><p>${KS.nok === n ? `全問正解。${GN[KS.g]}の骨組みは頭に入っています。` : "間違えた問題は次の周で先に出ます。"}</p></section>
   ${KS.wrong.length ? `<section class="panel" style="display:block"><h3>もう一度見ておくもの</h3>${KS.wrong.map(i => sheetItem(SK[i])).join("")}</section>` : ""}
-  <div class="row"><button class="btn big" data-act="kstart">もう1周</button>${KS.wrong.length ? `<button class="btn sub big" data-act="kweak">苦手だけ</button>` : ""}<button class="btn sub big" data-act="home">ホームへ</button></div>`;
+  <div class="row"><button class="btn big" data-act="kstart" data-g="${KS.g}">もう1周</button>${KS.wrong.length ? `<button class="btn sub big" data-act="kweak" data-g="${KS.g}">苦手だけ</button>` : ""}<button class="btn sub big" data-act="home">ホームへ</button></div>`;
 }
 function sheetItem(it) { return it.o ? `<p style="margin:12px 0 2px;font-weight:700">${esc(it.o)}</p><p style="margin:0">${it.a.map(esc).join(" → ")}</p><p class="pnote" style="margin:2px 0 0">${esc(it.n)}</p>`
-  : `<p style="margin:12px 0 2px;font-weight:700">${esc(it.p)}</p><p style="margin:0"><span style="color:var(--acc)">書く：</span>${it.y.map(esc).join("・")}<br><span style="color:var(--em)">書かない：</span>${it.x.map(esc).join("・")}</p><p class="pnote" style="margin:2px 0 0">${esc(it.n)}</p>`; }
+  : `<p style="margin:12px 0 2px;font-weight:700">${esc(it.p)}</p><p style="margin:0"><span style="color:var(--acc)">${gOf(it) === "slide" ? "入れる" : "書く"}：</span>${it.y.map(esc).join("・")}<br><span style="color:var(--em)">${gOf(it) === "slide" ? "入れない" : "書かない"}：</span>${it.x.map(esc).join("・")}</p><p class="pnote" style="margin:2px 0 0">${esc(it.n)}</p>`; }
 function sheet() {
-  app.innerHTML = header() + `<section class="hero"><h1>骨組みシート</h1><p>書く順番と、各部分に必ず書くことの一覧です。書く前と書いた後に見返します。</p></section>
-  <section class="panel" style="display:block"><h3>順番</h3>${SK.filter(x => x.o).map(sheetItem).join("")}</section>
-  <section class="panel" style="display:block"><h3>必ず書くこと・書かないこと</h3>${SK.filter(x => x.p).map(sheetItem).join("")}</section>
-  <div class="row"><button class="btn big" data-act="kstart">骨組み暗記を1周する</button><button class="btn sub big" data-act="home">ホームへ</button></div>`;
+  const L = SK.filter(x => gOf(x) === KSG);
+  app.innerHTML = header() + `<section class="hero"><h1>${GN[KSG]}の骨組みシート</h1><p>${KSG === "slide" ? "スライドを作る順番と、各スライドに必ず入れること・入れないことの一覧です。作る前と予演会の前に見返します。" : "書く順番と、各部分に必ず書くこと・書かないことの一覧です。書く前と書いた後に見返します。"}</p></section>
+  <div class="row"><button class="${KSG === "paper" ? "btn" : "btn sub"}" data-act="ksheet" data-g="paper">論文</button><button class="${KSG === "slide" ? "btn" : "btn sub"}" data-act="ksheet" data-g="slide">スライド</button></div>
+  <section class="panel" style="display:block"><h3>順番</h3>${L.filter(x => x.o).map(sheetItem).join("")}</section>
+  <section class="panel" style="display:block"><h3>${KSG === "slide" ? "必ず入れること・入れないこと" : "必ず書くこと・書かないこと"}</h3>${L.filter(x => x.p).map(sheetItem).join("")}</section>
+  <div class="row"><button class="btn big" data-act="kstart" data-g="${KSG}">${GN[KSG]}の骨組み暗記を1周する</button><button class="btn sub big" data-act="home">ホームへ</button></div>`;
 }
 function skAct(a, b) {
-  if (a === "kstart" || a === "kweak") { const miss = skStats().miss; let l = SK.map((_, i) => i); if (a === "kweak") l = l.filter(i => (miss[i] || 0) > 0); if (!l.length) return true; l = shuffle(l).sort((x, y) => (miss[y] || 0) - (miss[x] || 0)); KS = { list: l, k: 0, nok: 0, wrong: [], t0: Date.now() }; skLoad(); S.view = "skel"; render(); window.scrollTo(0, 0); return true; }
-  if (a === "ksheet") { S.view = "sheet"; render(); window.scrollTo(0, 0); return true; }
+  if (a === "kstart" || a === "kweak") { const g = (b && b.dataset && b.dataset.g) || (KS && KS.g) || "paper", miss = skStats(g).miss; let l = SK.map((_, i) => i).filter(i => gOf(SK[i]) === g); if (a === "kweak") l = l.filter(i => (miss[i] || 0) > 0); if (!l.length) return true; l = shuffle(l).sort((x, y) => (miss[y] || 0) - (miss[x] || 0)); KS = { g, list: l, k: 0, nok: 0, wrong: [], t0: Date.now() }; skLoad(); S.view = "skel"; render(); window.scrollTo(0, 0); return true; }
+  if (a === "ksheet") { KSG = (b && b.dataset && b.dataset.g) || "paper"; S.view = "sheet"; render(); window.scrollTo(0, 0); return true; }
   if (a === "kpick") { const j = +b.dataset.j; KS.pick.push(KS.pool[j]); KS.pool.splice(j, 1); if (!KS.pool.length) { const it = SK[KS.list[KS.k]]; skFinish(KS.pick.every((v, i) => v === it.a[i])); } render(); return true; }
   if (a === "kundo") { if (KS.pick.length) KS.pool.push(KS.pick.pop()); render(); return true; }
   if (a === "ksel") { const j = +b.dataset.j; KS.sel = KS.sel.includes(j) ? KS.sel.filter(x => x !== j) : KS.sel.concat(j); render(); return true; }
@@ -2177,11 +2199,11 @@ document.addEventListener("keydown", e => {
 render();
 
 </script>
-<p class="offline">4版（骨組み暗記（並べ替え12問・全部えらぶ13問・骨組みシート）を追加）</p>
+<p class="offline">5版（スライドの骨組み（並べ替え9問・全部えらぶ11問・シート）を追加。骨組み暗記を論文とスライドに分割）</p>
 <p class="offline" id="offline">オフライン利用：準備中…</p>
 <script>
 (function(){
-  var el=document.getElementById("offline"),C="paper4-v4";
+  var el=document.getElementById("offline"),C="paper4-v5";
   function ok(){el.innerHTML="オフライン利用：<b>準備OK</b>（電波がなくても使えます）"}
   if(!("serviceWorker" in navigator)){el.textContent="オフライン利用：この環境では使えません";return}
   var had=!!navigator.serviceWorker.controller,reloaded=false;
