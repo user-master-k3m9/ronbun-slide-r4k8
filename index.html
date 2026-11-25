@@ -1701,6 +1701,90 @@ function drillAct(a, b) {
 }
 document.addEventListener("keydown", e => { if (S.view !== "drill" || !DS) return; if (DS.ans === null) { if (e.key === "ArrowLeft") drillAct("dans", { dataset: { v: "1" } }); else if (e.key === "ArrowRight") drillAct("dans", { dataset: { v: "0" } }); } else if (e.key === "Enter" || e.key === " ") { e.preventDefault(); drillAct("dnext"); } });
 
+/* ---------- 骨組み暗記：書く順番（並べ替え）と、各部分に必ず書くこと（全部えらぶ）を何周もして覚える ---------- */
+const SK = [
+ { o: "論文を書く順番（読む順ではない）", a: ["伝えたいこと1文", "図表・写真", "方法・症例・結果", "考察", "序論・緒言", "抄録・タイトル"], n: "事実を先に固め、解釈 → 導入 → 要約の順。読む順に書くと書き直しが増える" },
+ { o: "症例報告の本文の並び", a: ["タイトル", "要旨（抄録）", "緒言", "症例", "考察", "結語", "文献"], n: "緒言は短く、症例は事実だけ、考察で意味、結語で伝えたいこと" },
+ { o: "「症例」の中の並び", a: ["患者（年齢・性別）", "主訴", "既往歴・内服歴", "現病歴", "現症", "検査所見", "病理所見", "診断", "治療と経過"], n: "時間の順に事実だけ。解釈は考察へ" },
+ { o: "考察の段落の並び", a: ["本例の特徴", "既報との比較（表）", "しくみ", "意義と限界", "結語"], n: "各段落の1文目で言い切る" },
+ { o: "緒言（はじめに）の並び", a: ["病気の短い説明", "まれな点・分かっていないこと", "本例の特徴と報告する理由"], n: "3〜5文の漏斗。最後の1文は「〜の1例を経験したので報告する」" },
+ { o: "原著論文の本文の並び（IMRaD）", a: ["序論", "方法", "結果", "考察"], n: "なぜ → どうやって → 何が分かった → 何を意味するか" },
+ { o: "原著論文の序論の並び", a: ["分かっていること", "分かっていないこと", "目的（PICO の1文）"], n: "「しかし〜は分かっていない」が要" },
+ { o: "症例報告の要旨（抄録）の並び", a: ["年齢・性別", "経過と所見", "検査・病理", "診断", "治療と経過", "伝えたいこと"], n: "最後の1文が伝えたいこと。文献は引用しない" },
+ { o: "7分の症例発表のスライドの並び", a: ["表紙", "COI 開示", "症例（主訴・現病歴）", "臨床写真", "検査", "病理", "経過図", "考察（既報の表）", "結語"], n: "1枚およそ1分。最後は結語を残す" },
+ { o: "原著論文の結果1つの書き方の並び", a: ["時点", "分母と割合", "差や比と 95% 信頼区間", "P 値の実際の値"], n: "例：16週時に 42/60 例（70%）、差 15%（95% CI 5〜25%）、P＝0.003。解釈は書かない" },
+ { o: "査読コメント1つへの回答の並び", a: ["コメントの引用", "感謝", "直した内容", "本文の場所（ページ・行）"], n: "同意できないときも、感謝 → 根拠を示して丁寧に" },
+ { o: "研究を始めてから投稿するまでの並び", a: ["研究計画書", "倫理審査の承認", "試験登録（介入研究）", "データ収集", "解析", "投稿"], n: "承認・登録は開始前。後からはできない" },
+ { p: "タイトルに入れるもの", y: ["病名（正式名）", "本例の特徴（新しい点）", "検索される語（薬の一般名など）"], x: ["興味深い・貴重な", "施設名", "略語だけの病名"], n: "例：口腔内びらんが3か月先行した尋常性天疱瘡の1例" },
+ { p: "現症（皮疹）に必ず書くもの", y: ["部位", "分布", "大きさ（mm・母指頭大など）", "性状（緊満性・びらん等）", "数"], x: ["感想（ひどい）", "解釈（典型的）", "日付"], n: "写真がなくても思い浮かぶように" },
+ { p: "検査所見に書くもの", y: ["項目名", "値", "単位", "基準値", "除外に使った陰性の値"], x: ["全項目の羅列", "「かなり高い」など程度の言葉"], n: "診断を支える値と、除外の根拠だけ" },
+ { p: "病理所見・病理写真に書くもの", y: ["層の名前（どこに）", "所見の用語（何が）", "染色名", "スケールバー（写真）"], x: ["「教科書どおり」", "診断の結論だけ"], n: "弱拡大で全体、強拡大で所見" },
+ { p: "治療と経過に書くもの", y: ["薬の一般名", "量", "期間", "何週後に何がどうなったか", "減量・中止と再発の有無"], x: ["商品名だけ", "「しっかり」「だんだん」"], n: "経過図：横軸＝時間、上に薬の帯、下に症状" },
+ { p: "考察の既報との比較に書くもの", y: ["データベース名（PubMed・医中誌Web）", "検索語", "検索した期間", "既報の数", "既報例の表"], x: ["「世界初」", "「たくさんある」"], n: "「検索した範囲では」と控えめに" },
+ { p: "症例報告・発表に書いてはいけないもの", y: ["氏名", "イニシャル", "詳しい年月日", "他院の名前", "画像の ID・撮影日"], x: ["年齢", "性別", "年月（日付は年月まで）"], n: "それでも特定されうるときは同意か倫理委員会の承認" },
+ { p: "図の説明（凡例）に書くもの", y: ["何の図か", "何が見えるか", "矢印・記号の意味", "染色名", "スケールバー"], x: ["「本文参照」だけ", "「きれいに撮れた」"], n: "図と説明だけで分かるように" },
+ { p: "原著の結果に書くもの", y: ["分母", "割合", "95% 信頼区間", "P 値の実際の値"], x: ["解釈（有効であった）", "「明らかに」", "小数点以下5桁"], n: "解釈は考察へ" },
+ { p: "論文の末尾に書くもの", y: ["患者の同意", "利益相反（COI）", "研究費", "生成AI を使った場合はその記載", "文献"], x: ["書き手の感想", "今後の予定"], n: "形式は投稿規定に従う" },
+ { p: "カバーレターに書くもの", y: ["要点と新しさ", "その雑誌に合う理由", "二重投稿でないこと", "全著者の同意", "利益相反"], x: ["がんばった努力", "他誌の不採用への不満"], n: "1ページ程度" },
+ { p: "発表スライドで守ること", y: ["タイトル＝結論の文", "文字24ポイント以上", "写真に矢印", "表紙の次に COI", "最後は結語"], x: ["話す内容を全文", "赤と緑だけで区別"], n: "1枚1メッセージ" },
+ { p: "著者になる条件（ICMJE、4つすべて）", y: ["構想・データ・解析への貢献", "執筆または重要な見直し", "最終稿の承認", "全体に責任を負う同意"], x: ["診療科の部長であること", "研究費を出しただけ"], n: "満たさない協力者は謝辞へ" },
+];
+let KS = null;
+function skStats() { const d = WD.sk || {}, today = new Date().toDateString(); return { laps: d.laps || 0, today: d.day === today ? (d.todayLaps || 0) : 0, miss: d.miss || {} }; }
+function skHtml() {
+  const st = skStats(), weak = Object.values(st.miss).filter(n => n > 0).length;
+  return `<section class="path course"><h2>骨組み暗記（${SK.length}問・1周3〜4分）</h2>
+  <p class="pnote"><b>書く順番</b>は並べ替えで、<b>各部分に必ず書くこと</b>は全部えらぶ形で、何周もして覚えます。</p>
+  <p style="margin:0 0 10px;font-size:14px">今日 <b>${st.today}</b>周　累計 <b>${st.laps}</b>周${weak ? `　苦手 ${weak}問` : ""}</p>
+  <div class="row"><button class="btn big" data-act="kstart">${st.laps ? "もう1周" : "1周目をはじめる"}</button>${weak ? `<button class="btn sub big" data-act="kweak">苦手だけ（${weak}問）</button>` : ""}<button class="btn sub big" data-act="ksheet">骨組みシートを見る</button></div></section>`;
+}
+const chip = (txt, attrs, cls) => `<button class="btn sub" ${attrs} style="padding:9px 12px;font-size:15px;${cls || ""}">${esc(txt)}</button>`;
+function skel() {
+  const it = SK[KS.list[KS.k]];
+  let h = header() + `<div class="qhead"><span class="fl">骨組み暗記</span><span>${it.o ? "並べ替え" : "全部えらぶ"}</span><span class="n">${KS.k + 1} / ${KS.list.length}</span></div>
+  <div class="meter" aria-hidden="true"><i style="width:${(KS.k + (KS.done ? 1 : 0)) / KS.list.length * 100}%"></i></div><article class="qcard">`;
+  if (it.o) {
+    h += `<div class="qno">正しい順にタップ</div><div class="qtext">${esc(it.o)}</div>
+    <div style="display:flex;flex-direction:column;gap:6px">${KS.pick.map((v, j) => `<div style="padding:8px 12px;border-radius:10px;background:${KS.done ? (v === it.a[j] ? "var(--acc-soft)" : "var(--em-soft)") : "var(--paper)"};border:1px solid var(--line)"><b>${j + 1}.</b> ${esc(v)}${KS.done && v !== it.a[j] ? `<span style="color:var(--em)">　→ 正しくは「${esc(it.a[j])}」</span>` : ""}</div>`).join("")}</div>`;
+    if (!KS.done) h += `<div class="row">${KS.pool.map((v, j) => chip(v, `data-act="kpick" data-j="${j}"`)).join("")}</div>${KS.pick.length ? `<div class="row"><button class="ghost" data-act="kundo">1つ戻す</button></div>` : ""}`;
+  } else {
+    h += `<div class="qno">必ず書くもの（してはいけないものは選ばない）を全部タップ</div><div class="qtext">${esc(it.p)}</div><div class="row">${KS.opts.map((v, j) => { const sel = KS.sel.includes(j), good = it.y.includes(v);
+      const st = KS.done ? (good ? (sel ? "background:var(--acc-soft);border-color:var(--acc)" : "background:var(--card);border:2px dashed var(--acc)") : (sel ? "background:var(--em-soft);border-color:var(--em);color:var(--em)" : "color:var(--muted)")) : (sel ? "background:var(--acc);color:#fff;border-color:var(--acc)" : "");
+      return chip((KS.done ? (good ? "○ " : "× ") : "") + v, KS.done ? `aria-disabled="true" tabindex="-1"` : `data-act="ksel" data-j="${j}"`, st); }).join("")}</div>`;
+    if (!KS.done) h += `<div class="qnav"><button class="btn" data-act="kcheck">答え合わせ</button></div>`;
+    else h += `<p class="pnote" style="margin:0">○＝書くもの（点線の枠は選び忘れ）、×＝書かないもの</p>`;
+  }
+  if (KS.done) h += `<div class="verdict ${KS.ok ? "ok" : "ng"}"><span class="big">${KS.ok ? "○" : "×"}</span><div><h3>${KS.ok ? "正解" : "もう一度覚えよう"}</h3><p>${esc(it.n)}</p></div></div><div class="qnav"><button class="btn big" data-act="knext">${KS.k + 1 < KS.list.length ? "次へ" : "結果を見る"}</button></div>`;
+  app.innerHTML = h + `</article>`;
+}
+function skLoad() { const it = SK[KS.list[KS.k]]; KS.done = false; KS.ok = false; if (it.o) { KS.pool = shuffle(it.a); KS.pick = []; } else { KS.opts = shuffle(it.y.concat(it.x)); KS.sel = []; } }
+function skFinish(ok) { KS.done = true; KS.ok = ok; const i = KS.list[KS.k]; WD.sk = WD.sk || {}; WD.sk.miss = WD.sk.miss || {}; if (ok) { KS.nok++; if (WD.sk.miss[i]) WD.sk.miss[i]--; } else { KS.wrong.push(i); WD.sk.miss[i] = (WD.sk.miss[i] || 0) + 2; } wSave(); }
+function skEnd() {
+  const n = KS.list.length, d = WD.sk = WD.sk || {}, today = new Date().toDateString(), sec = Math.round((Date.now() - KS.t0) / 1000);
+  if (n === SK.length) { d.laps = (d.laps || 0) + 1; d.todayLaps = (d.day === today ? (d.todayLaps || 0) : 0) + 1; d.day = today; } wSave();
+  app.innerHTML = header() + `<section class="hero"><h1>${KS.nok} / ${n}問 正解（${sec}秒）</h1><p>${KS.nok === n ? "全問正解。骨組みは頭に入っています。" : "間違えた問題は次の周で先に出ます。"}</p></section>
+  ${KS.wrong.length ? `<section class="panel" style="display:block"><h3>もう一度見ておくもの</h3>${KS.wrong.map(i => sheetItem(SK[i])).join("")}</section>` : ""}
+  <div class="row"><button class="btn big" data-act="kstart">もう1周</button>${KS.wrong.length ? `<button class="btn sub big" data-act="kweak">苦手だけ</button>` : ""}<button class="btn sub big" data-act="home">ホームへ</button></div>`;
+}
+function sheetItem(it) { return it.o ? `<p style="margin:12px 0 2px;font-weight:700">${esc(it.o)}</p><p style="margin:0">${it.a.map(esc).join(" → ")}</p><p class="pnote" style="margin:2px 0 0">${esc(it.n)}</p>`
+  : `<p style="margin:12px 0 2px;font-weight:700">${esc(it.p)}</p><p style="margin:0"><span style="color:var(--acc)">書く：</span>${it.y.map(esc).join("・")}<br><span style="color:var(--em)">書かない：</span>${it.x.map(esc).join("・")}</p><p class="pnote" style="margin:2px 0 0">${esc(it.n)}</p>`; }
+function sheet() {
+  app.innerHTML = header() + `<section class="hero"><h1>骨組みシート</h1><p>書く順番と、各部分に必ず書くことの一覧です。書く前と書いた後に見返します。</p></section>
+  <section class="panel" style="display:block"><h3>順番</h3>${SK.filter(x => x.o).map(sheetItem).join("")}</section>
+  <section class="panel" style="display:block"><h3>必ず書くこと・書かないこと</h3>${SK.filter(x => x.p).map(sheetItem).join("")}</section>
+  <div class="row"><button class="btn big" data-act="kstart">骨組み暗記を1周する</button><button class="btn sub big" data-act="home">ホームへ</button></div>`;
+}
+function skAct(a, b) {
+  if (a === "kstart" || a === "kweak") { const miss = skStats().miss; let l = SK.map((_, i) => i); if (a === "kweak") l = l.filter(i => (miss[i] || 0) > 0); if (!l.length) return true; l = shuffle(l).sort((x, y) => (miss[y] || 0) - (miss[x] || 0)); KS = { list: l, k: 0, nok: 0, wrong: [], t0: Date.now() }; skLoad(); S.view = "skel"; render(); window.scrollTo(0, 0); return true; }
+  if (a === "ksheet") { S.view = "sheet"; render(); window.scrollTo(0, 0); return true; }
+  if (a === "kpick") { const j = +b.dataset.j; KS.pick.push(KS.pool[j]); KS.pool.splice(j, 1); if (!KS.pool.length) { const it = SK[KS.list[KS.k]]; skFinish(KS.pick.every((v, i) => v === it.a[i])); } render(); return true; }
+  if (a === "kundo") { if (KS.pick.length) KS.pool.push(KS.pick.pop()); render(); return true; }
+  if (a === "ksel") { const j = +b.dataset.j; KS.sel = KS.sel.includes(j) ? KS.sel.filter(x => x !== j) : KS.sel.concat(j); render(); return true; }
+  if (a === "kcheck") { const it = SK[KS.list[KS.k]]; skFinish(KS.opts.every((v, j) => it.y.includes(v) === KS.sel.includes(j))); render(); return true; }
+  if (a === "knext") { if (KS.k + 1 < KS.list.length) { KS.k++; skLoad(); render(); window.scrollTo(0, 0); } else { S.view = "skend"; render(); } return true; }
+  return false;
+}
+
 /* ---------- 論文とスライドの書き方（皮膚科4択と同じ流れ：ホーム → ステップ・章・単元 → 1問ずつ → 結果） ---------- */
 const MK = ["1", "2", "3", "4", "5"];
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -1803,8 +1887,9 @@ function home() {
   app.innerHTML = header() + `
   <section class="hero">
     <h1>書いて、直して、<span class="ox">書ける</span>ようになる。</h1>
-    <p>皮膚科の症例報告と学会発表を、<b>実際に書きながら</b>身に付けます。毎日：<b>直結ドリル</b>を何周か（1周3〜5分）＋<b>実践コース</b>を1ステップ＋<b>今日の5問</b>。</p>
+    <p>皮膚科の症例報告と学会発表を、<b>実際に書きながら</b>身に付けます。毎日：<b>骨組み暗記</b>と<b>直結ドリル</b>を何周か（各1周3〜5分）＋<b>実践コース</b>を1ステップ＋<b>今日の5問</b>。</p>
   </section>
+  ${skHtml()}
   ${drillHtml()}
   ${practiceHtml()}
   ${todayHtml()}
@@ -2007,7 +2092,7 @@ function end() {
   </section>`;
 }
 
-function render() { S.view === "home" ? home() : S.view === "quiz" ? quiz() : S.view === "work" ? work() : S.view === "model" ? model() : S.view === "step" ? step() : S.view === "drill" ? drill() : S.view === "drillend" ? drillEnd() : end(); if (S.view === "quiz") resetBar(); }
+function render() { S.view === "home" ? home() : S.view === "quiz" ? quiz() : S.view === "work" ? work() : S.view === "model" ? model() : S.view === "step" ? step() : S.view === "drill" ? drill() : S.view === "drillend" ? drillEnd() : S.view === "skel" ? skel() : S.view === "skend" ? skEnd() : S.view === "sheet" ? sheet() : end(); if (S.view === "quiz") resetBar(); }
 /* 問題画面のいちばん下のリセット（この問題／この単元を選ぶ） */
 function resetBar() { const q = QI[S.list[S.i]]; if (!q) return; const d = document.createElement("div"); d.className = "rbar";
   d.innerHTML = `<button type="button" class="ghost" data-act="rmenu">リセット</button><div class="rmenu" hidden><p>どちらをリセットしますか？（まだ解いていない状態に戻します）</p><button type="button" class="ghost" data-act="qclr">この問題をリセット</button><button type="button" class="ghost" data-act="uclr" data-u="${q.u}">この単元（${esc(UNITS[q.u][1])}）をリセット</button><button type="button" class="ghost" data-act="rmenu">やめる</button></div>`;
@@ -2031,7 +2116,7 @@ function next() {
 app.addEventListener("click", e => {
   const b = e.target.closest("[data-act]"); if (!b) return; const a = b.dataset.act;
   if (a === "home") { S.view = "home"; render(); window.scrollTo(0, 0); }
-  else if (workAct(a, b) || courseAct(a, b) || drillAct(a, b)) {}
+  else if (workAct(a, b) || courseAct(a, b) || drillAct(a, b) || skAct(a, b)) {}
   else if (a === "today5") { const k = "today5:" + todayKey(); if (validSes(k)) resumeOr(k, () => [], ""); else { const ids = todayIds(); if (ids.length) start(ids, "今日の5問", k); } }
   else if (a === "klv") { const n = +b.dataset.n, k = "k2:lv:" + n, lb = KN[n].replace("　", " "); if (validSes(k)) resumeOr(k, () => [], lb); else startAtYet(kIds(n), lb, k); }
   else if (a === "kf") { const c = b.dataset.c; resumeOr("k:f:" + c, () => KO.filter(q => q.f === c).map(q => q.id), FIELDS[c].name); }
@@ -2092,11 +2177,11 @@ document.addEventListener("keydown", e => {
 render();
 
 </script>
-<p class="offline">3版（直結ドリル（56問・1周3〜5分）・実践コース（10ステップ）・今日の5問を追加。4択149問はホーム下にまとめて残す）</p>
+<p class="offline">4版（骨組み暗記（並べ替え12問・全部えらぶ13問・骨組みシート）を追加）</p>
 <p class="offline" id="offline">オフライン利用：準備中…</p>
 <script>
 (function(){
-  var el=document.getElementById("offline"),C="paper4-v3";
+  var el=document.getElementById("offline"),C="paper4-v4";
   function ok(){el.innerHTML="オフライン利用：<b>準備OK</b>（電波がなくても使えます）"}
   if(!("serviceWorker" in navigator)){el.textContent="オフライン利用：この環境では使えません";return}
   var had=!!navigator.serviceWorker.controller,reloaded=false;
