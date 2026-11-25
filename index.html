@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>論文とスライドの書き方</title>
-<meta name="theme-color" content="#7a3b6e">
+<meta name="theme-color" content="#f7f7f8">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="論文スライド">
@@ -13,7 +13,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=BIZ+UDPGothic:wght@400;700&display=swap" media="print" onload="this.media='all'">
+
 <style>
 :root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 body{margin:0}
@@ -601,6 +601,88 @@ svg text.red{font-size:16px;fill:var(--maru);font-weight:700}
 .svgfig svg text.L{font-size:20px;font-weight:700}
 .svgfig svg text.M{font-size:17px}
 .svgfig svg text.S{font-size:15px}
+</style>
+<style>
+/* ---- モダン・シンプル（論文スライドアプリだけ）：白地・システム書体・藍1色・薄い枠のカード ---- */
+:root{
+  --paper:#f7f7f8; --grid:transparent; --card:#ffffff; --ink:#18181b; --muted:#6b7280; --line:#e5e7eb;
+  --acc:#4f46e5; --acc-soft:#eef2ff; --maru:#4f46e5; --maru-soft:#eef2ff; --batsu:#64748b; --batsu-soft:#f1f5f9;
+  --em:#e11d48; --em-soft:#fff1f2; --hl:#e0e7ff; --hl-fill:#f5f7ff;
+  --display:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic UI",Meiryo,sans-serif;
+  --body:var(--display);
+  --shadow:0 1px 2px rgba(16,24,40,.04),0 1px 3px rgba(16,24,40,.06);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#0c0c10; --card:#16161d; --ink:#ececf1; --muted:#9ca3af; --line:#2a2a35;
+  --acc:#818cf8; --acc-soft:#1e1b4b; --maru:#818cf8; --maru-soft:#1e1b4b; --batsu:#94a3b8; --batsu-soft:#1e2430;
+  --em:#fb7185; --em-soft:#3b0f1a; --hl:#312e81; --hl-fill:#17172a; --shadow:none}}
+body{background:var(--paper)!important;background-image:none!important;font-size:16px;line-height:1.75;-webkit-font-smoothing:antialiased;letter-spacing:.01em}
+h1,h2,h3{font-weight:700!important;letter-spacing:-.01em}
+.wrap{gap:16px}
+.top{padding-block:6px 2px}
+.brand .seal{transform:none;border:0;border-radius:10px;background:var(--acc);color:#fff;width:36px;height:36px;font-size:12px;font-weight:700}
+.brand b{font-size:17px;font-weight:700;letter-spacing:0}
+.brand small{letter-spacing:.02em}
+.hero{padding-block:12px 4px}
+.hero h1{font-size:clamp(24px,5.6vw,30px);line-height:1.35}
+.hero h1 .ox{color:var(--acc)}
+.hero p{font-size:15px;line-height:1.85}
+.total strong{font-weight:700}
+.meter{height:6px;background:var(--line)}
+.meter i{background:var(--acc)}
+.panel,.path,.search,.qcard,.resitem,.share,.review{background:var(--card);border:1px solid var(--line)!important;border-radius:16px;box-shadow:var(--shadow)}
+.path,.review,.share{padding:18px}
+.path h2,.review h2,.share h2{font-size:17px}
+.path.course[style]{border-color:var(--line)!important}
+.pstep{border-radius:12px;background:var(--paper);border:1px solid var(--line)}
+.pstep.cur{border:1.5px solid var(--acc)!important;background:var(--acc-soft)}
+.resitem{border-left:1px solid var(--line)!important}
+.btn{font-family:var(--body);font-weight:600;border-radius:10px;padding:11px 16px;font-size:15px;box-shadow:none}
+.btn.big{padding:13px 20px}
+.btn.sub{background:var(--card);border:1px solid var(--line);color:var(--ink)}
+.btn.sub:hover{background:var(--paper)}
+.ghost{border-radius:10px;padding:6px 12px;font-size:13px}
+.row{gap:8px}
+.qcard{padding:22px 20px}
+.qno{letter-spacing:.04em;font-weight:600}
+.qtext{font-weight:600;line-height:1.7}
+.mc{border:1px solid var(--line)!important;background:var(--card);border-radius:12px;box-shadow:var(--shadow)}
+.mc:hover{border-color:var(--acc)!important}
+.mc .no{font-family:var(--body);font-weight:700;font-size:15px;color:var(--muted);background:var(--paper);border-radius:8px;width:28px;height:28px;display:grid;place-items:center;line-height:1}
+.mc.right{border-color:var(--acc)!important;background:var(--acc-soft)}
+.mc.right .no{background:var(--acc);color:#fff}
+.mc.wrongp{border-color:var(--em)!important;background:var(--em-soft)}
+.mc.wrongp .no{background:var(--em);color:#fff}
+.mc .tag.ng{background:var(--em)}
+.verdict{border-radius:14px}
+.verdict.ng{background:var(--em-soft)}
+.verdict.ng .big{color:var(--em)}
+.verdict .big{font-weight:700;font-size:44px}
+.corebox{border-left:3px solid var(--acc);border-radius:10px;font-weight:600}
+.goro{background:var(--hl-fill)}
+.fig{background:var(--card);border-radius:14px}
+details.more>summary,.panel summary{font-weight:600!important}
+/* 図：強調（赤）は差し色のローズに */
+.svgfig .bx3,.svgfig .hx{fill:var(--em-soft)!important;stroke:var(--em)!important}
+.svgfig .ln.red{stroke:var(--em)!important}
+.svgfig .dot{fill:var(--em)!important}
+.svgfig svg text.red{fill:var(--em)!important}
+.svgfig .bx2{fill:var(--acc-soft)!important;stroke:var(--acc)!important}
+#rr path,marker#rr path{fill:var(--em)}
+textarea,input{border-radius:10px!important}
+.lint p{font-size:13px!important}
+</style>
+<style>
+.qhead .fl{color:var(--acc)!important}
+.meter i{background:var(--acc)!important}
+.qno{color:var(--muted)!important}
+.qcard{--fc:var(--acc)!important}
+.rrow,.resitem,details.more>summary{--fc:var(--acc)!important}
+.verdict .big{font-family:-apple-system,"Helvetica Neue",Arial,sans-serif!important}
+</style>
+<style>
+@media (prefers-reduced-motion:no-preference){.verdict .big{animation:fadein .25s ease-out}}
+@keyframes fadein{from{opacity:.2;transform:translateY(2px)}to{opacity:1;transform:none}}
 </style>
 <body>
 <div class="wrap" id="app"></div>
@@ -1630,7 +1712,7 @@ function searchResHtml() {
   return `<p class="srcount">「${esc(SQ)}」：<b>${ids.length}問</b>${ids.length > show.length ? `（上の${show.length}問を表示）` : ""}</p>${ids.length ? `<button class="btn" data-act="srun">この${ids.length}問をまとめて解く</button>` : ""}
   <ul class="srlist">${show.map(id => { const q = QI[id], f = FIELDS[q.f], r = store.res[id]; return `<li><button class="sritem" data-act="one" data-id="${id}" style="--fc:${f.color}"><span class="tag">${esc(f.short)}${r ? (r.ok ? "・○" : "・×") : ""}</span>${esc(q.q.replace(/\n.*$/s, "").slice(0, 80))}</button></li>`; }).join("")}</ul>`;
 }
-function searchHtml() { return `<section class="search"><label for="sbox" class="lbl">文字で探す</label><div class="srow"><input id="sbox" type="search" inputmode="search" enterkeyhint="search" placeholder="例：SIADH、ワルファリン、心房細動、ANCA" value="${esc(SQ)}" autocomplete="off"><button class="btn sub" data-act="sclear" ${SQ ? "" : "hidden"}>消す</button></div><div id="sres">${searchResHtml()}</div></section>`; }
+function searchHtml() { return `<section class="search"><label for="sbox" class="lbl">文字で探す</label><div class="srow"><input id="sbox" type="search" inputmode="search" enterkeyhint="search" placeholder="例：考察、STROBE、スライド、生成AI" value="${esc(SQ)}" autocomplete="off"><button class="btn sub" data-act="sclear" ${SQ ? "" : "hidden"}>消す</button></div><div id="sres">${searchResHtml()}</div></section>`; }
 document.addEventListener("input", e => { if (e.target && e.target.id === "sbox") { SQ = e.target.value; clearTimeout(window.__st); window.__st = setTimeout(() => { const r = document.getElementById("sres"); if (r) r.innerHTML = searchResHtml(); const c = document.querySelector('[data-act="sclear"]'); if (c) c.hidden = !SQ; }, 200); } });
 
 /* 解説の編集（自分の端末に保存：localStorage paper4-edits） */
@@ -1778,11 +1860,11 @@ document.addEventListener("keydown", e => {
 render();
 
 </script>
-<p class="offline">1版（初版：149問（添削59問）・お手本3本・実践ワーク（自動点検つき）・卒業課題）</p>
+<p class="offline">2版（モダン・シンプルな見た目に変更（記録はそのまま）。初版：149問・お手本3本・実践ワーク・卒業課題）</p>
 <p class="offline" id="offline">オフライン利用：準備中…</p>
 <script>
 (function(){
-  var el=document.getElementById("offline"),C="paper4-v1";
+  var el=document.getElementById("offline"),C="paper4-v2";
   function ok(){el.innerHTML="オフライン利用：<b>準備OK</b>（電波がなくても使えます）"}
   if(!("serviceWorker" in navigator)){el.textContent="オフライン利用：この環境では使えません";return}
   var had=!!navigator.serviceWorker.controller,reloaded=false;
