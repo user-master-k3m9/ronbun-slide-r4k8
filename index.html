@@ -1387,7 +1387,7 @@ const FEEL = /興味深|貴重|非常に|とても|ひどい|かなり|結構|�
 const OVER = /必ず|明らかになった|明らかにした|証明|確実に|間違いなく|断定/;
 const BRAND = /プレドニン|デュピクセント|デルモベート|リンデロン|アンテベート|エクア|ジャヌビア|グラクティブ|ネオーラル|ミノマイシン|バルトレックス|アレグラ|ビラノア|オルミエント|リンヴォック|サイバインコ|ヒュミラ|コセンティクス|トルツ|スキリージ|トレムフィア|イミフィンジ|オプジーボ|キイトルーダ/;
 function lintField(t, k, v) {
-  if (t === "prac") t = "case";
+  if (/^prac/.test(t)) t = "case";
   const out = [], s = (v || "").trim(); if (!s) return out;
   if (FEEL.test(s)) out.push(["ng", "感想や程度の言葉（「" + s.match(FEEL)[0] + "」）があります。数字・部位・所見で書きましょう"]);
   if (OVER.test(s)) out.push(["ng", "「" + s.match(OVER)[0] + "」は言いすぎです。1例・1研究なら「〜と考えられる」「〜の可能性がある」"]);
@@ -1535,30 +1535,32 @@ const STEPS = [
    fields: [["slidemin", "発表時間（分）", 1]], qs: ["スライドのタイトルの直し方", "結語スライドの直し方"], out: "slide" },
 ];
 let CS = 0;
-const cTab = () => (WD.course && WD.course.mode === "prac") ? "prac" : "case";
-const stepDone = i => STEPS[i].fields.every(([k]) => k === "slidemin" || wv(cTab(), k)) && !STEPS[i].fields.some(([k]) => lintField(cTab(), k, wv(cTab(), k)).some(x => x[0] === "ng"));
+const cTab = () => { const m = WD.course && WD.course.mode; return m && m.startsWith("prac") ? m : "case"; };
+const tabName = t => t === "case" ? "自分の症例" : (PRACS[t] || {}).name || "練習用の症例";
+const stepDone = (i, t) => { t = t || cTab(); return STEPS[i].fields.every(([k]) => k === "slidemin" || wv(t, k)) && !STEPS[i].fields.some(([k]) => lintField(t, k, wv(t, k)).some(x => x[0] === "ng")); };
+const caseDone = t => STEPS.every((_, i) => stepDone(i, t));
 const qByStem = p => { const q = Q.find(x => x.q.startsWith(p) || x.q.replace(/（[^）]*）/g, "").startsWith(p)); return q ? q.id : null; };
 function practiceHtml() {
   const n = STEPS.filter((_, i) => stepDone(i)).length, cur = Math.max(0, STEPS.findIndex((_, i) => !stepDone(i))), mode = WD.course && WD.course.mode;
   return `<section class="path course"><h2>実践コース：症例報告を1本書く（全10ステップ）</h2>
   <p class="pnote">1ステップ10分ほど。<b>書いて、その場で点検</b>しながら進めます。最後に症例報告の下書き・抄録・7分発表のスライド構成ができあがります。</p>
-  ${mode ? `<div class="meter" aria-hidden="true"><i style="width:${n * 10}%"></i></div><p class="pnote" style="margin-top:6px">${n} / 10 ステップ完了（${mode === "prac" ? "練習用の症例" : "自分の症例"}で進行中）</p>
+  ${mode ? `<div class="meter" aria-hidden="true"><i style="width:${n * 10}%"></i></div><p class="pnote" style="margin-top:6px">${n} / 10 ステップ完了（${esc(tabName(cTab()))}で進行中）</p>
     <div class="row"><button class="btn big" data-act="cstep" data-i="${n === 10 ? 9 : cur}">${n === 10 ? "できあがりを見る" : `ステップ${cur + 1}「${esc(STEPS[cur].t)}」へ`}</button></div>
     <details class="more"><summary>ステップを選ぶ・症例を切りかえる</summary><div class="rlist">${STEPS.map((s, i) => `<div class="rrow"><span>${stepDone(i) ? "✅" : "⬜"} ${i + 1}. ${esc(s.t)}</span><button class="ghost" data-act="cstep" data-i="${i}">開く</button></div>`).join("")}</div>
-    <p><button class="ghost" data-act="cmode" data-m="${mode === "prac" ? "case" : "prac"}">${mode === "prac" ? "自分の症例に切りかえる" : "練習用の症例に切りかえる"}</button>（書いた内容はそれぞれ別に残ります）</p></details>`
-  : `<div class="row"><button class="btn big" data-act="cmode" data-m="case">自分の症例で始める</button><button class="btn sub big" data-act="cmode" data-m="prac">練習用の症例で始める（症例がない人）</button></div>`}
+    <p>症例を切りかえる（書いた内容はそれぞれ別に残ります）：</p><div class="row">${["case"].concat(Object.keys(PRACS)).map(t => `<button class="${t === cTab() ? "btn" : "btn sub"}" data-act="cmode" data-m="${t}">${caseDone(t) ? "✅ " : ""}${esc(tabName(t))}</button>`).join("")}</div></details>`
+  : `<div class="row"><button class="btn big" data-act="cmode" data-m="case">自分の症例で始める</button><button class="btn sub big" data-act="cmode" data-m="prac">練習用の症例で始める（3例あり）</button></div>`}
   </section>`;
 }
 function step() {
   const s = STEPS[CS], tab = cTab(); WTAB = tab;
-  let h = header() + `<div class="qhead"><span class="fl">実践コース</span><span>${tab === "prac" ? "練習用の症例" : "自分の症例"}</span><span class="n">ステップ ${CS + 1} / 10</span></div>
+  let h = header() + `<div class="qhead"><span class="fl">実践コース</span><span>${esc(tabName(tab))}</span><span class="n">ステップ ${CS + 1} / 10</span></div>
   <div class="meter" aria-hidden="true"><i style="width:${(CS + 1) * 10}%"></i></div>
   <article class="qcard"><h2 style="font-size:21px">${CS + 1}. ${esc(s.t)}</h2>
   <div class="corebox"><span class="lbl">やること</span>${esc(s.goal)}</div>
   <div><span class="lbl" style="font-size:12px;color:var(--muted);font-weight:600">コツ</span><ol style="margin:4px 0 0;padding-left:1.4em">${s.tips.map(t => `<li>${esc(t)}</li>`).join("")}</ol></div>
   <div class="mc wrongp" style="cursor:default;grid-template-columns:1fr"><span><b style="color:var(--em)">× ダメな例</b><br>${esc(s.bad)}</span></div>
-  ${tab !== "prac" || (WD.course.shown || {})[CS] ? `<div class="mc right" style="cursor:default;grid-template-columns:1fr"><span><b style="color:var(--acc)">○ よい例${tab === "prac" ? "（自分の文と比べる）" : ""}</b><br>${esc(s.good)}</span></div>` : ""}
-  ${tab === "prac" ? `<div class="whybox"><span class="lbl">練習用の診療メモ（これを論文の文章に書き直す）</span><div class="body" style="font-size:15px">${nl(PRAC.memo)}</div></div>` : ""}
+  ${tab === "case" || ((WD.course.shown || {})[tab] || {})[CS] ? `<div class="mc right" style="cursor:default;grid-template-columns:1fr"><span><b style="color:var(--acc)">○ よい例${tab !== "case" ? "（自分の文と比べる）" : ""}</b><br>${esc(tab !== "case" ? PRACS[tab].good[CS] : s.good)}</span></div>` : ""}
+  ${tab !== "case" ? `<div class="whybox"><span class="lbl">練習用の診療メモ（これを論文の文章に書き直す）</span><div class="body" style="font-size:15px">${nl(PRACS[tab].memo)}</div></div>` : ""}
   <div class="whybox"><span class="lbl">お手本（別の架空症例：類天疱瘡）</span><div class="body" style="font-size:15px">${nl(s.model)}</div></div>
   <h3 style="font-size:17px;margin-top:4px">自分で書く</h3>`;
   s.fields.forEach(([k, label, rows]) => {
@@ -1567,7 +1569,7 @@ function step() {
       ? `<textarea id="w_${k}" data-wk="${k}" rows="${rows + 1}" style="width:100%;font:inherit;padding:10px;border:1px solid var(--line);background:var(--card);color:var(--ink)">${esc(v)}</textarea>`
       : `<input id="w_${k}" data-wk="${k}" value="${esc(v)}" style="width:100%;font:inherit;padding:10px;border:1px solid var(--line);background:var(--card);color:var(--ink)">`) + `<div id="lint_${k}" class="lint">${lintHtml(tab, k, v)}</div>`;
   });
-  if (tab === "prac" && !(WD.course.shown || {})[CS]) h += `<div class="row"><button class="btn sub" data-act="cshow">書いたら、よい例と比べる</button></div>`;
+  if (tab !== "case" && !((WD.course.shown || {})[tab] || {})[CS]) h += `<div class="row"><button class="btn sub" data-act="cshow">書いたら、よい例と比べる</button></div>`;
   if (s.out) h += `<div class="row"><button class="btn" data-act="cout">${s.out === "slide" ? "スライド構成を作る" : "症例報告の下書き全体を作る"}</button>${s.out === "case" ? `<button class="btn sub" data-act="cabs">学会抄録を作る</button>` : ""}</div>${WOUT ? `<textarea id="wout" rows="18" style="width:100%;font:inherit;font-size:15px;line-height:1.7;padding:10px;border:1px solid var(--line);background:var(--card);color:var(--ink)">${esc(WOUT)}</textarea><div class="row"><button class="btn sub" data-act="wcopy">コピー</button><button class="btn sub" data-act="wdl">ファイルに保存</button><button class="btn sub" data-act="wai">生成AI への英文化の指示文</button></div>` : ""}`;
   const ids = s.qs.map(qByStem).filter(Boolean);
   h += `<p class="pnote" style="margin:0">${stepDone(CS) ? "○ このステップは完了です。" : "全部の欄を書き、点検の × をなくすと完了になります（△ は直すとよい点）。"}</p>
@@ -1576,7 +1578,7 @@ function step() {
 }
 function courseAct(a, b) {
   if (a === "cmode") { WD.course = WD.course || {}; WD.course.mode = b.dataset.m; wSave(); CS = Math.max(0, STEPS.findIndex((_, i) => !stepDone(i))); WOUT = ""; S.view = "step"; render(); window.scrollTo(0, 0); return true; }
-  if (a === "cshow") { WD.course.shown = WD.course.shown || {}; WD.course.shown[CS] = 1; wSave(); render(); return true; }
+  if (a === "cshow") { WD.course.shown = WD.course.shown || {}; const st_ = WD.course.shown[cTab()] = (typeof WD.course.shown[cTab()] === "object" ? WD.course.shown[cTab()] : {}); st_[CS] = 1; wSave(); render(); return true; }
   if (a === "cstep") { CS = +b.dataset.i; WOUT = ""; S.view = "step"; render(); window.scrollTo(0, 0); return true; }
   if (a === "cquiz") { const ids = STEPS[CS].qs.map(qByStem).filter(Boolean); if (ids.length) start(ids, "ステップ" + (CS + 1) + "の確認"); return true; }
   if (a === "cout" || a === "cabs") { const t = cTab(); CT = t;
@@ -1781,7 +1783,7 @@ function skLoad() { const it = SK[KS.list[KS.k]]; KS.done = false; KS.ok = false
 function skFinish(ok) { KS.done = true; KS.ok = ok; const i = KS.list[KS.k]; WD.sk = WD.sk || {}; WD.sk.miss = WD.sk.miss || {}; if (ok) { KS.nok++; if (WD.sk.miss[i]) WD.sk.miss[i]--; } else { KS.wrong.push(i); WD.sk.miss[i] = (WD.sk.miss[i] || 0) + 2; } wSave(); }
 function skEnd() {
   const n = KS.list.length, d = WD.sk = WD.sk || {}, today = new Date().toDateString(), sec = Math.round((Date.now() - KS.t0) / 1000);
-  const P = KS.g === "slide" ? "s" : ""; if (n === SK.filter(x => gOf(x) === KS.g).length) { d[P + "laps"] = (d[P + "laps"] || 0) + 1; d[P + "todayLaps"] = (d[P + "day"] === today ? (d[P + "todayLaps"] || 0) : 0) + 1; d[P + "day"] = today; } wSave();
+  const P = KS.g === "slide" ? "s" : ""; if (n === SK.filter(x => gOf(x) === KS.g).length) { d[P + "laps"] = (d[P + "laps"] || 0) + 1; d[P + "todayLaps"] = (d[P + "day"] === today ? (d[P + "todayLaps"] || 0) : 0) + 1; d[P + "day"] = today; if (KS.nok === n) d[P + "perfect"] = 1; } wSave();
   app.innerHTML = header() + `<section class="hero"><h1>${KS.nok} / ${n}問 正解（${sec}秒）</h1><p>${KS.nok === n ? `全問正解。${GN[KS.g]}の骨組みは頭に入っています。` : "間違えた問題は次の周で先に出ます。"}</p></section>
   ${KS.wrong.length ? `<section class="panel" style="display:block"><h3>もう一度見ておくもの</h3>${KS.wrong.map(i => sheetItem(SK[i])).join("")}</section>` : ""}
   <div class="row"><button class="btn big" data-act="kstart" data-g="${KS.g}">もう1周</button>${KS.wrong.length ? `<button class="btn sub big" data-act="kweak" data-g="${KS.g}">苦手だけ</button>` : ""}<button class="btn sub big" data-act="home">ホームへ</button></div>`;
@@ -1806,6 +1808,160 @@ function skAct(a, b) {
   if (a === "knext") { if (KS.k + 1 < KS.list.length) { KS.k++; skLoad(); render(); window.scrollTo(0, 0); } else { S.view = "skend"; render(); } return true; }
   return false;
 }
+
+/* ---------- 段階（初級・中級・上級）と、中級・上級の教材 ----------
+   練習用の症例（3例）・考察トレーニング・スライドの目・自己採点表・生成AI 添削の指示文・段階の認定 */
+const PRACS = {
+ prac: { name: "練習1：尋常性天疱瘡", memo: "", good: [] },   /* 中身は下で STEPS と PRAC から入れる */
+ prac2: { name: "練習2：薬剤性過敏症症候群（DIHS）", memo: "【練習用の診療メモ（架空）】58歳男性。主訴：発熱と全身の発疹。\n・てんかんで5週前からカルバマゼピン 400 mg/日を内服開始\n・1週前〜38.5℃の発熱、顔が腫れ、体に赤い発疹が広がった\n・既往：てんかん（今回初めての治療）。ほかに内服なし\n・顔面の浮腫、体幹と四肢に融合する紅斑丘疹（体表の約70%）、頸部のリンパ節腫脹\n・白血球 13,800/µL（好酸球 15%＝約2,100/µL、異型リンパ球 6%）、AST 210 U/L、ALT 320 U/L\n・HHV-6 IgG 抗体価：受診時 40倍 → 3週後 1,280倍\n・生検：表皮の基底層の液状変性と個細胞壊死、真皮の血管のまわりにリンパ球と好酸球\n・カルバマゼピン中止、レベチラセタムに変更。プレドニゾロン 30 mg/日（0.5 mg/kg）→ 1週で解熱、2週で紅斑が退色、肝機能は6週で正常化。2週ごとに減量し3か月で中止、再燃なし",
+   good: ["抗てんかん薬の開始2〜6週後に発熱・皮疹・肝障害が出たら DIHS を考え、HHV-6 抗体価を2回測って再活性化を確かめる。",
+          "カルバマゼピン開始5週後に発症し HHV-6 の再活性化を確認した薬剤性過敏症症候群の1例",
+          "てんかんに対し初診の5週前からカルバマゼピン 400 mg/日を内服していた。1週前から 38.5℃の発熱と顔面の腫脹が出現し、体幹に紅斑が拡大した。",
+          "顔面の浮腫と、体幹・四肢に融合する紅斑丘疹を体表の約70%に認め、両側頸部のリンパ節が腫脹していた。",
+          "白血球 13,800/µL（好酸球 15%、異型リンパ球 6%）、AST 210 U/L、ALT 320 U/L。HHV-6 IgG 抗体価は受診時 40倍、3週後 1,280倍に上昇した。病理組織学的に基底層の液状変性と個細胞壊死、真皮血管周囲のリンパ球・好酸球浸潤を認めた。",
+          "カルバマゼピンを中止してレベチラセタムに変更し、プレドニゾロン 30 mg/日（0.5 mg/kg）を開始した。1週後に解熱し、肝機能は6週後に正常化した。2週ごとに漸減し、3か月で中止したが再燃はない。",
+          "PubMed と医中誌Web で「drug-induced hypersensitivity syndrome」「carbamazepine」「HHV-6」を用いて検索した範囲では、…（表1）。本例は発症時期・好酸球増多・HHV-6 再活性化が既報と一致していた。",
+          "DIHS では、原因薬に対する免疫反応に HHV-6 などのヘルペスウイルスの再活性化が加わり、経過が長引くと考えられている。本例はステロイドを3か月で中止できたが、観察期間が短く、遅れて出る自己免疫疾患の有無は今後の経過観察を要する。",
+          "薬剤性過敏症症候群（DIHS）は、特定の薬の開始から2〜6週後に発熱・皮疹・臓器障害で発症し、HHV-6 の再活性化を伴う重症薬疹である。",
+          "タイトル「HHV-6 抗体価は3週で 40倍から 1,280倍に上昇した」、本体に2回の値と日数だけを大きく。"] },
+ prac3: { name: "練習3：基底細胞癌", memo: "【練習用の診療メモ（架空）】78歳女性。主訴：鼻の黒いできもの。\n・3年前〜右鼻翼に黒いほくろのようなものがあった\n・半年前〜少し大きくなり、真ん中がただれて時々出血\n・既往：高血圧（アムロジピン 5 mg）、抗凝固薬なし\n・右鼻翼に 7×6 mm の黒色の結節、表面に光沢、中央に潰瘍\n・ダーモスコピー：樹枝状血管、青灰色の卵円形胞巣、潰瘍\n・全切除の病理：真皮内に基底細胞に似た細胞の胞巣、胞巣のふちで細胞が柵状に並ぶ、胞巣のまわりに裂隙。断端陰性\n・4 mm 離して切除、局所皮弁で再建。2年間再発なし",
+   good: ["高齢者の顔の黒い結節が出血・潰瘍化したら、ほくろと決めつけずダーモスコピーで基底細胞癌の所見を確認する。",
+          "色素性母斑として3年間経過観察されていた鼻翼の色素性基底細胞癌の1例",
+          "初診の3年前から右鼻翼に黒色の小結節があり、半年前から増大し、中央に潰瘍を生じて時々出血するようになった。",
+          "右鼻翼に 7×6 mm の黒色結節を認め、表面に光沢があり、中央に潰瘍を伴っていた。",
+          "ダーモスコピーで樹枝状血管、青灰色の卵円形胞巣、潰瘍化を認めた。病理組織学的に真皮内に基底細胞様細胞の胞巣があり、胞巣辺縁の柵状配列と周囲の裂隙を認めた。",
+          "4 mm のマージンで全切除し、局所皮弁で再建した。切除断端は陰性で、術後2年の時点で再発はない。",
+          "PubMed と医中誌Web で「pigmented basal cell carcinoma」「nevus」「dermoscopy」を用いて検索した範囲では、…（表1）。",
+          "色素性の基底細胞癌は臨床的に母斑と似るが、樹枝状血管や青灰色の卵円形胞巣はダーモスコピーでの手がかりになる。本報告は1例の経験である。",
+          "基底細胞癌は高齢者の顔面に多い皮膚癌で、転移はまれだが局所で破壊性に増大する。",
+          "タイトル「ダーモスコピーで樹枝状血管と青灰色胞巣を認めた」、本体にダーモスコピー像を大きく、所見に矢印。"] },
+};
+PRACS.prac.memo = PRAC.memo; PRACS.prac.good = STEPS.map(s => s.good);
+
+/* 考察トレーニング：架空の既報の要約を読み、比較の段落を書く → お手本と見比べる */
+const DISC = [
+ { t: "水疱性類天疱瘡：DPP-4 阻害薬の中止だけで軽快した例", self: "自験例：78歳男性、ビルダグリプチン2年、紅斑の乏しい水疱、NC16a 抗体陰性、中止＋ステロイド外用で8週で軽快、6か月再発なし",
+   refs: ["既報A（架空）：82歳女性、シタグリプチン1年。紅斑を伴う水疱。NC16a 抗体陽性。中止＋プレドニゾロン 30 mg/日で軽快。", "既報B（架空）：75歳男性、ビルダグリプチン3年。紅斑の乏しい水疱。NC16a 抗体陰性。中止＋外用のみで12週で軽快。", "既報C（架空）：80歳男性、リナグリプチン6か月。水疱と粘膜疹。NC16a 抗体陽性。中止＋プレドニゾロン＋免疫グロブリン大量療法で軽快。"],
+   model: "既報3例と自験例を比べると（表1）、紅斑の乏しい水疱で NC16a 抗体が陰性だった2例（既報B と自験例）は、いずれも薬の中止と外用のみで軽快していた。一方、NC16a 抗体が陽性の2例は全身治療を要した。症例数は少ないが、紅斑が乏しく NC16a 抗体陰性の例では、中止と外用で経過をみられる可能性がある。",
+   check: ["比べる観点（皮疹の型・抗体・治療・経過）をはっきり書いた", "自験例と似ている既報・違う既報を分けて書いた", "共通点から言えることを1文で書いた", "「症例数は少ない」など限界を添えた", "「必ず」「証明」を使わなかった"] },
+ { t: "DIHS：原因薬と発症までの期間", self: "自験例：58歳男性、カルバマゼピン開始5週後に発症、好酸球 2,100/µL、HHV-6 抗体価 40→1,280倍、プレドニゾロン 0.5 mg/kg で3か月で中止",
+   refs: ["既報A（架空）：45歳女性、ラモトリギン開始3週後に発症。HHV-6 再活性化あり。プレドニゾロン 1 mg/kg、6か月で中止。", "既報B（架空）：70歳男性、アロプリノール開始7週後に発症。腎障害あり。HHV-6 再活性化あり。プレドニゾロン 0.8 mg/kg、減量中に再燃。", "既報C（架空）：62歳女性、カルバマゼピン開始4週後に発症。HHV-6 再活性化なし。プレドニゾロン 0.5 mg/kg、2か月で中止。"],
+   model: "自験例を含む4例の発症は原因薬の開始から3〜7週後で（表1）、いずれも DIHS で知られる時期に一致していた。HHV-6 の再活性化を確認した3例のうち、既報B は減量中に再燃しており、再活性化を伴う例では減量を慎重に行う必要があると考えられた。本例は 0.5 mg/kg で開始し3か月で中止できたが、観察期間が短い点は限界である。",
+   check: ["発症までの期間を数字でまとめた", "HHV-6 再活性化の有無で分けて比べた", "既報の経過（再燃など）から臨床での注意を引き出した", "自験例の位置づけを書いた", "限界を添えた"] },
+];
+function discHtml(i) {
+  const d = DISC[i], v = ((WD.disc || {})[i] || {}).text || "", shown = ((WD.disc || {})[i] || {}).shown;
+  return `<article class="qcard"><h2 style="font-size:19px">考察トレーニング ${i + 1}：${esc(d.t)}</h2>
+  <div class="corebox"><span class="lbl">やること</span>下の既報3つ（架空）と自験例を比べ、考察の「既報との比較」の段落（3〜5文）を書く。</div>
+  <div class="whybox"><span class="lbl">自験例</span><div class="body">${esc(d.self)}</div></div>
+  <div class="whybox"><span class="lbl">既報（架空・練習用）</span><div class="body">${d.refs.map(esc).join("<br><br>")}</div></div>
+  <label class="lbl" style="font-weight:600">比較の段落を書く</label><textarea data-disc="${i}" rows="6" style="width:100%;font:inherit;padding:10px;border:1px solid var(--line);background:var(--card);color:var(--ink)">${esc(v)}</textarea>
+  <div class="lint" id="dlint_${i}">${lintHtml("case", "diff", v)}</div>
+  ${shown ? `<div class="mc right" style="cursor:default;grid-template-columns:1fr"><span><b style="color:var(--acc)">○ お手本の段落</b><br>${esc(d.model)}</span></div>
+  <div><b>自分の段落を確かめる</b>${d.check.map((c, j) => `<label style="display:flex;gap:10px;margin:8px 0"><input type="checkbox" data-dchk="${i}:${j}" ${(((WD.disc || {})[i] || {}).ck || {})[j] ? "checked" : ""} style="width:20px;height:20px;flex:none"><span>${esc(c)}</span></label>`).join("")}</div>`
+  : `<div class="row"><button class="btn" data-act="dshow" data-i="${i}" ${v.trim().length >= 40 ? "" : "disabled"}>書いたら、お手本と比べる（40字以上で押せます）</button></div>`}</article>`;
+}
+const discDone = i => { const x = (WD.disc || {})[i] || {}; return !!x.shown && DISC[i].check.every((_, j) => (x.ck || {})[j]); };
+
+/* スライドの目：2枚のスライドを見比べて、伝わるほうを選ぶ */
+const EYE = [
+ ["タイトル", { t: "病理所見", b: ["表皮下水疱", "好酸球浸潤"] }, { t: "表皮下水疱と好酸球浸潤を認めた", b: ["（病理写真を大きく）", "矢印：好酸球"] }, "B", "タイトルは見出しでなく結論の文に"],
+ ["文字の量", { t: "現病歴", b: ["3か月前　口腔内びらん", "1か月前　体幹に水疱", "歯科：含嗽薬で不変"] }, { t: "現病歴", b: ["患者は3か月前から口腔内にびらんが出現し、歯科を受診して含嗽薬を処方されたが改善せず、1か月前からは体幹にも水疱が出現したため当科を紹介された。"] }, "A", "時間と短い語句に。文章は口で話す"],
+ ["検査", { t: "抗デスモグレイン3抗体が高値だった", b: ["Dsg3　186 U/mL（基準 <20）", "Dsg1　陰性"] }, { t: "検査所見", b: ["WBC 7800 RBC 452 Hb 13.2 Plt 24.1 AST 22 ALT 18 LDH 190 BUN 15 Cr 0.7 CRP 0.3 Dsg3 186 Dsg1 <3 …（30項目）"] }, "A", "診断に関係する値だけを大きく"],
+ ["写真", { t: "緊満性水疱が体幹に多発", b: ["（写真1枚を大きく）", "矢印：緊満性水疱"] }, { t: "臨床写真", b: ["（小さな写真8枚）"] }, "A", "写真は大きく少なく、所見に矢印"],
+ ["色", { t: "治療群で再発が少なかった", b: ["治療群（青）20%", "対照群（灰）36%"] }, { t: "治療群で再発が少なかった", b: ["治療群（赤）20%", "対照群（緑）36%"] }, "A", "赤と緑の区別だけに頼らない"],
+ ["結語", { t: "ご清聴ありがとうございました", b: [] }, { t: "結語", b: ["治りにくい口腔内びらんでは、皮疹がなくても天疱瘡を考えて抗体を測る"] }, "B", "質疑の間も映る最後のスライドは結語に"],
+ ["考察", { t: "考察", b: ["（12列×10行の既報の表、小さな文字）"] }, { t: "中止と外用のみで軽快した既報は少ない", b: ["既報の表：年齢・治療・経過の3列", "最終行に自験例（太字）"] }, "B", "列を絞り、自験例を強調"],
+ ["グラフ", { t: "PASI の推移", b: ["（論文の図をそのまま縮小、凡例が小さい）"] }, { t: "16週で PASI は 24 から 6 に低下した", b: ["（伝えたい線だけ色、他は灰色）", "軸と単位を大きく"] }, "B", "伝えたい線だけ強調、文字は大きく"],
+ ["COI", { t: "COI 開示", b: ["筆頭演者：開示すべき COI はありません"] }, { t: "（COI のスライドなし）", b: ["表紙の次にすぐ症例"] }, "A", "表紙の次に COI を必ず置く"],
+ ["書体", { t: "症例：65歳 女性", b: ["ゴシック体・28ポイント"] }, { t: "症例：65歳 女性", b: ["細い明朝体・14ポイント"] }, "A", "ゴシック体で24ポイント以上"],
+ ["顔の写真", { t: "眼瞼の紅斑と腫脹", b: ["（眼の周りだけ切り取った写真）", "同意取得済み"] }, { t: "眼瞼の紅斑と腫脹", b: ["（顔全体の写真、目に細い黒線）"] }, "A", "必要な部分だけ切り取り、同意を得る"],
+ ["経過", { t: "中止と外用で8週後に水疱の新生は止まった", b: ["（経過図：横軸＝週、上に薬の帯、下に水疱の数）"] }, { t: "経過", b: ["X月 外用開始、X+1月 少し改善、X+2月 だいぶ改善…（文章8行）"] }, "A", "経過は図で、タイトルに結論"],
+];
+let ES = null;
+function eyeStats() { const d = WD.eye || {}; return { laps: d.laps || 0, best: d.best || 0 }; }
+const miniSlide = (s, lab) => `<div style="flex:1;min-width:140px"><div style="font-size:12px;color:var(--muted);margin-bottom:4px">${lab}</div><div style="aspect-ratio:16/9;border:1px solid var(--line);border-radius:8px;background:var(--card);padding:8px 10px;overflow:hidden;box-shadow:var(--shadow)"><div style="font-weight:700;font-size:13px;line-height:1.35;border-bottom:1px solid var(--line);padding-bottom:4px;margin-bottom:4px">${esc(s.t)}</div>${s.b.map(x => `<div style="font-size:11px;line-height:1.45;color:var(--ink)">${esc(x)}</div>`).join("")}</div></div>`;
+function eye() {
+  const o = EYE[ES.list[ES.k]], sw = ES.sw[ES.list[ES.k]], it = sw ? [o[0], o[2], o[1], o[3] === "A" ? "B" : "A", o[4]] : o;
+  let h = header() + `<div class="qhead"><span class="fl">スライドの目</span><span>${esc(it[0])}</span><span class="n">${ES.k + 1} / ${ES.list.length}</span></div>
+  <div class="meter" aria-hidden="true"><i style="width:${(ES.k + (ES.ans ? 1 : 0)) / ES.list.length * 100}%"></i></div>
+  <article class="qcard"><div class="qtext">伝わるのはどちらのスライド？</div><div style="display:flex;gap:12px;flex-wrap:wrap">${miniSlide(it[1], "A")}${miniSlide(it[2], "B")}</div>`;
+  if (!ES.ans) h += `<div class="row" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><button class="btn big" data-act="eans" data-v="A">A</button><button class="btn big" data-act="eans" data-v="B">B</button></div>`;
+  else { const ok = ES.ans === it[3]; h += `<div class="verdict ${ok ? "ok" : "ng"}"><span class="big">${ok ? "○" : "×"}</span><div><h3>正解は ${it[3]}</h3><p>${esc(it[4])}</p></div></div><div class="qnav"><button class="btn big" data-act="enext">${ES.k + 1 < ES.list.length ? "次へ" : "結果を見る"}</button></div>`; }
+  app.innerHTML = h + `</article>`;
+}
+function eyeAct(a, b) {
+  if (a === "estart") { ES = { list: shuffle(EYE.map((_, i) => i)), k: 0, ans: null, ok: 0, sw: EYE.map(() => Math.random() < 0.5) }; S.view = "eye"; render(); window.scrollTo(0, 0); return true; }
+  if (a === "eans") { if (ES.ans) return true; ES.ans = b.dataset.v; const o = EYE[ES.list[ES.k]], right = ES.sw[ES.list[ES.k]] ? (o[3] === "A" ? "B" : "A") : o[3]; if (ES.ans === right) ES.ok++; render(); return true; }
+  if (a === "enext") { if (ES.k + 1 < ES.list.length) { ES.k++; ES.ans = null; render(); window.scrollTo(0, 0); } else { const d = WD.eye = WD.eye || {}; d.laps = (d.laps || 0) + 1; d.best = Math.max(d.best || 0, ES.ok); wSave(); S.view = "levels"; LV = 3; render(); window.scrollTo(0, 0); alert(`スライドの目：${ES.ok} / ${EYE.length}問 正解`); } return true; }
+  return false;
+}
+
+/* 自己採点表（上級）：自分の症例の論文とスライドを、項目ごとに「できている／まだ」で採点 */
+const RUB = {
+ paper: ["伝えたいこと1文が、タイトル・考察の1段落目・結語で一致している", "タイトルに病名と本例の特徴があり、評価の言葉がない", "緒言は3〜5文で、最後が「〜の1例を報告する」", "症例は事実だけで、時間の順になっている", "皮疹は部位・分布・大きさ・性状・数で書いた", "検査・病理は診断を支える値と除外の根拠に絞った", "治療は一般名・量・期間、経過は何週後に何がどうなったか", "考察の1段落目で本例の特徴を言い切った", "既報は検索方法を示し、表で比べ、共通点と違いから言えることを書いた", "しくみは控えめな強さで、1例から一般化していない", "限界を具体的に書いた", "図は弱拡大→強拡大、スケールバー、矢印、図の説明だけで分かる", "個人情報（名前・イニシャル・年月日・他院名・画像の ID）がない", "同意・利益相反・文献の書式が投稿規定どおり", "声に出して読み、1文が長すぎる所・用語のゆれを直した"],
+ slide: ["全スライドのタイトルが結論の文になっている", "表紙の次に COI がある", "1枚1メッセージ、文字は24ポイント以上・7行程度まで", "臨床写真は大きく、所見に矢印と短い言葉", "検査は関係する値だけ、異常値を強調", "病理は弱拡大→強拡大、スケールバー", "経過図がある（横軸＝時間、薬の帯）", "考察は列を絞った表と、言えること", "最後のスライドが結語（伝えたいこと）", "色は1〜2色の強調、赤と緑に頼らない", "個人情報（日付・他院名・顔・画像の番号）を確認した", "時間を計って通し練習し、時間内に終わった", "予想される質問と答えを用意した"],
+};
+function rubHtml(k) { const r = (WD.rub || {})[k] || {}, n = RUB[k].filter((_, i) => r[i]).length;
+  return `<section class="panel" style="display:block"><h3>${k === "paper" ? "論文" : "スライド"}の自己採点表（${n} / ${RUB[k].length}）</h3><p class="pnote">自分の症例で作ったものを見ながら、できている項目にチェック。全部できたら、指導医には最終確認だけを頼めます。</p>${RUB[k].map((t, i) => `<label style="display:flex;gap:10px;margin:9px 0;cursor:pointer"><input type="checkbox" data-rub="${k}:${i}" ${r[i] ? "checked" : ""} style="width:20px;height:20px;flex:none;margin-top:3px"><span>${esc(t)}</span></label>`).join("")}</section>`; }
+const rubDone = k => RUB[k].every((_, i) => ((WD.rub || {})[k] || {})[i]);
+function aiReviewPrompt() {
+  return `【生成AI に添削を頼む指示文（コピーして使う）】
+※ 患者の名前・イニシャル・ID・年月日・施設名・写真は入れない。AI の指摘は参考にとどめ、最終判断は自分と指導医で行う。
+
+あなたは皮膚科の症例報告を査読する指導医です。下の和文の症例報告の下書きを、次の観点で添削してください。
+1. 伝えたいこと（take-home message）が、タイトル・考察・結語で一致しているか
+2. 症例に解釈が混ざっていないか、皮疹の記載（部位・分布・大きさ・性状・数）が十分か
+3. 考察：本例の特徴を最初に言い切っているか、既報との比較から言えることが書かれているか、1例から一般化していないか、限界があるか
+4. 文章：1文が長すぎる所、用語のゆれ、感想や程度の言葉、言いすぎ
+5. 足りない情報（鑑別の根拠、薬の量や期間、経過の時間など）
+守ること：事実や数値を作らない。文献を新しく作らない（挙げる場合は「要確認」と書く）。指摘は「場所 → 問題 → 直し方の例」の形で、重要な順に10個まで。
+
+--- 下書き ---
+（ここに下書きを貼る）`;
+}
+
+/* 段階の認定 */
+const lvStep = n => { const qs = Q.filter(q => q.lv === n); return qs.length ? qs.filter(q => store.res[q.id] && store.res[q.id].ok).length / qs.length : 0; };
+function lvItems() {
+  const sk = WD.sk || {}, dr = WD.drill || {}, cases = ["case"].concat(Object.keys(PRACS)).filter(caseDone), pracs = Object.keys(PRACS).filter(caseDone), c = WD.check || {};
+  return {
+   1: [[!!sk.perfect, "論文の骨組みを全問正解で1周", "kstart", "paper"], [!!sk.sperfect, "スライドの骨組みを全問正解で1周", "kstart", "slide"], [!!(dr.best && dr.best.ok >= Math.ceil(DR.length * 0.9)), `直結ドリルで9割以上（${Math.ceil(DR.length * 0.9)}問）の周`, "dstart"], [cases.length >= 1, "実践コースを1症例で完了（10ステップ）", "home"], [lvStep(1) >= 0.8, `4択ステップ1を8割（いま ${Math.round(lvStep(1) * 100)}%）`, "klv", 1]],
+   2: [[cases.length >= 3, `実践コースを3症例で完了（病気の違う練習症例を含む／いま ${cases.length}症例）`, "home"], [discDone(0) && discDone(1), "考察トレーニング2題（書く → お手本と比べる → 確認項目すべて）", "lv2"], [lvStep(3) >= 0.8, `4択ステップ3（添削）を8割（いま ${Math.round(lvStep(3) * 100)}%）`, "klv", 3], [!!(dr.best && dr.best.ok === DR.length), "直結ドリルを全問正解", "dstart"]],
+   3: [[(WD.eye || {}).best >= Math.ceil(EYE.length * 0.9), `スライドの目で9割以上（${Math.ceil(EYE.length * 0.9)}/${EYE.length}）`, "estart"], [caseDone("case"), "自分の症例で実践コースを完了", "home"], [rubDone("paper"), "論文の自己採点表をすべて「できている」", "lv3"], [rubDone("slide"), "スライドの自己採点表をすべて「できている」", "lv3"], [CHECKS.paper.every((_, i) => c["paper" + i]) && CHECKS.slide.every((_, i) => c["slide" + i]), "提出前・発表前チェックリストをすべて", "wcheck"], [lvStep(2) >= 0.8, `4択ステップ2を8割（いま ${Math.round(lvStep(2) * 100)}%）`, "klv", 2]],
+  };
+}
+const LVN = { 1: "初級：ひとりで初稿を書ける", 2: "中級：手直しの少ない初稿", 3: "上級：指導医は最終確認だけ" };
+const lvPassed = n => lvItems()[n].every(x => x[0]);
+const curLevel = () => lvPassed(1) ? (lvPassed(2) ? (lvPassed(3) ? 4 : 3) : 2) : 1;
+function levelCardHtml() {
+  const cur = curLevel();
+  return `<section class="path course"><h2>いまの段階：${cur === 4 ? "上級 認定 🎓" : LVN[cur]}</h2>
+  <p class="pnote">初級＝症例報告と発表の初稿を自分で書ける。中級＝指導医の手直しが少ない初稿。上級＝和文の症例報告と地方会発表を一人で仕上げ、指導医は最終確認だけ。</p>
+  <div class="row">${[1, 2, 3].map(n => { const it = lvItems()[n], d = it.filter(x => x[0]).length; return `<button class="${n === cur ? "btn" : "btn sub"}" data-act="lvopen" data-n="${n}">${lvPassed(n) ? "✅ " : ""}${["", "初級", "中級", "上級"][n]}（${d}/${it.length}）</button>`; }).join("")}</div></section>`;
+}
+let LV = 1;
+function levels() {
+  const it = lvItems()[LV];
+  let h = header() + `<section class="hero"><h1>${LVN[LV]}</h1><p>${LV === 1 ? "型を覚え、1本を自分で書き上げる段階。毎日：骨組み暗記・直結ドリルを何周か＋実践コースを1ステップ。" : LV === 2 ? "病気が違っても書けるように、練習症例を増やし、考察の中身（既報と比べて言えること）を作る練習をする段階。" : "自分の症例で1本仕上げ、自己採点表とチェックリストで見直す段階。ここまでできれば、指導医には最終確認だけを頼めます。"}</p></section>
+  <div class="row">${[1, 2, 3].map(n => `<button class="${n === LV ? "btn" : "btn sub"}" data-act="lvopen" data-n="${n}">${lvPassed(n) ? "✅ " : ""}${["", "初級", "中級", "上級"][n]}</button>`).join("")}</div>
+  <section class="panel" style="display:block"><h3>この段階の課題（${it.filter(x => x[0]).length} / ${it.length}）</h3>${it.map(([ok, t, act, arg]) => `<div class="rrow" style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin:8px 0"><span>${ok ? "✅" : "⬜"} ${esc(t)}</span>${act && act !== "lv2" && act !== "lv3" ? `<button class="ghost" data-act="${act}" ${act === "kstart" ? `data-g="${arg}"` : act === "klv" ? `data-n="${arg}"` : ""}>${act === "home" ? "ホームへ" : "やる"}</button>` : ""}</div>`).join("")}</section>`;
+  if (LV === 2) h += DISC.map((_, i) => discHtml(i)).join("");
+  if (LV === 3) h += `<section class="panel" style="display:block"><h3>スライドの目（${EYE.length}問）</h3><p class="pnote">2枚のスライドを見比べ、伝わるほうを選ぶ。最高 ${eyeStats().best}/${EYE.length}問。</p><button class="btn" data-act="estart">はじめる</button></section>${rubHtml("paper")}${rubHtml("slide")}
+  <section class="panel" style="display:block"><h3>生成AI に添削を頼む</h3><p class="pnote">指導医に見せる前の見直しに。個人情報は入れないでください。</p><textarea id="wout" rows="12" style="width:100%;font:inherit;font-size:14px;padding:10px;border:1px solid var(--line);background:var(--card);color:var(--ink)">${esc(aiReviewPrompt())}</textarea><div class="row"><button class="btn sub" data-act="wcopy">コピー</button></div></section>
+  <section class="panel" style="display:block"><h3>このアプリの対象外</h3><p>英文誌への投稿と原著論文（研究）は、このアプリだけで一人で仕上げるところまでは扱いません。英文は英文校正、原著は研究計画・倫理審査・統計の段階から指導者と進めてください（型と注意点は4択と骨組みに入っています）。</p></section>`;
+  app.innerHTML = h;
+}
+function lvAct(a, b) {
+  if (a === "lvopen") { LV = +b.dataset.n; S.view = "levels"; render(); window.scrollTo(0, 0); return true; }
+  if (a === "dshow") { const i = +b.dataset.i; WD.disc = WD.disc || {}; WD.disc[i] = WD.disc[i] || {}; WD.disc[i].shown = 1; wSave(); render(); return true; }
+  if (a === "wcheck") { WTAB = "check"; WOUT = ""; S.view = "work"; render(); window.scrollTo(0, 0); return true; }
+  return eyeAct(a, b);
+}
+document.addEventListener("input", e => { const el = e.target; if (el && el.dataset && el.dataset.disc !== undefined) { const i = +el.dataset.disc; WD.disc = WD.disc || {}; WD.disc[i] = WD.disc[i] || {}; WD.disc[i].text = el.value; wSave(); const L = document.getElementById("dlint_" + i); if (L) L.innerHTML = lintHtml("case", "diff", el.value); const bt = document.querySelector(`[data-act="dshow"][data-i="${i}"]`); if (bt) bt.disabled = el.value.trim().length < 40; } });
+document.addEventListener("change", e => { const el = e.target; if (!el || !el.dataset) return;
+  if (el.dataset.dchk) { const [i, j] = el.dataset.dchk.split(":"); WD.disc = WD.disc || {}; WD.disc[i] = WD.disc[i] || {}; WD.disc[i].ck = WD.disc[i].ck || {}; WD.disc[i].ck[j] = el.checked; wSave(); }
+  if (el.dataset.rub) { const [k, i] = el.dataset.rub.split(":"); WD.rub = WD.rub || {}; WD.rub[k] = WD.rub[k] || {}; WD.rub[k][i] = el.checked; wSave(); render(); } });
 
 /* ---------- 論文とスライドの書き方（皮膚科4択と同じ流れ：ホーム → ステップ・章・単元 → 1問ずつ → 結果） ---------- */
 const MK = ["1", "2", "3", "4", "5"];
@@ -1911,6 +2067,7 @@ function home() {
     <h1>書いて、直して、<span class="ox">書ける</span>ようになる。</h1>
     <p>皮膚科の症例報告と学会発表を、<b>実際に書きながら</b>身に付けます。毎日：<b>骨組み暗記</b>と<b>直結ドリル</b>を何周か（各1周3〜5分）＋<b>実践コース</b>を1ステップ＋<b>今日の5問</b>。</p>
   </section>
+  ${levelCardHtml()}
   ${skHtml()}
   ${drillHtml()}
   ${practiceHtml()}
@@ -1919,7 +2076,6 @@ function home() {
     <div class="total"><span><strong>${s.ok}</strong> / ${s.n}問 正解ずみ</span><span>${pct}%</span></div>
     <div class="meter" aria-hidden="true"><i style="width:${pct}%"></i></div>
   </section>
-  ${gradHtml()}
   ${modelHtml()}
   ${workCardHtml()}
   <details class="panel"><summary>4択をまとめて解く・検索（全${s.n}問）</summary>
@@ -2114,7 +2270,7 @@ function end() {
   </section>`;
 }
 
-function render() { S.view === "home" ? home() : S.view === "quiz" ? quiz() : S.view === "work" ? work() : S.view === "model" ? model() : S.view === "step" ? step() : S.view === "drill" ? drill() : S.view === "drillend" ? drillEnd() : S.view === "skel" ? skel() : S.view === "skend" ? skEnd() : S.view === "sheet" ? sheet() : end(); if (S.view === "quiz") resetBar(); }
+function render() { S.view === "home" ? home() : S.view === "quiz" ? quiz() : S.view === "work" ? work() : S.view === "model" ? model() : S.view === "step" ? step() : S.view === "drill" ? drill() : S.view === "drillend" ? drillEnd() : S.view === "skel" ? skel() : S.view === "skend" ? skEnd() : S.view === "sheet" ? sheet() : S.view === "levels" ? levels() : S.view === "eye" ? eye() : end(); if (S.view === "quiz") resetBar(); }
 /* 問題画面のいちばん下のリセット（この問題／この単元を選ぶ） */
 function resetBar() { const q = QI[S.list[S.i]]; if (!q) return; const d = document.createElement("div"); d.className = "rbar";
   d.innerHTML = `<button type="button" class="ghost" data-act="rmenu">リセット</button><div class="rmenu" hidden><p>どちらをリセットしますか？（まだ解いていない状態に戻します）</p><button type="button" class="ghost" data-act="qclr">この問題をリセット</button><button type="button" class="ghost" data-act="uclr" data-u="${q.u}">この単元（${esc(UNITS[q.u][1])}）をリセット</button><button type="button" class="ghost" data-act="rmenu">やめる</button></div>`;
@@ -2138,7 +2294,7 @@ function next() {
 app.addEventListener("click", e => {
   const b = e.target.closest("[data-act]"); if (!b) return; const a = b.dataset.act;
   if (a === "home") { S.view = "home"; render(); window.scrollTo(0, 0); }
-  else if (workAct(a, b) || courseAct(a, b) || drillAct(a, b) || skAct(a, b)) {}
+  else if (workAct(a, b) || courseAct(a, b) || drillAct(a, b) || skAct(a, b) || lvAct(a, b)) {}
   else if (a === "today5") { const k = "today5:" + todayKey(); if (validSes(k)) resumeOr(k, () => [], ""); else { const ids = todayIds(); if (ids.length) start(ids, "今日の5問", k); } }
   else if (a === "klv") { const n = +b.dataset.n, k = "k2:lv:" + n, lb = KN[n].replace("　", " "); if (validSes(k)) resumeOr(k, () => [], lb); else startAtYet(kIds(n), lb, k); }
   else if (a === "kf") { const c = b.dataset.c; resumeOr("k:f:" + c, () => KO.filter(q => q.f === c).map(q => q.id), FIELDS[c].name); }
@@ -2199,11 +2355,11 @@ document.addEventListener("keydown", e => {
 render();
 
 </script>
-<p class="offline">5版（スライドの骨組み（並べ替え9問・全部えらぶ11問・シート）を追加。骨組み暗記を論文とスライドに分割）</p>
+<p class="offline">6版（段階（初級・中級・上級）を追加：練習症例3例、考察トレーニング、スライドの目、自己採点表、生成AI 添削の指示文）</p>
 <p class="offline" id="offline">オフライン利用：準備中…</p>
 <script>
 (function(){
-  var el=document.getElementById("offline"),C="paper4-v5";
+  var el=document.getElementById("offline"),C="paper4-v6";
   function ok(){el.innerHTML="オフライン利用：<b>準備OK</b>（電波がなくても使えます）"}
   if(!("serviceWorker" in navigator)){el.textContent="オフライン利用：この環境では使えません";return}
   var had=!!navigator.serviceWorker.controller,reloaded=false;
