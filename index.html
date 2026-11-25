@@ -1392,9 +1392,9 @@ function lintField(t, k, v) {
   if (FEEL.test(s)) out.push(["ng", "感想や程度の言葉（「" + s.match(FEEL)[0] + "」）があります。数字・部位・所見で書きましょう"]);
   if (OVER.test(s)) out.push(["ng", "「" + s.match(OVER)[0] + "」は言いすぎです。1例・1研究なら「〜と考えられる」「〜の可能性がある」"]);
   if (/\d{4}\s*年\s*\d{1,2}\s*月\s*\d{1,2}\s*日|\d{4}\/\d{1,2}\/\d{1,2}/.test(s)) out.push(["ng", "日付は年月までにしましょう（個人の特定を防ぐ）"]);
-  if (/[A-Z]\.\s?[A-Z]\.|様|さん|ID|カルテ番号|病院|医院|クリニック/.test(s) && !/近医|前医/.test(s)) out.push(["ng", "名前・イニシャル・ID・他院の名前に見える語があります。「近医」「前医」などに"]);
+  if (/[A-Z]\.\s?[A-Z]\.|(?<![同仕模多異])様(?!々)|[一-龯ァ-ヶ]さん|\bID\b|カルテ番号|病院|医院|クリニック/.test(s) && !/近医|前医|当院|当科/.test(s)) out.push(["ng", "名前・イニシャル・ID・他院の名前に見える語があります。「近医」「前医」などに"]);
   if (BRAND.test(s)) out.push(["mid", "「" + s.match(BRAND)[0] + "」は商品名です。論文では一般名で書きます"]);
-  const longS = s.split(/[。．]/).filter(x => x.replace(/\s/g, "").length > 80);
+  const longS = s.split(/[。．]/).filter(x => { const y = x.replace(/\s/g, ""); return y.replace(/[\x00-\x7f]/g, "").length + y.replace(/[^\x00-\x7f]/g, "").length * 0.4 > 80; });
   if (longS.length) out.push(["mid", "80字を超える文があります。1文1つの内容に分けましょう"]);
   if (t === "case") {
     if (k === "msg") { if (/まれ|珍し|稀/.test(s) && s.length < 30) out.push(["mid", "「まれ」だけでは学びになりません。読者が明日使える行動（〜では〇〇を考える）を入れましょう"]); if (/経験した|報告する/.test(s)) out.push(["mid", "「〜を経験した」ではなく、伝えたい中身そのものを1文に"]); }
@@ -1858,10 +1858,11 @@ function discHtml(i) {
   <label class="lbl" style="font-weight:600">比較の段落を書く</label><textarea data-disc="${i}" rows="6" style="width:100%;font:inherit;padding:10px;border:1px solid var(--line);background:var(--card);color:var(--ink)">${esc(v)}</textarea>
   <div class="lint" id="dlint_${i}">${lintHtml("case", "diff", v)}</div>
   ${shown ? `<div class="mc right" style="cursor:default;grid-template-columns:1fr"><span><b style="color:var(--acc)">○ お手本の段落</b><br>${esc(d.model)}</span></div>
-  <div><b>自分の段落を確かめる</b>${d.check.map((c, j) => `<label style="display:flex;gap:10px;margin:8px 0"><input type="checkbox" data-dchk="${i}:${j}" ${(((WD.disc || {})[i] || {}).ck || {})[j] ? "checked" : ""} style="width:20px;height:20px;flex:none"><span>${esc(c)}</span></label>`).join("")}</div>`
+  <div id="dauto_${i}">${autoHtml("自動判定", autoDisc(i))}</div>
+  <div><b>自分でも見直す（判定には使いません）</b>${d.check.map((c, j) => `<label style="display:flex;gap:10px;margin:8px 0"><input type="checkbox" data-dchk="${i}:${j}" ${(((WD.disc || {})[i] || {}).ck || {})[j] ? "checked" : ""} style="width:20px;height:20px;flex:none"><span>${esc(c)}</span></label>`).join("")}</div>`
   : `<div class="row"><button class="btn" data-act="dshow" data-i="${i}" ${v.trim().length >= 40 ? "" : "disabled"}>書いたら、お手本と比べる（40字以上で押せます）</button></div>`}</article>`;
 }
-const discDone = i => { const x = (WD.disc || {})[i] || {}; return !!x.shown && DISC[i].check.every((_, j) => (x.ck || {})[j]); };
+const discDone = i => !!(((WD.disc || {})[i] || {}).shown) && allOk(autoDisc(i));
 
 /* スライドの目：2枚のスライドを見比べて、伝わるほうを選ぶ */
 const EYE = [
@@ -1927,8 +1928,8 @@ function lvItems() {
   const sk = WD.sk || {}, dr = WD.drill || {}, cases = ["case"].concat(Object.keys(PRACS)).filter(caseDone), pracs = Object.keys(PRACS).filter(caseDone), c = WD.check || {};
   return {
    1: [[!!sk.perfect, "論文の骨組みを全問正解で1周", "kstart", "paper"], [!!sk.sperfect, "スライドの骨組みを全問正解で1周", "kstart", "slide"], [!!(dr.best && dr.best.ok >= Math.ceil(DR.length * 0.9)), `直結ドリルで9割以上（${Math.ceil(DR.length * 0.9)}問）の周`, "dstart"], [cases.length >= 1, "実践コースを1症例で完了（10ステップ）", "home"], [lvStep(1) >= 0.8, `4択ステップ1を8割（いま ${Math.round(lvStep(1) * 100)}%）`, "klv", 1]],
-   2: [[cases.length >= 3, `実践コースを3症例で完了（病気の違う練習症例を含む／いま ${cases.length}症例）`, "home"], [discDone(0) && discDone(1), "考察トレーニング2題（書く → お手本と比べる → 確認項目すべて）", "lv2"], [lvStep(3) >= 0.8, `4択ステップ3（添削）を8割（いま ${Math.round(lvStep(3) * 100)}%）`, "klv", 3], [!!(dr.best && dr.best.ok === DR.length), "直結ドリルを全問正解", "dstart"]],
-   3: [[(WD.eye || {}).best >= Math.ceil(EYE.length * 0.9), `スライドの目で9割以上（${Math.ceil(EYE.length * 0.9)}/${EYE.length}）`, "estart"], [caseDone("case"), "自分の症例で実践コースを完了", "home"], [rubDone("paper"), "論文の自己採点表をすべて「できている」", "lv3"], [rubDone("slide"), "スライドの自己採点表をすべて「できている」", "lv3"], [CHECKS.paper.every((_, i) => c["paper" + i]) && CHECKS.slide.every((_, i) => c["slide" + i]), "提出前・発表前チェックリストをすべて", "wcheck"], [lvStep(2) >= 0.8, `4択ステップ2を8割（いま ${Math.round(lvStep(2) * 100)}%）`, "klv", 2]],
+   2: [[cases.length >= 3, `実践コースを3症例で完了（病気の違う練習症例を含む／いま ${cases.length}症例）`, "home"], [discDone(0) && discDone(1), "考察トレーニング2題（書く → お手本と比べる → 自動判定すべて合格）", "lv2"], [lvStep(3) >= 0.8, `4択ステップ3（添削）を8割（いま ${Math.round(lvStep(3) * 100)}%）`, "klv", 3], [!!(dr.best && dr.best.ok === DR.length), "直結ドリルを全問正解", "dstart"]],
+   3: [[(WD.eye || {}).best >= Math.ceil(EYE.length * 0.9), `スライドの目で9割以上（${Math.ceil(EYE.length * 0.9)}/${EYE.length}）`, "estart"], [caseDone("case"), "自分の症例で実践コースを完了", "home"], [allOk(autoPaper("case")), "自分の症例の論文が自動採点ですべて合格", "lv3"], [allOk(autoSlide()), "自分のスライド構成が自動採点ですべて合格", "lv3"], [CERT.every((_, i) => ((WD.cert || {})[i] || {}).pass), "上級認定テスト4題すべて合格", "lv3"], [lvStep(2) >= 0.8, `4択ステップ2を8割（いま ${Math.round(lvStep(2) * 100)}%）`, "klv", 2]],
   };
 }
 const LVN = { 1: "初級：ひとりで初稿を書ける", 2: "中級：手直しの少ない初稿", 3: "上級：指導医は最終確認だけ" };
@@ -1947,7 +1948,11 @@ function levels() {
   <div class="row">${[1, 2, 3].map(n => `<button class="${n === LV ? "btn" : "btn sub"}" data-act="lvopen" data-n="${n}">${lvPassed(n) ? "✅ " : ""}${["", "初級", "中級", "上級"][n]}</button>`).join("")}</div>
   <section class="panel" style="display:block"><h3>この段階の課題（${it.filter(x => x[0]).length} / ${it.length}）</h3>${it.map(([ok, t, act, arg]) => `<div class="rrow" style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin:8px 0"><span>${ok ? "✅" : "⬜"} ${esc(t)}</span>${act && act !== "lv2" && act !== "lv3" ? `<button class="ghost" data-act="${act}" ${act === "kstart" ? `data-g="${arg}"` : act === "klv" ? `data-n="${arg}"` : ""}>${act === "home" ? "ホームへ" : "やる"}</button>` : ""}</div>`).join("")}</section>`;
   if (LV === 2) h += DISC.map((_, i) => discHtml(i)).join("");
-  if (LV === 3) h += `<section class="panel" style="display:block"><h3>スライドの目（${EYE.length}問）</h3><p class="pnote">2枚のスライドを見比べ、伝わるほうを選ぶ。最高 ${eyeStats().best}/${EYE.length}問。</p><button class="btn" data-act="estart">はじめる</button></section>${rubHtml("paper")}${rubHtml("slide")}
+  if (LV === 3) h += `<section class="panel" style="display:block"><h3>スライドの目（${EYE.length}問）</h3><p class="pnote">2枚のスライドを見比べ、伝わるほうを選ぶ。最高 ${eyeStats().best}/${EYE.length}問。</p><button class="btn" data-act="estart">はじめる</button></section>
+  ${certHtml()}
+  ${autoHtml("自分の症例の論文：自動採点", autoPaper("case"), "実践コース（自分の症例）に書いた内容を、決まった基準で判定します。❌ の欄を直してください。")}
+  <section class="panel" style="display:block"><h3>自分のスライド構成を入れる</h3><p class="pnote">実際に作ったスライドのタイトルを1枚1行で（例：「3枚目：両下腿に浸潤を触れる紫斑が多発」）。発表時間は「発表スライドの構成」の設定（なければ7分）を使います。</p><textarea id="slideT" rows="10" style="width:100%;font:inherit;padding:10px;border:1px solid var(--line);background:var(--card);color:var(--ink)" placeholder="表紙&#10;COI 開示&#10;78歳男性、ビルダグリプチン内服2年後に水疱が出現&#10;…&#10;結語">${esc(WD.slideT || "")}</textarea><div id="slideAuto">${autoHtml("スライド構成の自動採点", autoSlide())}</div></section>
+  <details class="panel"><summary>見直し用の自己採点表（判定には使いません）</summary>${rubHtml("paper")}${rubHtml("slide")}</details>
   <section class="panel" style="display:block"><h3>生成AI に添削を頼む</h3><p class="pnote">指導医に見せる前の見直しに。個人情報は入れないでください。</p><textarea id="wout" rows="12" style="width:100%;font:inherit;font-size:14px;padding:10px;border:1px solid var(--line);background:var(--card);color:var(--ink)">${esc(aiReviewPrompt())}</textarea><div class="row"><button class="btn sub" data-act="wcopy">コピー</button></div></section>
   <section class="panel" style="display:block"><h3>このアプリの対象外</h3><p>英文誌への投稿と原著論文（研究）は、このアプリだけで一人で仕上げるところまでは扱いません。英文は英文校正、原著は研究計画・倫理審査・統計の段階から指導者と進めてください（型と注意点は4択と骨組みに入っています）。</p></section>`;
   app.innerHTML = h;
@@ -1956,12 +1961,110 @@ function lvAct(a, b) {
   if (a === "lvopen") { LV = +b.dataset.n; S.view = "levels"; render(); window.scrollTo(0, 0); return true; }
   if (a === "dshow") { const i = +b.dataset.i; WD.disc = WD.disc || {}; WD.disc[i] = WD.disc[i] || {}; WD.disc[i].shown = 1; wSave(); render(); return true; }
   if (a === "wcheck") { WTAB = "check"; WOUT = ""; S.view = "work"; render(); window.scrollTo(0, 0); return true; }
-  return eyeAct(a, b);
+  return eyeAct(a, b) || certAct(a, b);
 }
-document.addEventListener("input", e => { const el = e.target; if (el && el.dataset && el.dataset.disc !== undefined) { const i = +el.dataset.disc; WD.disc = WD.disc || {}; WD.disc[i] = WD.disc[i] || {}; WD.disc[i].text = el.value; wSave(); const L = document.getElementById("dlint_" + i); if (L) L.innerHTML = lintHtml("case", "diff", el.value); const bt = document.querySelector(`[data-act="dshow"][data-i="${i}"]`); if (bt) bt.disabled = el.value.trim().length < 40; } });
+document.addEventListener("input", e => { const el = e.target; if (el && el.dataset && el.dataset.disc !== undefined) { const i = +el.dataset.disc; WD.disc = WD.disc || {}; WD.disc[i] = WD.disc[i] || {}; WD.disc[i].text = el.value; wSave(); const L = document.getElementById("dlint_" + i); if (L) L.innerHTML = lintHtml("case", "diff", el.value); const bt = document.querySelector(`[data-act="dshow"][data-i="${i}"]`); if (bt) bt.disabled = el.value.trim().length < 40; const A = document.getElementById("dauto_" + i); if (A) A.innerHTML = autoHtml("自動判定", autoDisc(i)); } });
 document.addEventListener("change", e => { const el = e.target; if (!el || !el.dataset) return;
   if (el.dataset.dchk) { const [i, j] = el.dataset.dchk.split(":"); WD.disc = WD.disc || {}; WD.disc[i] = WD.disc[i] || {}; WD.disc[i].ck = WD.disc[i].ck || {}; WD.disc[i].ck[j] = el.checked; wSave(); }
   if (el.dataset.rub) { const [k, i] = el.dataset.rub.split(":"); WD.rub = WD.rub || {}; WD.rub[k] = WD.rub[k] || {}; WD.rub[k][i] = el.checked; wSave(); render(); } });
+
+/* ---------- 客観的な判定（自己採点を使わない） ---------- */
+/* 1) 論文の自動採点：自分の症例（または指定の症例）の各欄を決まった基準で判定 */
+const lintClean = (t, k) => { const v = wv(t, k); return !!v && !lintField(t, k, v).some(x => x[0] !== "ok"); };
+function autoPaper(t) {
+  const g = k => wv(t, k), all = ["msg", "dis", "feat", "cc", "pmh", "hx", "exam", "lab", "path", "tx", "bg", "known", "diff", "mech", "lim"].map(g).join("\n");
+  return [
+   [lintClean(t, "msg") && g("msg").replace(/\s/g, "").length >= 20 && !/経験|報告/.test(g("msg")), "伝えたいこと：20字以上の具体的な1文で、「経験した・報告する」でなく中身を書いている"],
+   [!!g("dis") && !!g("feat") && !FEEL.test(g("dis") + g("feat")), "タイトル：病名と本例の特徴があり、評価の言葉がない"],
+   [lintClean(t, "hx") && /前/.test(g("hx")), "現病歴：「初診の〇か月前から」の形で、日付や感想がない"],
+   [lintClean(t, "pmh"), "既往歴・内服歴：一般名で書き、問題がない"],
+   [lintClean(t, "exam"), "現症：部位と大きさがあり、感想・解釈がない"],
+   [lintClean(t, "lab") && /\d/.test(g("lab")), "検査：数値と単位がある"],
+   [lintClean(t, "path") && g("path").replace(/\s/g, "").length >= 15, "病理：どの層に何があるかを書いている（15字以上）"],
+   [lintClean(t, "tx") && /週|か月|日後|日目/.test(g("tx")), "治療と経過：一般名・量と、何週（何か月）後にどうなったかがある"],
+   [lintClean(t, "bg"), "緒言：病気の説明に問題がない"],
+   [lintClean(t, "known") && /(PubMed|医中誌)/.test(g("known")) && /\d|〇/.test(g("known")), "既報：データベース名と既報の数がある"],
+   [lintClean(t, "diff") && /(既報|報告|一方|同様|比べ|異な|違)/.test(g("diff")), "既報との違い：既報と比べた言葉で書いている"],
+   [lintClean(t, "mech") && /(考え|可能性|示唆)/.test(g("mech")), "しくみ：控えめな強さ（〜と考えられる・可能性）で書いている"],
+   [lintClean(t, "lim") && /(1例|一例|否定でき|限界|短い|少な)/.test(g("lim")), "限界：1例であることなど具体的に書いている"],
+   [!!all.trim() && !/\d{4}\s*年\s*\d{1,2}\s*月\s*\d{1,2}\s*日|[A-Z]\.\s?[A-Z]\./.test(all), "全体：年月日・イニシャルがない"],
+  ];
+}
+/* 2) スライド構成の自動採点：タイトルを1行ずつ入力 */
+const BARE = /^(症例|現病歴|臨床像|臨床写真|検査|検査所見|病理|病理所見|病理組織所見|経過|臨床経過|治療|考察|背景|目的|方法|結果|まとめ|はじめに)$/;
+function autoSlide() {
+  const L = ((WD.slideT || "").split("\n").map(x => x.replace(/^\s*\d+[\.．枚目:：\s]*/, "").trim()).filter(Boolean)), m = parseFloat((WD.slide || {}).min) || 7, body = L.slice(2, -1);
+  return [
+   [L.length >= Math.round(m) && L.length <= Math.round(m) + 4, `枚数：${Math.round(m)}分の発表に ${Math.round(m)}〜${Math.round(m) + 4}枚（いま ${L.length}枚）`],
+   [/COI|利益相反/.test(L[1] || ""), "2枚目が COI 開示"],
+   [!!body.length && body.every(x => !BARE.test(x.replace(/[（(].*$/, ""))), "表紙・COI・結語以外のタイトルが、見出しだけでなく結論の文"],
+   [!!body.length && body.every(x => x.replace(/[（(].*$/, "").length <= 35), "タイトルは1行で読める長さ（35字以内）"],
+   [!!L.length && !FEEL.test(L.join("")), "評価や感想の言葉がない"],
+   [/結語|まとめ/.test(L[L.length - 1] || "") && !/ご清聴/.test(L[L.length - 1] || ""), "最後のスライドが結語（「ご清聴ありがとうございました」ではない）"],
+  ];
+}
+/* 3) 考察トレーニングの自動判定 */
+function autoDisc(i) {
+  const v = (((WD.disc || {})[i] || {}).text || "").trim(), sents = v.split(/[。．]/).filter(x => x.trim().length > 4).length;
+  return [
+   [sents >= 3, "3文以上で書いている"], [/\d|[一二三四五六七八九十]例/.test(v), "例数など数字で示している"],
+   [/(一方|同様|比べ|いずれも|共通|異な|違|対し)/.test(v), "既報と比べる言葉で、共通点や違いを書いている"],
+   [/(少な|限界|1例|一例|否定でき|短い)/.test(v), "限界や症例数の少なさに触れている"],
+   [!!v && !lintField("case", "diff", v).some(x => x[0] === "ng"), "言いすぎ・感想の言葉がない"],
+  ];
+}
+const allOk = arr => arr.length && arr.every(x => x[0]);
+const autoHtml = (title, arr, note) => `<section class="panel" style="display:block"><h3>${title}（${arr.filter(x => x[0]).length} / ${arr.length}）</h3>${note ? `<p class="pnote">${note}</p>` : ""}${arr.map(([ok, t]) => `<p style="margin:6px 0">${ok ? "✅" : "❌"} ${esc(t)}</p>`).join("")}</section>`;
+
+/* 4) 上級認定テスト：誤りを仕込んだ下書きの各文に「問題なし」か誤りの種類を選ぶ */
+const TY = ["感想・程度の言葉", "解釈が混ざっている", "言いすぎ", "個人情報", "数値・単位の不足や誤り", "商品名", "検索方法がない", "図の説明が足りない", "見出しだけ（結論の文でない）", "詰め込みすぎ", "COI がない", "最後が結語でない", "色の使い方"];
+const CERT = [
+ { t: "症例の部分", ty: [0, 1, 3, 4, 5], L: [
+  ["患者：72歳、男性。", -1], ["初診の2か月前から両下腿に紫斑が出現した。", -1], ["〇〇総合病院で抗菌薬を処方されたが改善しなかった。", 3, "他院の名前は書かない（「近医」）"],
+  ["両下腿にひどい紫斑がたくさんあった。", 0, "大きさ・性状・数で書く"], ["浸潤を触れる紫斑で、IgA 血管炎に典型的と考えられた。", 1, "解釈は考察へ。現症は所見だけ"],
+  ["尿蛋白は陽性で、腎機能はやや悪かった。", 4, "値と単位を書く"], ["皮膚生検で真皮浅層の小血管壁にフィブリノイド変性と好中球浸潤を認めた。", -1],
+  ["プレドニン 30 mg/日を開始した。", 5, "一般名（プレドニゾロン）で書く"], ["2週後に紫斑は消退し、尿蛋白は 0.3 g/gCr に低下した。", -1], ["20XX年6月15日に退院した。", 3, "日付は年月まで"]] },
+ { t: "考察の部分", ty: [0, 1, 2, 6], L: [
+  ["本例は、腎炎を伴う成人の IgA 血管炎であった点が特徴である。", -1], ["成人例は大変珍しく、非常に貴重な症例である。", 0, "評価の言葉でなく、何が学べるかを書く"],
+  ["過去にも同様の報告はたくさんある。", 6, "データベース・検索語・数を示す"], ["PubMed と医中誌Web で「IgA vasculitis」「adult」を用いて検索した範囲では、腎炎を伴う報告は12例であった（表1）。", -1],
+  ["本例により、ステロイドが腎炎を必ず改善させることが証明された。", 2, "1例で「必ず」「証明」は言いすぎ"], ["成人例では小児例より腎炎の頻度が高いとされ、尿所見の経過観察が重要と考えられる。", -1],
+  ["本報告は1例の経験であり、観察期間も短い。", -1], ["今後はこの治療をすべての患者に行うべきである。", 2, "1例から全員への推奨はできない"]] },
+ { t: "抄録・図表", ty: [0, 1, 4, 7], L: [
+  ["今回我々は、興味深い経過をたどった症例を経験した。", 0, "1文目から症例の中身（年齢・性別・所見）を"], ["68歳、女性。初診の1か月前から体幹に環状紅斑が多発した。", -1],
+  ["抗 SS-A 抗体は陽性で、値はかなり高かった。", 4, "値と単位・基準値を書く"], ["病理組織学的に表皮基底層の液状変性を認め、亜急性皮膚エリテマトーデスと診断した。", -1],
+  ["環状紅斑をみた場合は、抗 SS-A 抗体の測定を検討する必要がある。", -1], ["図2　病理（×400）。所見は本文を参照。", 7, "染色名・所見・スケールバー・矢印の意味を書く"],
+  ["図1　初診時臨床像。体幹に環状紅斑が多発する（矢印）。", -1], ["表1　再発率は 20.000% であった。", 4, "意味のある桁にし、分母を付ける"]] },
+ { t: "スライド構成（7分の症例発表）", ty: [0, 8, 9, 10, 11, 12], L: [
+  ["1枚目：表紙（演題名・所属・演者）", -1], ["2枚目：72歳男性、両下腿の紫斑で受診（COI 開示のスライドは省略）", 10, "表紙の次に COI を置く"],
+  ["3枚目：両下腿に浸潤を触れる紫斑が多発（写真を大きく、矢印）", -1], ["4枚目：病理所見", 8, "「血管壁のフィブリノイド変性を認めた」など結論の文に"],
+  ["5枚目：検査所見（全30項目の小さな表）", 9, "診断に関係する値だけを大きく"], ["6枚目：ステロイド開始2週で紫斑は消退した（経過図）", -1],
+  ["7枚目：考察（文献の文章を12行そのまま）", 9, "既報の表と言えることに絞る"], ["8枚目：成人で腎炎を伴う既報は少ない（列を絞った表）", -1],
+  ["9枚目：ご清聴ありがとうございました", 11, "最後は結語（伝えたいこと）"], ["（全体）大事な数字を赤、それ以外を緑で区別した", 12, "赤と緑だけに頼らない"]] },
+];
+let CI = null;
+function certHtml() { const c = WD.cert || {};
+  return `<section class="panel" style="display:block"><h3>上級認定テスト（${CERT.filter((_, i) => (c[i] || {}).pass).length} / ${CERT.length}題 合格）</h3><p class="pnote">誤りを仕込んだ架空の下書きを1文ずつ見て、「問題なし」か誤りの種類を選びます。各題で間違いが1つまでなら合格（正答率9割程度）。</p>
+  <div class="row">${CERT.map((x, i) => `<button class="${(c[i] || {}).pass ? "btn sub" : "btn"}" data-act="cstart2" data-i="${i}">${(c[i] || {}).pass ? "✅ " : ""}${esc(x.t)}${c[i] ? `（最高 ${c[i].best}/${x.L.length}）` : ""}</button>`).join("")}</div></section>`; }
+function cert() {
+  const x = CERT[CI.i], done = CI.done;
+  let h = header() + `<section class="hero"><h1>認定テスト：${esc(x.t)}</h1><p>各文に「問題なし」か、誤りの種類を1つ選んでください。${done ? "" : "全部選ぶと採点できます。"}</p></section>`;
+  h += x.L.map(([txt, a, why], j) => { const sel = CI.sel[j], ok = done && sel === a;
+    return `<article class="qcard" style="padding:14px 16px;gap:8px;${done ? (ok ? "border-color:var(--acc)!important" : "border-color:var(--em)!important") : ""}"><div class="qtext" style="font-size:17px">${esc(txt)}</div>
+    ${done ? `<p style="margin:0;font-size:14px">${ok ? "○" : "×"} あなた：${sel === -1 ? "問題なし" : esc(TY[sel])}　／　正解：<b>${a === -1 ? "問題なし" : esc(TY[a])}</b>${why ? `<br><span style="color:var(--muted)">${esc(why)}</span>` : ""}</p>`
+    : `<select data-csel="${j}" style="font:inherit;padding:8px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink)"><option value="" ${sel === undefined ? "selected" : ""}>選んでください</option><option value="-1" ${sel === -1 ? "selected" : ""}>問題なし</option>${x.ty.map(k => `<option value="${k}" ${sel === k ? "selected" : ""}>${esc(TY[k])}</option>`).join("")}</select>`}</article>`; }).join("");
+  if (!done) h += `<div class="qnav"><button class="btn big" data-act="cgrade" ${x.L.every((_, j) => CI.sel[j] !== undefined) ? "" : "disabled"}>採点する</button></div>`;
+  else { const n = x.L.filter(([, a], j) => CI.sel[j] === a).length, pass = n >= x.L.length - 1;
+    h = h.replace("<section class=\"hero\">", `<div class="verdict ${pass ? "ok" : "ng"}"><span class="big">${pass ? "○" : "×"}</span><div><h3>${n} / ${x.L.length} 正解　${pass ? "合格" : "不合格"}</h3><p>${pass ? "この種類の誤りは自分で見つけられます。" : "×の文の理由を読み、ドリルで練習してから再挑戦しましょう。"}</p></div></div><section class="hero">`);
+    h += `<div class="row"><button class="btn sub big" data-act="cstart2" data-i="${CI.i}">もう一度</button><button class="btn big" data-act="lvopen" data-n="3">上級のページへ</button></div>`; }
+  app.innerHTML = h;
+}
+function certAct(a, b) {
+  if (a === "cstart2") { CI = { i: +b.dataset.i, sel: {}, done: false }; S.view = "cert"; render(); window.scrollTo(0, 0); return true; }
+  if (a === "cgrade") { const x = CERT[CI.i]; CI.done = true; const n = x.L.filter(([, a2], j) => CI.sel[j] === a2).length; WD.cert = WD.cert || {}; const c = WD.cert[CI.i] = WD.cert[CI.i] || {}; c.best = Math.max(c.best || 0, n); if (n >= x.L.length - 1) c.pass = 1; wSave(); render(); window.scrollTo(0, 0); return true; }
+  return false;
+}
+document.addEventListener("change", e => { const el = e.target; if (el && el.dataset && el.dataset.csel !== undefined && CI) { CI.sel[+el.dataset.csel] = el.value === "" ? undefined : +el.value; const bt = document.querySelector('[data-act="cgrade"]'); if (bt) bt.disabled = !CERT[CI.i].L.every((_, j) => CI.sel[j] !== undefined); } });
+document.addEventListener("input", e => { const el = e.target; if (el && el.id === "slideT") { WD.slideT = el.value; wSave(); const box = document.getElementById("slideAuto"); if (box) box.innerHTML = autoHtml("スライド構成の自動採点", autoSlide()); } });
 
 /* ---------- 論文とスライドの書き方（皮膚科4択と同じ流れ：ホーム → ステップ・章・単元 → 1問ずつ → 結果） ---------- */
 const MK = ["1", "2", "3", "4", "5"];
@@ -2270,7 +2373,7 @@ function end() {
   </section>`;
 }
 
-function render() { S.view === "home" ? home() : S.view === "quiz" ? quiz() : S.view === "work" ? work() : S.view === "model" ? model() : S.view === "step" ? step() : S.view === "drill" ? drill() : S.view === "drillend" ? drillEnd() : S.view === "skel" ? skel() : S.view === "skend" ? skEnd() : S.view === "sheet" ? sheet() : S.view === "levels" ? levels() : S.view === "eye" ? eye() : end(); if (S.view === "quiz") resetBar(); }
+function render() { S.view === "home" ? home() : S.view === "quiz" ? quiz() : S.view === "work" ? work() : S.view === "model" ? model() : S.view === "step" ? step() : S.view === "drill" ? drill() : S.view === "drillend" ? drillEnd() : S.view === "skel" ? skel() : S.view === "skend" ? skEnd() : S.view === "sheet" ? sheet() : S.view === "levels" ? levels() : S.view === "eye" ? eye() : S.view === "cert" ? cert() : end(); if (S.view === "quiz") resetBar(); }
 /* 問題画面のいちばん下のリセット（この問題／この単元を選ぶ） */
 function resetBar() { const q = QI[S.list[S.i]]; if (!q) return; const d = document.createElement("div"); d.className = "rbar";
   d.innerHTML = `<button type="button" class="ghost" data-act="rmenu">リセット</button><div class="rmenu" hidden><p>どちらをリセットしますか？（まだ解いていない状態に戻します）</p><button type="button" class="ghost" data-act="qclr">この問題をリセット</button><button type="button" class="ghost" data-act="uclr" data-u="${q.u}">この単元（${esc(UNITS[q.u][1])}）をリセット</button><button type="button" class="ghost" data-act="rmenu">やめる</button></div>`;
@@ -2355,11 +2458,11 @@ document.addEventListener("keydown", e => {
 render();
 
 </script>
-<p class="offline">6版（段階（初級・中級・上級）を追加：練習症例3例、考察トレーニング、スライドの目、自己採点表、生成AI 添削の指示文）</p>
+<p class="offline">7版（上級・中級の判定を客観化：論文とスライド構成の自動採点、上級認定テスト4題、考察の自動判定（自己採点は判定に使わない））</p>
 <p class="offline" id="offline">オフライン利用：準備中…</p>
 <script>
 (function(){
-  var el=document.getElementById("offline"),C="paper4-v6";
+  var el=document.getElementById("offline"),C="paper4-v7";
   function ok(){el.innerHTML="オフライン利用：<b>準備OK</b>（電波がなくても使えます）"}
   if(!("serviceWorker" in navigator)){el.textContent="オフライン利用：この環境では使えません";return}
   var had=!!navigator.serviceWorker.controller,reloaded=false;
