@@ -2071,46 +2071,56 @@ document.addEventListener("input", e => { const el = e.target; if (el && el.id =
    規定は 2026年11月に各誌の公式ページ・投稿規定で確認できた範囲。確認できなかった所は「要確認」 */
 const JOURNALS = [
  { n: "Journal of the American Academy of Dermatology（JAAD）", g: "英文", ifv: "12.3", src: "公式", note: "皮膚科で IF 1位（99誌中）",
-   type: "研究は原著・Research Letter。単独の症例報告は姉妹誌 JAAD Case Reports へ（本誌の規定ページは自動で読めず要確認）",
-   ck: ["症例は JAAD Case Reports、研究の短報は Research Letter を検討", "投稿規定（Guide for Authors）で語数・図表・文献の上限を確認", "患者の同意書（写真を含む）"] },
- { n: "JAMA Dermatology", g: "英文", ifv: "10.9", src: "公式", note: "",
-   type: "Observation（1〜2例の珍しい症例）：600語・文献6・図表2・著者7まで／Research Letter：800語・文献10・図表2／Images in Dermatology：500語・文献4・著者3／Clinicopathological Challenge（診断クイズ形式）",
-   ck: ["症例は Observation か Images in Dermatology、診断クイズ形式の Clinicopathological Challenge", "語数の上限が厳しい（Observation 600語）", "著者数の上限（Observation 7人、Images 3人）", "患者の許可（写真）"] },
+   type: "研究の短報は Research Letter：500語・抄録なし・文献5・図表は合わせて2（上限は厳守、例外なし）。単独の症例報告は姉妹誌 JAAD Case Reports へ",
+   ck: ["症例は JAAD Case Reports、研究の短報は Research Letter", "500語・文献5は非常に短い。最初から上限内で書く", "患者の同意書（写真を含む）"] },
+ { n: "JAMA Dermatology", g: "英文", ifv: "10.9", src: "公式", note: "採択率 約8%（2026年11月更新の公式ページ）",
+   type: "Observation（1〜2例の珍しい症例）：600語・文献6・図表2・著者7まで／Research Letter：800語・文献10・図表2／Images in Dermatology：500語・文献4・著者3／Clinicopathological Challenge（診断クイズ形式）：症例250語＋考察500〜600語・文献10・図3・著者3",
+   ck: ["症例は Observation か Images in Dermatology、診断クイズ形式の Clinicopathological Challenge", "語数の上限が厳しい（Observation 600語）", "著者数の上限（Observation 7人、Images 3人）", "患者の許可（写真）", "オープンアクセスは任意（有料）"] },
  { n: "British Journal of Dermatology（BJD）", g: "英文", ifv: "10.8", src: "公式", note: "99誌中5位",
    type: "症例・症例集積は主に Research Letter：750語・文献8・図2枚（4パネルまで）または表1、抄録なし／Image Correspondence：説明100語・3パネル・文献2",
    ck: ["症例は Research Letter で（新しさがはっきり必要）", "図は2枚・4パネルまでに絞る", "患者の掲載同意は必須", "ハイブリッド誌：OA は有料、カラー・ページ料はなし"] },
  { n: "Journal of the European Academy of Dermatology and Venereology（JEADV）", g: "英文", ifv: "9.2", src: "公式", note: "99誌中5位（EADV 発表）",
-   type: "症例は Letter 形式が中心（規定ページは自動で読めず、語数などは要確認）",
-   ck: ["Letter の語数・図表・文献の上限を著者ガイドで確認", "症例の新しさと臨床的な意味を1文で示す", "患者の同意書"] },
- { n: "Journal of Investigative Dermatology（JID）", g: "英文", ifv: "約7", src: "二次", note: "基礎研究の雑誌",
-   type: "基礎・トランスレーショナル研究が中心。単独の症例報告には向かない（要確認）",
+   type: "症例は Letter to the Editor：本文 約600語・見出しなしの1続きの文章で \"Dear Editor\" で始める・図表は合わせて2（1つの図は8パネルまで）・文献10・抄録なし・補足資料は不可・謝辞は50語まで",
+   ck: ["\"Dear Editor\" で始め、見出しを付けない", "図表は合わせて2つ（複合図はパネル数も数える）", "補足資料（Supplementary）は付けられない", "患者の同意書"] },
+ { n: "Journal of Investigative Dermatology（JID）", g: "英文", ifv: "約7", src: "二次", note: "基礎研究の雑誌（IF は公式ページが自動で読めず二次情報）",
+   type: "基礎・トランスレーショナル研究の雑誌。臨床の症例報告の投稿先には向かない（著者ガイドは自動で読めず、論文の種類の詳細は未確認）",
    ck: ["症例報告の投稿先には選ばない", "研究なら方法の再現性・データの公開方針を確認"] },
- { n: "JAAD International", g: "英文", ifv: "6.5", src: "公式", note: "オープンアクセス",
+ { n: "JAAD International", g: "英文", ifv: "6.5", src: "公式", note: "全文オープンアクセス",
    type: "原著研究が中心（症例報告は JAAD Case Reports）",
-   ck: ["全文オープンアクセス：掲載料（APC）を確認", "研究の報告ガイドライン（STROBE など）に沿う"] },
- { n: "Acta Dermato-Venereologica", g: "英文", ifv: "3.8", src: "二次", note: "",
+   ck: ["掲載料（APC）がかかる（金額は Elsevier のページが自動で読めず、投稿前に確認）", "研究の報告ガイドライン（STROBE など）に沿う"] },
+ { n: "Acta Dermato-Venereologica", g: "英文", ifv: "3.8", src: "二次", note: "IF は公式ページに表示なし（二次情報）",
    type: "Short Communication（臨床の重要な観察）：1,200語・図表3・著者5・文献15、抄録なし",
    ck: ["症例は Short Communication（新しい観察として書く）", "掲載料：Short Communication €400（採用時のみ）", "CC BY-NC のオープンアクセス"] },
+ { n: "Journal of Dermatological Science", g: "英文", ifv: "確認できず", src: "", note: "日本研究皮膚科学会の英文誌・基礎研究中心",
+   type: "Letter to the Editor：1,000語未満・文献10・図表2、抄録と小見出しなし（原データを含む Letter は査読あり）",
+   ck: ["基礎研究の雑誌。症例は新しい基礎的知見（検査・病態）がある場合に Letter で", "抄録・小見出しを付けない"] },
  { n: "Clinical and Experimental Dermatology（CED）", g: "英文", ifv: "3.0", src: "公式", note: "99誌中33位",
    type: "単独の症例は Letter to the Editor：800語・図2・表2・文献5、抄録なし（Concise Report 1,200語は単独症例不可）",
    ck: ["単独症例は Letter to the Editor（Concise Report に出さない）", "CARE ガイドラインに沿う", "投稿前に患者の掲載同意が必須", "OA は有料、カラー・ページ料はなし"] },
- { n: "The Journal of Dermatology（日本皮膚科学会の英文誌）", g: "英文", ifv: "2.3", src: "二次", note: "前年は 2.7",
+ { n: "The Journal of Dermatology（日本皮膚科学会の英文誌）", g: "英文", ifv: "2.3", src: "二次", note: "前年は 2.7（IF は二次情報）",
    type: "Case Letter（Letter to the Editor）：500語・文献5・図表1（複数パネルは1枚にまとめる）・著者10、抄録なし／Concise Communication（症例報告＋ミニレビュー、または新知見）：1,500語（抄録300語を含む）・図表3・文献15、見出しは Introduction・Case Report・Discussion",
-   ck: ["1〜2例の短い報告は Case Letter、文献のまとめを付けるなら Concise Communication", "顔など本人と分かる写真は同意書が必須（目隠しだけでは不十分と明記）", "キーワード5つ", "カラー図は無料（質が十分なら）", "※ここでの規定は 2022年4月版の投稿規定 PDF。投稿前に Wiley の最新の Author Guidelines を確認"] },
- { n: "JAAD Case Reports", g: "英文", ifv: "確認できず", src: "", note: "症例報告の専門誌・オープンアクセス",
-   type: "症例報告（規定ページは自動で読めず、語数・図表・掲載料は要確認）",
-   ck: ["掲載料（APC）がかかる。金額を確認", "語数・図表・文献の上限を Guide for Authors で確認", "写真を含む患者同意"] },
+   ck: ["1〜2例の短い報告は Case Letter、文献のまとめを付けるなら Concise Communication", "顔など本人と分かる写真は同意書が必須（目隠しだけでは不十分と明記）", "キーワード5つ", "カラー図は無料（質が十分なら）", "上限は2026年8月13日更新の Wiley 著者ガイドで確認"] },
+ { n: "JAAD Case Reports", g: "英文", ifv: "公表値を確認できず", src: "", note: "症例報告の専門誌・全文オープンアクセス・オンラインのみ",
+   type: "Case Report：1,000語・図4・文献10／Case Series：2,000語・図8・文献15",
+   ck: ["患者が特定できなくても、全例で同意が必須", "本文・文献・図・表の語数をそれぞれ記載", "掲載料（APC）は約 USD 750〜850（情報源で違う。AAD 会員は25%割引）。投稿前に最新額を確認"] },
  { n: "JEADV Clinical Practice", g: "英文", ifv: "0.7", src: "公式", note: "JEADV の姉妹誌",
-   type: "臨床の報告（規定は要確認）", ck: ["論文の種類と上限を著者ガイドで確認"] },
- { n: "皮膚科の臨床（金原出版）", g: "和文", ifv: "なし", src: "", note: "",
+   type: "Case Report：見出しは Introduction・Case Report・Discussion、プレビュー画像（50×60 mm で読めるもの）を強く推奨。語数の上限は公式ページが自動で読めず、投稿前に確認",
+   ck: ["治療への大きな貢献か、新しい臨床情報であることを示す", "プレビュー画像を用意"] },
+ { n: "日本皮膚科学会雑誌（日皮会誌）", g: "和文", ifv: "なし", src: "", note: "日本皮膚科学会の和文誌（投稿規定 2024年1月26日改訂）",
+   type: "症例報告（臨床にとって重要かつ大いに影響のあるもの）：A4 判4頁以内（1頁 約1,000字）、和文要約 200〜250字＋キーワード、英文要約／原著・総説：20頁以内／Letter to the Editor：600字以内",
+   ck: ["筆頭著者は日本皮膚科学会員、共著者も原則会員（会員でない共著者は年会費相当額を負担）", "オンライン投稿（ScholarOne）、承諾書と COI 報告書（過去3年）を添付", "掲載料：刷上り1頁 5,000円", "文献は著者6名以下なら全員、7名以上は3名＋ほか", "住所・生年月日・写真は原則として同意を得て、個人を特定できないように"] },
+ { n: "臨床皮膚科（医学書院）", g: "和文", ifv: "なし", src: "", note: "投稿規定 2025年10月改訂",
+   type: "症例報告：400字×10枚以内（本文・文献で約4,000字）・図表6点以内・和文要約400字以内／コンサイスレポート：400字×5枚・図表3・要約不要／原著：400字×20枚・図表8・要約400字（いずれも掲載時8頁以内）",
+   ck: ["キーワード5項目以内", "明確な日付を書かない、写真は必要に応じて目を隠す", "印刷した原稿1部を郵送、著作権譲渡の書類を添付", "掲載料は原則無料"] },
+ { n: "皮膚科の臨床（金原出版）", g: "和文", ifv: "なし", src: "", note: "投稿規定 2023年3月改定",
    type: "［症例］400字詰原稿用紙で本文10枚以内（文献を含む＝約4,000字）・図表7枚以内・要約300字以内（考察も含めた全体の要約）／［Mini Report］本文5枚・図表3枚・要約不要／［Clinicolor］本文2枚程度・臨床写真3枚",
-   ck: ["新知見のない1例報告は受け付けない（「何が新しいか」を明確に）", "薬は一般名（市販名®）、表題は一般名のみ", "明確な日付は書かない（初診：2010年10月、初診7日前から、のように）", "文献は引用順に15項目以内", "他誌の図表の転載は許諾を得てから", "著作財産権譲渡同意書を同封、原稿は郵送（2023年3月改定の規定）", "写真の質が低いと内容にかかわらず不採用のことがある"] },
- { n: "臨床皮膚科（医学書院）", g: "和文", ifv: "なし", src: "", note: "",
-   type: "症例報告を多く掲載（規定ページは取得できず、字数・図表は要確認）", ck: ["医学書院の投稿規定で字数・図表・要旨を確認", "日付は年月まで、薬は一般名"] },
- { n: "日本皮膚科学会雑誌（日皮会誌）", g: "和文", ifv: "なし", src: "", note: "日本皮膚科学会の和文誌",
-   type: "論文の種類・字数・投稿資格は学会サイトの投稿規定で確認（取得できず）", ck: ["学会サイトで最新の投稿規定を確認", "倫理審査・同意の記載"] },
- { n: "西日本皮膚科", g: "和文", ifv: "なし", src: "", note: "日本皮膚科学会西部支部の雑誌・Scopus 収載・J-STAGE で公開",
-   type: "投稿規定はサイトで見つからず（編集部に問い合わせ）", ck: ["投稿規定・投稿資格を編集部に確認"] },
+   ck: ["新知見のない1例報告は受け付けない（「何が新しいか」を明確に）", "薬は一般名（市販名®）、表題は一般名のみ", "明確な日付は書かない（初診：2010年10月、初診7日前から、のように）", "文献は引用順に15項目以内", "他誌の図表の転載は許諾を得てから", "著作財産権譲渡同意書を同封、原稿は郵送", "写真の質が低いと内容にかかわらず不採用のことがある"] },
+ { n: "西日本皮膚科", g: "和文", ifv: "なし", src: "", note: "日本皮膚科学会西部支部の雑誌・Scopus 収載（投稿規定 2025年10月17日改訂）",
+   type: "症例：6,000字以内（文献を含む）・図表8点以内が目安・日本語要旨600字以内／図説：1,000字以内・写真1〜5点・文献3まで・要旨なし",
+   ck: ["筆頭著者は西部支部の会員（非会員は入会が必要）", "1頁 40字×25行、キーワード5項目以内、ランニングタイトル20字以内", "掲載料：刷上り1頁 4,000円（正会員）・5,000円（準会員・賛助会員）", "患者を特定しうる内容・写真は原則として同意を得る"] },
+ { n: "日本臨床皮膚科医会雑誌", g: "和文", ifv: "なし", src: "", note: "開業医中心の会の雑誌（投稿規定 2025年7月改訂）",
+   type: "原著（日常診療に役立つ症例・治療・統計など）：文献を含めて10,000字以内、図表1枚は220字に換算",
+   ck: ["筆頭著者・共著者とも、投稿年度までの会費を納めた会員（編集委員会が認めた場合は例外）", "初診日などは月までの表記にする"] },
 ];
 const JCOMMON = ["その雑誌が症例報告を受け付けるか、どの論文の種類（Case Letter・Research Letter・Observation など）で出すか", "語数（字数）の上限と、抄録の要否・語数", "図表の枚数（複数パネルを1枚と数えるか）", "文献の上限数と書き方（著者は何人まで書くか）", "著者数の上限", "患者の同意書の書式（雑誌指定の書式があるか）", "掲載料（APC）・カラー料金・オープンアクセスかどうか", "投稿方法（オンライン投稿システム・郵送）と必要な書類（著作権譲渡・利益相反の申告）", "報告ガイドライン（症例は CARE）のチェックリストの提出の要否", "生成AI の使用についての規定"];
 function journalsPage() {
@@ -2119,11 +2129,11 @@ function journalsPage() {
     <div class="corebox" style="font-weight:400;font-size:15px"><span class="lbl">症例を出すときの形と上限</span>${esc(j.type)}</div>
     <div><span class="lbl" style="font-size:12px;color:var(--muted);font-weight:600">出す前のチェック</span><ul style="margin:4px 0 0;padding-left:1.3em">${j.ck.map(c => `<li>${esc(c)}</li>`).join("")}</ul></div></article>`;
   app.innerHTML = header() + `<section class="hero"><h1>皮膚科の雑誌ガイド</h1><p>主な皮膚科の雑誌の IF と、症例を出すときの論文の形・上限・チェック事項です。IF は Journal Citation Reports 2025年版（2026年6月公表）。規定は2026年11月に各誌の公式ページ・投稿規定で確認できた範囲で、<b>確認できなかった所は「要確認」</b>と書いています。規定は変わるので、<b>投稿前に必ず最新の投稿規定を読んでください</b>。</p></section>
-  <section class="panel" style="display:block"><h3>雑誌の選び方（症例報告）</h3><p>① 初めての1本：和文誌（皮膚科の臨床・臨床皮膚科・所属の地方会の雑誌）か、The Journal of Dermatology の Case Letter（500語）。<br>② 新しさがはっきりしている：CED の Letter（800語）、Acta DV の Short Communication、JAAD Case Reports。<br>③ 新しく、臨床を変えうる：BJD の Research Letter、JAMA Dermatology の Observation（短く厳しい）。<br>IF だけで選ばず、<b>症例を受け付ける形があるか・語数・掲載料</b>で選ぶ。不採用なら直して次の雑誌へ（同時に2誌は二重投稿）。</p></section>
+  <section class="panel" style="display:block"><h3>雑誌の選び方（症例報告）</h3><p>① 初めての1本：和文誌（臨床皮膚科・皮膚科の臨床：約4,000字、西日本皮膚科：6,000字〔西部支部会員〕、日皮会誌：4頁〔学会員・重要な症例〕）か、The Journal of Dermatology の Case Letter（500語）。<br>② 新しさがはっきりしている：CED の Letter（800語）、Acta DV の Short Communication、JAAD Case Reports。<br>③ 新しく、臨床を変えうる：BJD の Research Letter、JAMA Dermatology の Observation（短く厳しい）。<br>IF だけで選ばず、<b>症例を受け付ける形があるか・語数・掲載料</b>で選ぶ。不採用なら直して次の雑誌へ（同時に2誌は二重投稿）。</p></section>
   <section class="panel" style="display:block"><h3>どの雑誌でも確認すること</h3><ul style="margin:0;padding-left:1.3em">${JCOMMON.map(c => `<li>${esc(c)}</li>`).join("")}</ul></section>
   <h2 style="font-size:18px;margin-top:6px">英文誌（IF の高い順）</h2>${JOURNALS.filter(j => j.g === "英文").map(row).join("")}
   <h2 style="font-size:18px;margin-top:6px">和文誌</h2>${JOURNALS.filter(j => j.g === "和文").map(row).join("")}
-  <section class="panel" style="display:block"><p class="pnote" style="margin:0">IF の出典：JAAD・JAAD International は米国皮膚科学会（AAD）の発表、BJD・CED は Oxford University Press の雑誌ページ、JAMA Dermatology は JAMA Network の著者向けページ、JEADV・JEADV Clinical Practice は欧州皮膚科性病学会（EADV）の発表。JID・Acta DV・The Journal of Dermatology は集計サイトの値で、Clarivate の JCR で確認が必要です。</p></section>
+  <section class="panel" style="display:block"><p class="pnote" style="margin:0">IF の出典：JAAD・JAAD International は米国皮膚科学会（AAD）の発表、BJD・CED は Oxford University Press の雑誌ページ、JAMA Dermatology は JAMA Network の著者向けページ、JEADV・JEADV Clinical Practice は欧州皮膚科性病学会（EADV）の発表。JID・Acta DV・The Journal of Dermatology は公式ページで IF を確認できず集計サイトの値、J Dermatol Sci と JAAD Case Reports は公表値を確認できませんでした。規定は各誌の著者ガイド・投稿規定（JAAD 系はヘルプセンター、日皮会誌は 2024年1月改訂、臨床皮膚科は 2025年10月改訂、西日本皮膚科は 2025年10月改訂、日本臨床皮膚科医会雑誌は 2025年7月改訂、皮膚科の臨床は 2023年3月改定）で確認しました。</p></section>
   <div class="row"><button class="btn sub big" data-act="home">ホームへ</button></div>`;
 }
 function journalCardHtml() { return `<section class="path course"><h2>皮膚科の雑誌ガイド</h2><p class="pnote">主な皮膚科の雑誌（英文${JOURNALS.filter(j => j.g === "英文").length}誌・和文${JOURNALS.filter(j => j.g === "和文").length}誌）の IF と、症例を出すときの論文の形・語数の上限・チェック事項。</p><div class="row"><button class="btn sub" data-act="jopen">雑誌ガイドを開く</button></div></section>`; }
@@ -2522,11 +2532,11 @@ document.addEventListener("keydown", e => {
 render();
 
 </script>
-<p class="offline">8版（皮膚科の雑誌ガイド（IF・症例を出す形と上限・チェック事項）を追加）</p>
+<p class="offline">9版（雑誌ガイドの要確認を調べて更新（JAAD・JAAD Case Reports・JEADV・J Dermatol Sci・日皮会誌・臨床皮膚科・西日本皮膚科・日本臨床皮膚科医会雑誌））</p>
 <p class="offline" id="offline">オフライン利用：準備中…</p>
 <script>
 (function(){
-  var el=document.getElementById("offline"),C="paper4-v8";
+  var el=document.getElementById("offline"),C="paper4-v9";
   function ok(){el.innerHTML="オフライン利用：<b>準備OK</b>（電波がなくても使えます）"}
   if(!("serviceWorker" in navigator)){el.textContent="オフライン利用：この環境では使えません";return}
   var had=!!navigator.serviceWorker.controller,reloaded=false;
