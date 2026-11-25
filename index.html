@@ -1599,6 +1599,86 @@ function todayHtml() {
   <div class="row"><button class="btn" data-act="today5" ${ids.length || on ? "" : "disabled"}>${on ? "続きから" : ids.length ? "今日の5問を解く" : "全部解き終わりました"}</button></div></section>`;
 }
 
+/* ---------- 直結ドリル・骨組み暗記の解説 ----------
+   RULES：書き方の型（なぜ大事か・型・よい例）。RK：DR の各問がどの型か（DR と同じ順）。SKW：骨組み暗記の各問の「なぜ」（SK と同じ順） */
+const RULES = {
+ title: { n: "タイトルの型", why: "タイトルは検索で最初に読まれ、読むかどうかがここで決まる。「興味深い」「まれな」は中身を伝えず、検索にも引っかからない。", how: "病名（正式名）＋本例の特徴（新しい点）。薬は一般名。和文は「〇〇を呈した△△の1例」、英文は「病名 presenting as / associated with / induced by ～」。", ex: "口腔内びらんが3か月先行した尋常性天疱瘡の1例" },
+ intro: { n: "緒言（はじめに）の型", why: "緒言は「なぜこの症例を読むべきか」を伝える場所。長い教科書的説明や感想は、読者を本題から遠ざける。", how: "3〜5文の漏斗：①病気の短い説明 → ②まれな点・分かっていないこと → ③「今回、〇〇を呈した△△の1例を経験したので報告する」。", ex: "尋常性天疱瘡はデスモグレインに対する自己抗体による自己免疫性水疱症である。…今回、口腔内びらんが3か月先行した1例を経験したので報告する。" },
+ privacy: { n: "個人情報を出さない書き方", why: "名前・イニシャル・詳しい日付・他院の名前は、組み合わせると患者が特定されうる。学会のプライバシー保護の指針と、各誌の投稿規定で禁じられている。", how: "書かない：氏名・イニシャル・ID・年月日・他院名（「近医」「前医」）・画像の番号。書いてよい：年齢・性別・年月。経過は「初診の〇か月前から」のように相対的な時間で。", ex: "患者：65歳、女性。初診の3か月前から口腔内のびらんが続き、近医で含嗽薬を処方された。" },
+ drug: { n: "薬の書き方", why: "商品名は国や時期で変わり、同じ成分でも名前が違う。一般名なら世界中の読者に伝わる。量と開始時期は、薬疹や治療効果の判断に必要。", how: "一般名＋量＋投与経路＋開始時期（期間）。和文誌によっては初出で（商品名®）を添える。表題は一般名のみ。", ex: "既往歴：高血圧（アムロジピン 5 mg/日を5年前から内服）" },
+ exam: { n: "現症（皮疹）の書き方", why: "写真は小さく印刷されたり白黒になったりする。言葉だけで皮疹が思い浮かぶ記載が、論文の記録として残る。", how: "部位 → 分布 → 大きさ（mm・cm・米粒大・母指頭大）→ 形・色 → 性状（緊満性・弛緩性・びらん・鱗屑など）→ 数。感想（ひどい）や解釈（典型的）は入れない。", ex: "体幹に径5〜15 mm の弛緩性水疱とびらんが10数個散在し、ニコルスキー現象は陽性であった。" },
+ interp: { n: "所見と解釈を分ける", why: "症例の部分に解釈が混ざると、読者は事実と著者の考えを区別できなくなる。解釈は根拠と一緒に考察で述べる。", how: "症例＝見えたこと・測った値だけ（「〜を認めた」「〜であった」）。「典型的」「〜と考えられた」「〜を疑った」は考察へ。", ex: "（症例）表皮下水疱を認めた。（考察）この所見は類天疱瘡に合致すると考えられた。" },
+ lab: { n: "検査値の書き方", why: "「かなり高い」では他の施設の読者が比べられない。全項目を並べると、診断に大事な値が埋もれる。", how: "項目名・値・単位・（基準値）。診断を支える値と、除外に使った陰性の値に絞る。", ex: "抗デスモグレイン3抗体 186 U/mL（基準 20 未満）、抗デスモグレイン1抗体は陰性。" },
+ path: { n: "病理所見の書き方", why: "「教科書どおり」では、どの所見で診断したのか読者が確かめられない。皮膚病理は「どの層に何があるか」で伝わる。", how: "層の名前（表皮・基底層・表皮真皮境界部・真皮浅層など）＋所見の用語（裂隙・棘融解・液状変性・浸潤細胞の種類）。写真は弱拡大→強拡大、スケールバー、矢印。", ex: "基底層直上に裂隙と棘融解細胞を認め、裂隙底部に基底細胞が一列に残っていた。" },
+ tx: { n: "治療と経過の書き方", why: "「適切な治療」「しっかり」では、ほかの医師が同じ治療を再現できず、効果の時間経過も分からない。", how: "一般名・量・期間 ＋「何週（何か月）後に、何が、どうなったか」＋減量・中止と再発の有無。経過図（横軸＝時間、上に薬の帯）を付けると一目で分かる。", ex: "プレドニゾロン 40 mg/日を開始し、2週後に水疱の新生は止まった。2週ごとに漸減し、6か月後に 10 mg/日で再発はない。" },
+ disc1: { n: "考察の1文目", why: "考察を教科書的な一般論から始めると、読者は本例から何を学べるのか分からないまま読むことになる。", how: "考察の1段落目の1文目で「本例は、〇〇の点が特徴である」と言い切る。その後に既報との比較・しくみ・限界。", ex: "本例は、口腔内びらんが3か月先行した点が特徴である。" },
+ overclaim: { n: "言いすぎない", why: "1例や1つの研究で分かるのは「起こりうる」「関連がある」まで。「証明」「必ず」は査読で必ず指摘され、信頼を失う。", how: "和文：〜と考えられる／〜の可能性がある／〜が示唆される。英文：suggest・may・be associated with。観察研究は「原因」でなく「関連」。", ex: "本例から、〇〇が有効であった可能性がある。／These findings suggest that … may be associated with …" },
+ hedge: { n: "しくみ（機序）の書き方", why: "しくみは多くの場合、推測を含む。推測を事実のように書くと誤解を招く。", how: "既報の知見を根拠に、控えめな強さで（〜が関与した可能性が考えられる）。根拠の文献を引用する。", ex: "機序として、〇〇が関与した可能性が考えられる［3］。" },
+ lit: { n: "既報との比べ方", why: "「たくさんある」「世界初」は根拠がなく、検索の見落としもありうる。検索方法を示すと、読者が確かめられる。", how: "データベース（PubMed・医中誌Web）・検索語・期間を書き、既報の数を示し、表（年齢・性別・部位・治療・経過、最終行に自験例）で比べる。「検索した範囲では」と控えめに。", ex: "PubMed と医中誌Web で「pemphigus」「oral」を用いて検索した範囲では、同様の報告は8例であった（表1）。" },
+ limit: { n: "限界の書き方", why: "限界のない研究・症例はない。書かないと査読で指摘され、書けば結論の信頼性が上がる。", how: "1例であること・観察期間・ほかの要因（自然軽快・併用薬）の可能性・行っていない検査、を具体的に。", ex: "本報告は1例の経験であり、自然軽快の可能性は否定できない。" },
+ concl: { n: "結語の型", why: "結語は読者が最後に持ち帰る1文。「貴重な症例と考え報告した」は何も持ち帰れない。", how: "最初に決めた「伝えたいこと」と同じ内容を、読者の行動の形で（〜では〇〇を考える／〇〇が診断の手がかりになる）。", ex: "治りにくい口腔内びらんでは、皮疹がなくても天疱瘡を考えて抗体を測定する必要がある。" },
+ abstract: { n: "抄録（要旨）の型", why: "抄録だけを読む人が多く、データベースにも抄録だけが載ることがある。決まり文句だけでは中身が伝わらない。", how: "年齢・性別 → 経過と所見 → 検査・病理 → 診断 → 治療と経過 → 伝えたいこと。文献の引用・本文にない情報・定義していない略語は入れない。", ex: "65歳、女性。口腔内びらんが3か月続いた後、体幹に弛緩性水疱が出現した。…口腔内の難治性びらんでは天疱瘡を考える必要がある。" },
+ legend: { n: "図の説明（凡例）の型", why: "読者の多くは図と説明だけを見る。倍率表記（×400）は拡大・縮小でずれるので、スケールバーのほうが確実。", how: "何の図か ＋ 何が見えるか ＋ 矢印・記号の意味 ＋ 染色名 ＋ スケールバー。複数の写真は a・b・c で分けて説明。", ex: "図2　病理組織像（HE 染色）。基底層直上の裂隙（矢印）（スケールバー＝100 µm）。" },
+ image: { n: "写真の加工", why: "一部分だけの色や明るさの変更は、効果を大きく見せる改ざんになりうる。研究不正と判断されることがある。", how: "許される：写真全体の均一な明るさ調整・切り取り・個人特定を防ぐ目隠し。治療前後は同じ距離・角度・光で撮る。元の写真は保存。", ex: "治療前後を同じ距離・背景で撮影し、全体の明るさだけをそろえた。" },
+ table: { n: "表の型", why: "格子の表は読みにくく、多くの雑誌の形式に合わない。", how: "横線3本（上・見出しの下・最下）、縦線なし。表題は上、略語と記号の説明は下の脚注。単位は見出しに。", ex: "表1　対象者の背景（横線3本、年齢は「72 ± 9」、脚注に「平均±SD」）" },
+ numbers: { n: "数字の書き方", why: "意味のない桁は精度があるように誤解させる。分母がないと、少人数の割合かどうか分からない。", how: "意味のある桁（割合は整数〜小数1桁）。割合には分母（12/60 例、20%）。P 値は実際の値（P＝0.048、P＜0.001）。", ex: "再発は 12/60 例（20%）であった。" },
+ results: { n: "結果の型", why: "結果に解釈が混ざると、事実と著者の考えが区別できない。「明らか」は1研究では言いすぎ。", how: "時点・分母・割合・差や比と 95% 信頼区間・P 値の実際の値。解釈は考察へ。", ex: "再発は治療群 12/60 例（20%）、対照群 21/58 例（36%）であった（P＝0.048）。" },
+ entense: { n: "英文の時制", why: "症例・方法・結果を現在形で書くと、一般的な事実のように読める。", how: "自分の症例・方法・結果は過去形（presented with, revealed, showed）。一般的な事実・図表の説明は現在形。", ex: "A 72-year-old man presented with tense blisters. Histopathological examination showed a subepidermal blister." },
+ consent: { n: "患者の同意", why: "匿名化しても、多くの雑誌は書面の同意を求める。写真は特に、目を隠すだけでは本人と分かることがある。", how: "誰から（本人・家族・代理人）・何について（写真を含む掲載）・どの形で（書面）を本文に書く。雑誌指定の書式があればそれを使う。", ex: "本報告について、患者から写真を含めた掲載の同意を書面で得た。" },
+ ai: { n: "生成AI を使ったとき", why: "生成AI は責任を負えないので著者にはなれない。使ったことを隠すと出版倫理の問題になる。", how: "どの道具を何に使ったかを、雑誌の規定の場所（謝辞・方法など）に書く。内容の責任は著者。個人情報は入力しない。文献は実在を確認。", ex: "英文の校正に生成AI（ツール名）を用い、著者が内容を確認した。" },
+ author: { n: "著者の条件", why: "関わっていない人を著者にする（ギフト・オーサーシップ）のは不適切な行為。著者は論文全体に責任を負う。", how: "ICMJE の4条件すべて：①構想・データ・解析への貢献 ②執筆か重要な見直し ③最終稿の承認 ④責任を負う同意。満たさない協力者は謝辞へ。", ex: "病理診断に助言をいただいた〇〇先生に謝辞で感謝する。" },
+};
+const RK = ["title", "title", "title", "title", "intro", "intro", "intro", "privacy", "privacy", "privacy", "privacy", "privacy", "drug", "drug", "exam", "exam", "interp", "lab", "lab", "lab", "path", "path", "tx", "tx", "tx", "disc1", "overclaim", "lit", "lit", "lit", "limit", "concl", "concl", "abstract", "abstract", "legend", "legend", "image", "table", "numbers", "results", "results", "entense", "overclaim", "consent", "consent", "ai", "author",
+  "privacy", "exam", "lab", "hedge", "abstract", "results", "entense", "legend"];
+const ruleHtml = k => { const r = RULES[k]; if (!r) return ""; return `<div class="whybox"><span class="lbl">${esc(r.n)}</span><div class="body"><p style="margin:0 0 6px"><b>なぜ大事か：</b>${esc(r.why)}</p><p style="margin:0 0 6px"><b>書き方の型：</b>${esc(r.how)}</p><p style="margin:0"><b>よい例：</b>${esc(r.ex)}</p></div></div>`; };
+
+/* 骨組み暗記の「なぜ」（SK と同じ順） */
+const SKW = [
+ "読む順（タイトル→抄録→序論…）に書くと、結果が固まる前に序論や抄録を書くことになり、何度も書き直す。事実（図表・結果）を先に固め、その解釈（考察）、考察に向けた導入（序論）、最後に全体の要約（抄録・タイトル）の順にすると、書き直しが最も少ない。",
+ "読者は「なぜ読むか（緒言）→ 何があったか（症例）→ それは何を意味するか（考察）→ 何を持ち帰るか（結語）」の順で理解する。要旨はその全体の要約なので最初に置く。",
+ "診療の流れ（誰が・何で来て・どんな背景で・いつから・何が見えて・何を調べて・何と分かり・どうなったか）の順にすると、読者が時間の流れを追いやすい。解釈は入れない。",
+ "まず本例の特徴を言い切り、既報と比べて位置づけ、なぜそうなったかを考え、臨床での意味と限界を述べてから、結語で伝えたいことに戻る。この順だと読者が迷わない。",
+ "広い話（病気の説明）から狭い話（本例の特徴）へ絞る漏斗の形。最後の1文で「だからこの症例を報告する」とつなぐ。",
+ "なぜ（序論）→ どうやって（方法）→ 何が分かった（結果）→ 何を意味するか（考察）。読者は必要な部分だけを探して読めるよう、どの論文も同じ並びになっている。",
+ "「分かっていること」だけでは研究する理由がない。「しかし〜は分かっていない（研究の空白）」を示すことで、目的が自然に導かれる。",
+ "抄録だけ読む人が多い。症例の流れ（背景→所見→検査→診断→治療と経過）を短くたどり、最後に伝えたいことを置くと、それだけで内容が分かる。",
+ "表紙の次に COI を置くのは学会の決まり。その後は症例の流れどおりに見せ、最後は質疑の間も映る結語で終える。",
+ "結果1つには「いつの時点で・何人中何人か・どれくらいの差か（信頼区間）・偶然かどうか（P 値）」が必要。この順に書くと読み手が数字を追いやすい。",
+ "査読者は自分のコメントへの答えを探す。コメントを引用し、感謝し、何を直したか、本文のどこかを示すと、すぐに確認できる。",
+ "倫理審査の承認と試験登録は、研究を始める前に済ませる決まり。後から取ることはできず、取っていない研究は掲載されない。",
+ "タイトルは検索で最初に読まれる。病名と特徴、検索される語を入れると見つけてもらえる。評価の言葉や施設名は情報にならない。",
+ "写真は小さく印刷されたり白黒になったりする。部位・分布・大きさ・性状・数がそろうと、言葉だけで皮疹が再現できる。感想・解釈・日付は不要。",
+ "他の施設の医師が比べられるよう、値・単位・基準値を書く。診断を支える値と、除外の根拠になった陰性の値だけに絞ると要点が伝わる。",
+ "皮膚病理は「どの層に何があるか」で伝わる。染色名とスケールバーがあれば、読者が所見を確かめられる。",
+ "一般名・量・期間があれば他の医師が再現でき、「何週後にどうなったか」と再発の有無で効果が分かる。",
+ "検索方法（データベース・語・期間）と既報の数・表があれば、「まれ」「新しい」の根拠になり、読者が確かめられる。",
+ "名前・イニシャル・年月日・他院名・画像の ID は、組み合わせると患者が特定されうる。年齢・性別・年月は書いてよい。",
+ "図と説明だけで内容が分かるのが理想。何の図か・何が見えるか・記号の意味・染色名・スケールバーがそろうと独り立ちする。",
+ "結果は事実（数字）だけ。分母・割合・信頼区間・P 値があれば読者が評価でき、解釈は考察で述べる。",
+ "同意・利益相反・研究費・生成AI の使用は、出版倫理のために必要な記載。投稿規定の決まった場所・形式で書く。",
+ "編集者はカバーレターで査読に回すかを決める。新しさと雑誌に合う理由、出版倫理上の確認事項を短く伝える。",
+ "スライドは「読む」より「見る」もの。結論のタイトル、大きな文字、写真の矢印、COI と結語の位置が、伝わる発表の骨組み。",
+ "著者は論文全体に責任を負う人。4条件すべてを満たさない協力者は、著者ではなく謝辞で感謝する。",
+ "いきなりスライドを作り込むと、話の筋が決まらないまま時間を使う。タイトル（結論の文）を先に並べると話の筋が決まり、その後に図を入れて文字を削る。",
+ "研究発表も論文の IMRaD と同じ流れ。背景（空白）→ 目的 → 方法 → 背景の表 → 結果 → 考察 → 結語の順で、結果のスライドが山場になる。",
+ "聴衆はまずタイトルを読み、次に図を見る。タイトルで結論を言い、図で根拠を見せ、矢印で注目点を示す。出典は邪魔にならないよう小さく。",
+ "全体像でどこの皮疹かを示してから、近接像で性状、ダーモスコピーで細かい所見へ。大→小の順で迷わない。",
+ "弱拡大で全体の構築（どの層に病変があるか）を見せてから、強拡大で所見、最後に診断を確定する特殊検査。",
+ "時間とスライドの縦横比は学会ごとに違う。作る → 原稿 → 時間を計る → 指導医の目 → ファイルの準備 → 試写、の順で当日の失敗を防ぐ。",
+ "まず感謝し、質問を言い直して意図を確かめ、結論から短く答える。分からなければ正直に言うのが最善。",
+ "ポスターは立ち止まる時間が短い。上から下、左から右に読める並びで、結語を目立たせる。",
+ "表紙には演題名・所属・演者だけ。患者の情報や長い文章は不要。演題名は抄録と同じにする。",
+ "COI があること自体は問題ではない。隠すことが問題。表紙の次に、学会の書式で示す。",
+ "症例のスライドは、時間と短い語句で経過を見せる。文章で埋めると聴衆は読むのに追われる。正確な年月日は書かない。",
+ "写真は大きく、全体像と近接像、所見に矢印と短い言葉。顔は必要な部分だけを切り取り、同意を得る。",
+ "検査は診断に関係する値と除外の根拠だけを大きく。異常値は色や太字で。全項目の表は会場では読めない。",
+ "考察のスライドは、比べたい列だけに絞った既報の表と、本例から言えること。文献の文章をそのまま貼らない。",
+ "最後のスライドは質疑の間ずっと映る。伝えたいことを残すと、聴衆の記憶に残る。",
+ "会場の後ろからも読めるか、が基準。24ポイント以上・ゴシック体・1枚1メッセージ・強調は1〜2色・ページ番号（質疑で「〇枚目」と言える）。",
+ "スライドのグラフは、言いたい線だけを強調して他は灰色に。軸と単位、大きな文字、凡例は線の近くに。立体や論文の図の縮小は読めない。",
+ "最初に何の話かを言うと聴衆が集中できる。スライドを読み上げない、ポインターは示して止める、時間が足りなければ結語へ。",
+];
+
 /* ---------- 直結ドリル：論文の1文を見て「OK」か「直す」かを即答。1周3〜5分、何周でも ----------
    DR = [場所, 文, OKならtrue, ひとこと（直す場合は直し方）] */
 const DR = [
@@ -1662,12 +1742,27 @@ const DR = [
 let DS = null;
 function drillStats() { const d = WD.drill || {}; const today = new Date().toDateString(); return { laps: d.laps || 0, today: d.day === today ? (d.todayLaps || 0) : 0, best: d.best || null, miss: d.miss || {} }; }
 function drillHtml() {
-  const st = drillStats(), weak = Object.values(st.miss).filter(n => n > 0).length;
+  const st = drillStats(), weak = Object.values(st.miss).filter(n => n > 0).length, last = (WD.drill || {}).last || {}, done = Object.keys(last).filter(k => DR[k]).length, okn = Object.keys(last).filter(k => DR[k] && last[k] === 1).length, cur = (WD.drill || {}).cur;
   return `<section class="path course"><h2>直結ドリル（${DR.length}問・1周3〜5分）</h2>
-  <p class="pnote">論文の1文を見て「このままでOK」か「直す」かを即答します。<b>何周でもくり返して</b>、ダメな書き方が一目で分かるようにします。2周目からは間違えた問題が先に出ます。</p>
-  <p style="margin:0 0 10px;font-size:14px">今日 <b>${st.today}</b>周　累計 <b>${st.laps}</b>周${st.best ? `　最高 ${st.best.ok}/${DR.length}問（${st.best.sec}秒）` : ""}${weak ? `　苦手 ${weak}問` : ""}</p>
-  <div class="row"><button class="btn big" data-act="dstart">${st.laps ? "もう1周" : "1周目をはじめる"}</button>${weak ? `<button class="btn sub big" data-act="dweak">苦手だけ（${weak}問）</button>` : ""}</div></section>`;
+  <p class="pnote">論文の1文を見て「このままでOK」か「直す」かを即答します。答えると<b>なぜダメか・書き方の型・よい例</b>が出ます。2周目からは間違えた問題が先に出ます。</p>
+  <p style="margin:0 0 4px;font-size:14px">解いた問題 <b>${done} / ${DR.length}</b>・前回正解 <b>${okn}</b>問${weak ? `・苦手 <b>${weak}</b>問` : ""}　｜　今日 ${st.today}周・累計 ${st.laps}周${st.best ? `・最高 ${st.best.ok}/${DR.length}（${st.best.sec}秒）` : ""}</p>
+  <div class="meter" aria-hidden="true" style="margin-bottom:10px"><i style="width:${done / DR.length * 100}%"></i></div>
+  <div class="row">${cur && cur.list && cur.k < cur.list.length ? `<button class="btn big" data-act="dresume">続きから（${cur.k + 1} / ${cur.list.length}問目）</button><button class="btn sub big" data-act="dstart">最初から</button>` : `<button class="btn big" data-act="dstart">${st.laps ? "もう1周" : "1周目をはじめる"}</button>`}${weak ? `<button class="btn sub big" data-act="dweak">苦手だけ（${weak}問）</button>` : ""}<button class="btn sub big" data-act="dlist">一覧（解説を読む）</button></div></section>`;
 }
+function dlist() {
+  const last = (WD.drill || {}).last || {};
+  app.innerHTML = header() + `<section class="hero"><h1>直結ドリルの一覧</h1><p>✅＝前回正解、❌＝前回まちがい、⬜＝まだ。タップすると答えと解説が読めます。</p></section>
+  <section class="panel" style="display:block">${DR.map((d, i) => `<button class="rrow" data-act="ditem" data-i="${i}" style="display:flex;width:100%;text-align:left;gap:10px;background:none;border:0;border-bottom:1px solid var(--line);padding:10px 2px;font:inherit;color:inherit"><span>${last[i] === 1 ? "✅" : last[i] === 0 ? "❌" : "⬜"}</span><span><small style="color:var(--muted)">${esc(d[0])}</small><br>${esc(d[1])}</span></button>`).join("")}</section>
+  <div class="row"><button class="btn sub big" data-act="home">ホームへ</button></div>`;
+}
+function ditem() {
+  const i = DI, d = DR[i], last = ((WD.drill || {}).last || {})[i];
+  app.innerHTML = header() + `<div class="qhead"><span class="fl">直結ドリル</span><span>${esc(d[0])}</span><span class="n">${i + 1} / ${DR.length}</span></div>
+  <article class="qcard"><div class="qtext">${esc(d[1])}</div><div class="verdict ${d[2] ? "ok" : "ng"}"><span class="big">${d[2] ? "○" : "×"}</span><div><h3>${d[2] ? "このままでOK" : "直す"}</h3><p>${esc(d[3])}</p></div></div>
+  <p class="pnote" style="margin:0">前回のあなた：${last === 1 ? "正解" : last === 0 ? "まちがい" : "まだ解いていない"}</p>${ruleHtml(RK[i])}
+  <div class="qnav">${i > 0 ? `<button class="btn sub" data-act="ditem" data-i="${i - 1}">前へ</button>` : ""}<button class="btn sub" data-act="dlist">一覧へ</button>${i + 1 < DR.length ? `<button class="btn" data-act="ditem" data-i="${i + 1}">次へ</button>` : ""}</div></article>`;
+}
+let DI = 0;
 function dOrder(onlyWeak) {
   const miss = drillStats().miss; let ids = DR.map((_, i) => i);
   if (onlyWeak) ids = ids.filter(i => (miss[i] || 0) > 0);
@@ -1681,7 +1776,7 @@ function drill() {
   if (ans === null) h += `<div class="row" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><button class="btn big" data-act="dans" data-v="1">このままでOK</button><button class="btn big" data-act="dans" data-v="0" style="background:var(--em)">直す</button></div><p class="pnote" style="margin:0;text-align:center">キーボード：← OK ／ → 直す</p>`;
   else { const right = (ans === 1) === it[2];
     h += `<div class="verdict ${right ? "ok" : "ng"}"><span class="big">${right ? "○" : "×"}</span><div><h3>${it[2] ? "このままでOK" : "直す"}</h3><p>${esc(it[3])}</p></div></div>
-    <div class="qnav"><button class="btn big" data-act="dnext" id="dnext">${DS.k + 1 < DS.list.length ? "次へ（Enter）" : "結果を見る"}</button></div>`; }
+    ${ruleHtml(RK[i])}<div class="qnav"><button class="btn big" data-act="dnext" id="dnext">${DS.k + 1 < DS.list.length ? "次へ（Enter）" : "結果を見る"}</button></div>`; }
   app.innerHTML = h + `</article>`;
 }
 function drillEnd() {
@@ -1695,10 +1790,13 @@ function drillEnd() {
   <div class="row"><button class="btn big" data-act="dstart">もう1周</button>${wrong.length ? `<button class="btn sub big" data-act="dweak">苦手だけ</button>` : ""}<button class="btn sub big" data-act="home">ホームへ</button></div>`;
 }
 function drillAct(a, b) {
-  if (a === "dstart" || a === "dweak") { const list = dOrder(a === "dweak"); if (!list.length) return true; DS = { list, k: 0, ans: null, ok: 0, wrong: [], t0: Date.now() }; S.view = "drill"; render(); window.scrollTo(0, 0); return true; }
+  if (a === "dstart" || a === "dweak") { const list = dOrder(a === "dweak"); if (!list.length) return true; DS = { list, k: 0, ans: null, ok: 0, wrong: [], t0: Date.now() }; WD.drill = WD.drill || {}; WD.drill.cur = { list, k: 0, ok: 0, wrong: [], t0: DS.t0 }; wSave(); S.view = "drill"; render(); window.scrollTo(0, 0); return true; }
+  if (a === "dresume") { const c = (WD.drill || {}).cur; if (!c) return true; DS = { list: c.list, k: c.k, ans: null, ok: c.ok, wrong: c.wrong || [], t0: Date.now() - 1000 }; S.view = "drill"; render(); window.scrollTo(0, 0); return true; }
+  if (a === "dlist") { S.view = "dlist"; render(); window.scrollTo(0, 0); return true; }
+  if (a === "ditem") { DI = +b.dataset.i; S.view = "ditem"; render(); window.scrollTo(0, 0); return true; }
   if (a === "dans") { if (DS.ans !== null) return true; DS.ans = +b.dataset.v; const i = DS.list[DS.k], right = (DS.ans === 1) === DR[i][2]; WD.drill = WD.drill || {}; WD.drill.miss = WD.drill.miss || {};
-    if (right) { DS.ok++; if (WD.drill.miss[i]) WD.drill.miss[i]--; } else { DS.wrong.push(i); WD.drill.miss[i] = (WD.drill.miss[i] || 0) + 2; } wSave(); render(); return true; }
-  if (a === "dnext") { if (DS.k + 1 < DS.list.length) { DS.k++; DS.ans = null; render(); window.scrollTo(0, 0); } else { S.view = "drillend"; render(); } return true; }
+    if (right) { DS.ok++; if (WD.drill.miss[i]) WD.drill.miss[i]--; } else { DS.wrong.push(i); WD.drill.miss[i] = (WD.drill.miss[i] || 0) + 2; } WD.drill.last = WD.drill.last || {}; WD.drill.last[i] = right ? 1 : 0; WD.drill.cur = { list: DS.list, k: DS.k + 1, ok: DS.ok, wrong: DS.wrong, t0: DS.t0 }; wSave(); render(); return true; }
+  if (a === "dnext") { if (DS.k + 1 < DS.list.length) { DS.k++; DS.ans = null; render(); window.scrollTo(0, 0); } else { WD.drill.cur = null; wSave(); S.view = "drillend"; render(); } return true; }
   return false;
 }
 document.addEventListener("keydown", e => { if (S.view !== "drill" || !DS) return; if (DS.ans === null) { if (e.key === "ArrowLeft") drillAct("dans", { dataset: { v: "1" } }); else if (e.key === "ArrowRight") drillAct("dans", { dataset: { v: "0" } }); } else if (e.key === "Enter" || e.key === " ") { e.preventDefault(); drillAct("dnext"); } });
@@ -1754,9 +1852,10 @@ const gOf = it => it.g || "paper";
 const GN = { paper: "論文", slide: "スライド" };
 function skStats(g) { const d = WD.sk || {}, today = new Date().toDateString(), P = g === "slide" ? "s" : ""; return { laps: d[P + "laps"] || 0, today: d[P + "day"] === today ? (d[P + "todayLaps"] || 0) : 0, miss: Object.fromEntries(Object.entries(d.miss || {}).filter(([i]) => SK[i] && gOf(SK[i]) === (g || "paper"))) }; }
 function skHtml() {
-  const row = g => { const st = skStats(g), weak = Object.values(st.miss).filter(n => n > 0).length, n = SK.filter(x => gOf(x) === g).length;
-    return `<h3 style="font-size:16px;margin:12px 0 4px">${GN[g]}の骨組み（${n}問）　<small style="font-weight:400;color:var(--muted)">今日 ${st.today}周・累計 ${st.laps}周${weak ? `・苦手 ${weak}問` : ""}</small></h3>
-    <div class="row"><button class="btn" data-act="kstart" data-g="${g}">${st.laps ? "もう1周" : "1周目をはじめる"}</button>${weak ? `<button class="btn sub" data-act="kweak" data-g="${g}">苦手だけ（${weak}問）</button>` : ""}<button class="btn sub" data-act="ksheet" data-g="${g}">${GN[g]}の骨組みシート</button></div>`; };
+  const row = g => { const st = skStats(g), weak = Object.values(st.miss).filter(n => n > 0).length, n = SK.filter(x => gOf(x) === g).length, last = (WD.sk || {}).last || {}, ids = SK.map((_, i) => i).filter(i => gOf(SK[i]) === g), done = ids.filter(i => last[i] !== undefined).length, okn = ids.filter(i => last[i] === 1).length, cur = ((WD.sk || {}).cur || {})[g];
+    return `<h3 style="font-size:16px;margin:12px 0 4px">${GN[g]}の骨組み（${n}問）　<small style="font-weight:400;color:var(--muted)">解いた ${done}/${n}・前回正解 ${okn}問${weak ? `・苦手 ${weak}問` : ""}｜今日 ${st.today}周・累計 ${st.laps}周</small></h3>
+    <div class="meter" aria-hidden="true" style="margin-bottom:8px"><i style="width:${done / n * 100}%"></i></div>
+    <div class="row">${cur && cur.list && cur.k < cur.list.length ? `<button class="btn" data-act="kresume" data-g="${g}">続きから（${cur.k + 1} / ${cur.list.length}問目）</button><button class="btn sub" data-act="kstart" data-g="${g}">最初から</button>` : `<button class="btn" data-act="kstart" data-g="${g}">${st.laps ? "もう1周" : "1周目をはじめる"}</button>`}${weak ? `<button class="btn sub" data-act="kweak" data-g="${g}">苦手だけ（${weak}問）</button>` : ""}<button class="btn sub" data-act="ksheet" data-g="${g}">${GN[g]}の骨組みシート</button></div>`; };
   return `<section class="path course"><h2>骨組み暗記（各1周3〜4分）</h2>
   <p class="pnote"><b>順番</b>は並べ替えで、<b>必ず入れること</b>は全部えらぶ形で、何周もして覚えます。</p>${row("paper")}${row("slide")}</section>`;
 }
@@ -1776,11 +1875,11 @@ function skel() {
     if (!KS.done) h += `<div class="qnav"><button class="btn" data-act="kcheck">答え合わせ</button></div>`;
     else h += `<p class="pnote" style="margin:0">○＝入れるもの（点線の枠は選び忘れ）、×＝入れないもの</p>`;
   }
-  if (KS.done) h += `<div class="verdict ${KS.ok ? "ok" : "ng"}"><span class="big">${KS.ok ? "○" : "×"}</span><div><h3>${KS.ok ? "正解" : "もう一度覚えよう"}</h3><p>${esc(it.n)}</p></div></div><div class="qnav"><button class="btn big" data-act="knext">${KS.k + 1 < KS.list.length ? "次へ" : "結果を見る"}</button></div>`;
+  if (KS.done) h += `<div class="verdict ${KS.ok ? "ok" : "ng"}"><span class="big">${KS.ok ? "○" : "×"}</span><div><h3>${KS.ok ? "正解" : "もう一度覚えよう"}</h3><p>${esc(it.n)}</p></div></div>${it.o ? `<div class="whybox"><span class="lbl">正しい順番</span><div class="body">${it.a.map((x, j) => `${j + 1}. ${esc(x)}`).join("<br>")}</div></div>` : `<div class="whybox"><span class="lbl">答え</span><div class="body"><b style="color:var(--acc)">${gOf(it) === "slide" ? "入れる" : "書く"}：</b>${it.y.map(esc).join("・")}<br><b style="color:var(--em)">${gOf(it) === "slide" ? "入れない" : "書かない"}：</b>${it.x.map(esc).join("・")}</div></div>`}<div class="whybox"><span class="lbl">なぜ</span><div class="body">${esc(SKW[KS.list[KS.k]] || "")}</div></div><div class="qnav"><button class="btn big" data-act="knext">${KS.k + 1 < KS.list.length ? "次へ" : "結果を見る"}</button></div>`;
   app.innerHTML = h + `</article>`;
 }
 function skLoad() { const it = SK[KS.list[KS.k]]; KS.done = false; KS.ok = false; if (it.o) { KS.pool = shuffle(it.a); KS.pick = []; } else { KS.opts = shuffle(it.y.concat(it.x)); KS.sel = []; } }
-function skFinish(ok) { KS.done = true; KS.ok = ok; const i = KS.list[KS.k]; WD.sk = WD.sk || {}; WD.sk.miss = WD.sk.miss || {}; if (ok) { KS.nok++; if (WD.sk.miss[i]) WD.sk.miss[i]--; } else { KS.wrong.push(i); WD.sk.miss[i] = (WD.sk.miss[i] || 0) + 2; } wSave(); }
+function skFinish(ok) { KS.done = true; KS.ok = ok; const i = KS.list[KS.k]; WD.sk = WD.sk || {}; WD.sk.miss = WD.sk.miss || {}; WD.sk.last = WD.sk.last || {}; WD.sk.last[i] = ok ? 1 : 0; WD.sk.cur = WD.sk.cur || {}; WD.sk.cur[KS.g] = { list: KS.list, k: KS.k + 1, nok: KS.nok + (ok ? 1 : 0), wrong: KS.wrong.concat(ok ? [] : [i]) }; if (ok) { KS.nok++; if (WD.sk.miss[i]) WD.sk.miss[i]--; } else { KS.wrong.push(i); WD.sk.miss[i] = (WD.sk.miss[i] || 0) + 2; } wSave(); }
 function skEnd() {
   const n = KS.list.length, d = WD.sk = WD.sk || {}, today = new Date().toDateString(), sec = Math.round((Date.now() - KS.t0) / 1000);
   const P = KS.g === "slide" ? "s" : ""; if (n === SK.filter(x => gOf(x) === KS.g).length) { d[P + "laps"] = (d[P + "laps"] || 0) + 1; d[P + "todayLaps"] = (d[P + "day"] === today ? (d[P + "todayLaps"] || 0) : 0) + 1; d[P + "day"] = today; if (KS.nok === n) d[P + "perfect"] = 1; } wSave();
@@ -1788,24 +1887,26 @@ function skEnd() {
   ${KS.wrong.length ? `<section class="panel" style="display:block"><h3>もう一度見ておくもの</h3>${KS.wrong.map(i => sheetItem(SK[i])).join("")}</section>` : ""}
   <div class="row"><button class="btn big" data-act="kstart" data-g="${KS.g}">もう1周</button>${KS.wrong.length ? `<button class="btn sub big" data-act="kweak" data-g="${KS.g}">苦手だけ</button>` : ""}<button class="btn sub big" data-act="home">ホームへ</button></div>`;
 }
-function sheetItem(it) { return it.o ? `<p style="margin:12px 0 2px;font-weight:700">${esc(it.o)}</p><p style="margin:0">${it.a.map(esc).join(" → ")}</p><p class="pnote" style="margin:2px 0 0">${esc(it.n)}</p>`
-  : `<p style="margin:12px 0 2px;font-weight:700">${esc(it.p)}</p><p style="margin:0"><span style="color:var(--acc)">${gOf(it) === "slide" ? "入れる" : "書く"}：</span>${it.y.map(esc).join("・")}<br><span style="color:var(--em)">${gOf(it) === "slide" ? "入れない" : "書かない"}：</span>${it.x.map(esc).join("・")}</p><p class="pnote" style="margin:2px 0 0">${esc(it.n)}</p>`; }
+function sheetItem(it) { const ix = SK.indexOf(it), lt = ((WD.sk || {}).last || {})[ix], mk = lt === 1 ? "✅ " : lt === 0 ? "❌ " : "⬜ ", sl = gOf(it) === "slide";
+  const body = it.o ? `<p style="margin:0">${it.a.map(esc).join(" → ")}</p>` : `<p style="margin:0"><span style="color:var(--acc)">${sl ? "入れる" : "書く"}：</span>${it.y.map(esc).join("・")}<br><span style="color:var(--em)">${sl ? "入れない" : "書かない"}：</span>${it.x.map(esc).join("・")}</p>`;
+  return `<p style="margin:14px 0 2px;font-weight:700">${mk}${esc(it.o || it.p)}</p>${body}<p class="pnote" style="margin:2px 0 0">${esc(it.n)}</p>${SKW[ix] ? `<p style="margin:4px 0 0;font-size:14px;color:var(--muted)"><b>なぜ：</b>${esc(SKW[ix])}</p>` : ""}`; }
 function sheet() {
   const L = SK.filter(x => gOf(x) === KSG);
-  app.innerHTML = header() + `<section class="hero"><h1>${GN[KSG]}の骨組みシート</h1><p>${KSG === "slide" ? "スライドを作る順番と、各スライドに必ず入れること・入れないことの一覧です。作る前と予演会の前に見返します。" : "書く順番と、各部分に必ず書くこと・書かないことの一覧です。書く前と書いた後に見返します。"}</p></section>
+  app.innerHTML = header() + `<section class="hero"><h1>${GN[KSG]}の骨組みシート</h1><p>✅＝前回正解、❌＝前回まちがい、⬜＝まだ。${KSG === "slide" ? "スライドを作る順番と、各スライドに必ず入れること・入れないことの一覧です。作る前と予演会の前に見返します。" : "書く順番と、各部分に必ず書くこと・書かないことの一覧です。書く前と書いた後に見返します。"}</p></section>
   <div class="row"><button class="${KSG === "paper" ? "btn" : "btn sub"}" data-act="ksheet" data-g="paper">論文</button><button class="${KSG === "slide" ? "btn" : "btn sub"}" data-act="ksheet" data-g="slide">スライド</button></div>
   <section class="panel" style="display:block"><h3>順番</h3>${L.filter(x => x.o).map(sheetItem).join("")}</section>
   <section class="panel" style="display:block"><h3>${KSG === "slide" ? "必ず入れること・入れないこと" : "必ず書くこと・書かないこと"}</h3>${L.filter(x => x.p).map(sheetItem).join("")}</section>
   <div class="row"><button class="btn big" data-act="kstart" data-g="${KSG}">${GN[KSG]}の骨組み暗記を1周する</button><button class="btn sub big" data-act="home">ホームへ</button></div>`;
 }
 function skAct(a, b) {
-  if (a === "kstart" || a === "kweak") { const g = (b && b.dataset && b.dataset.g) || (KS && KS.g) || "paper", miss = skStats(g).miss; let l = SK.map((_, i) => i).filter(i => gOf(SK[i]) === g); if (a === "kweak") l = l.filter(i => (miss[i] || 0) > 0); if (!l.length) return true; l = shuffle(l).sort((x, y) => (miss[y] || 0) - (miss[x] || 0)); KS = { g, list: l, k: 0, nok: 0, wrong: [], t0: Date.now() }; skLoad(); S.view = "skel"; render(); window.scrollTo(0, 0); return true; }
+  if (a === "kstart" || a === "kweak") { const g = (b && b.dataset && b.dataset.g) || (KS && KS.g) || "paper", miss = skStats(g).miss; let l = SK.map((_, i) => i).filter(i => gOf(SK[i]) === g); if (a === "kweak") l = l.filter(i => (miss[i] || 0) > 0); if (!l.length) return true; l = shuffle(l).sort((x, y) => (miss[y] || 0) - (miss[x] || 0)); KS = { g, list: l, k: 0, nok: 0, wrong: [], t0: Date.now() }; WD.sk = WD.sk || {}; WD.sk.cur = WD.sk.cur || {}; WD.sk.cur[g] = { list: l, k: 0, nok: 0, wrong: [] }; wSave(); skLoad(); S.view = "skel"; render(); window.scrollTo(0, 0); return true; }
+  if (a === "kresume") { const g = b.dataset.g, c = ((WD.sk || {}).cur || {})[g]; if (!c) return true; KS = { g, list: c.list, k: c.k, nok: c.nok, wrong: c.wrong || [], t0: Date.now() }; skLoad(); S.view = "skel"; render(); window.scrollTo(0, 0); return true; }
   if (a === "ksheet") { KSG = (b && b.dataset && b.dataset.g) || "paper"; S.view = "sheet"; render(); window.scrollTo(0, 0); return true; }
   if (a === "kpick") { const j = +b.dataset.j; KS.pick.push(KS.pool[j]); KS.pool.splice(j, 1); if (!KS.pool.length) { const it = SK[KS.list[KS.k]]; skFinish(KS.pick.every((v, i) => v === it.a[i])); } render(); return true; }
   if (a === "kundo") { if (KS.pick.length) KS.pool.push(KS.pick.pop()); render(); return true; }
   if (a === "ksel") { const j = +b.dataset.j; KS.sel = KS.sel.includes(j) ? KS.sel.filter(x => x !== j) : KS.sel.concat(j); render(); return true; }
   if (a === "kcheck") { const it = SK[KS.list[KS.k]]; skFinish(KS.opts.every((v, j) => it.y.includes(v) === KS.sel.includes(j))); render(); return true; }
-  if (a === "knext") { if (KS.k + 1 < KS.list.length) { KS.k++; skLoad(); render(); window.scrollTo(0, 0); } else { S.view = "skend"; render(); } return true; }
+  if (a === "knext") { if (KS.k + 1 < KS.list.length) { KS.k++; skLoad(); render(); window.scrollTo(0, 0); } else { if (WD.sk.cur) WD.sk.cur[KS.g] = null; wSave(); S.view = "skend"; render(); } return true; }
   return false;
 }
 
@@ -2447,7 +2548,7 @@ function end() {
   </section>`;
 }
 
-function render() { S.view === "home" ? home() : S.view === "quiz" ? quiz() : S.view === "work" ? work() : S.view === "model" ? model() : S.view === "step" ? step() : S.view === "drill" ? drill() : S.view === "drillend" ? drillEnd() : S.view === "skel" ? skel() : S.view === "skend" ? skEnd() : S.view === "sheet" ? sheet() : S.view === "levels" ? levels() : S.view === "eye" ? eye() : S.view === "cert" ? cert() : S.view === "journals" ? journalsPage() : end(); if (S.view === "quiz") resetBar(); }
+function render() { S.view === "home" ? home() : S.view === "quiz" ? quiz() : S.view === "work" ? work() : S.view === "model" ? model() : S.view === "step" ? step() : S.view === "drill" ? drill() : S.view === "drillend" ? drillEnd() : S.view === "skel" ? skel() : S.view === "skend" ? skEnd() : S.view === "sheet" ? sheet() : S.view === "levels" ? levels() : S.view === "eye" ? eye() : S.view === "cert" ? cert() : S.view === "journals" ? journalsPage() : S.view === "dlist" ? dlist() : S.view === "ditem" ? ditem() : end(); if (S.view === "quiz") resetBar(); }
 /* 問題画面のいちばん下のリセット（この問題／この単元を選ぶ） */
 function resetBar() { const q = QI[S.list[S.i]]; if (!q) return; const d = document.createElement("div"); d.className = "rbar";
   d.innerHTML = `<button type="button" class="ghost" data-act="rmenu">リセット</button><div class="rmenu" hidden><p>どちらをリセットしますか？（まだ解いていない状態に戻します）</p><button type="button" class="ghost" data-act="qclr">この問題をリセット</button><button type="button" class="ghost" data-act="uclr" data-u="${q.u}">この単元（${esc(UNITS[q.u][1])}）をリセット</button><button type="button" class="ghost" data-act="rmenu">やめる</button></div>`;
@@ -2532,11 +2633,11 @@ document.addEventListener("keydown", e => {
 render();
 
 </script>
-<p class="offline">9版（雑誌ガイドの要確認を調べて更新（JAAD・JAAD Case Reports・JEADV・J Dermatol Sci・日皮会誌・臨床皮膚科・西日本皮膚科・日本臨床皮膚科医会雑誌））</p>
+<p class="offline">10版（直結ドリルと骨組み暗記の解説を追加（なぜ・書き方の型・よい例）、解いた数・前回正解・続きから・一覧を表示）</p>
 <p class="offline" id="offline">オフライン利用：準備中…</p>
 <script>
 (function(){
-  var el=document.getElementById("offline"),C="paper4-v9";
+  var el=document.getElementById("offline"),C="paper4-v10";
   function ok(){el.innerHTML="オフライン利用：<b>準備OK</b>（電波がなくても使えます）"}
   if(!("serviceWorker" in navigator)){el.textContent="オフライン利用：この環境では使えません";return}
   var had=!!navigator.serviceWorker.controller,reloaded=false;
