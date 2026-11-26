@@ -1795,7 +1795,7 @@ function drillAct(a, b) {
   if (a === "dlist") { S.view = "dlist"; render(); window.scrollTo(0, 0); return true; }
   if (a === "ditem") { DI = +b.dataset.i; S.view = "ditem"; render(); window.scrollTo(0, 0); return true; }
   if (a === "dans") { if (DS.ans !== null) return true; DS.ans = +b.dataset.v; const i = DS.list[DS.k], right = (DS.ans === 1) === DR[i][2]; WD.drill = WD.drill || {}; WD.drill.miss = WD.drill.miss || {};
-    if (right) { DS.ok++; if (WD.drill.miss[i]) WD.drill.miss[i]--; } else { DS.wrong.push(i); WD.drill.miss[i] = (WD.drill.miss[i] || 0) + 2; } WD.drill.last = WD.drill.last || {}; WD.drill.last[i] = right ? 1 : 0; WD.drill.cur = { list: DS.list, k: DS.k + 1, ok: DS.ok, wrong: DS.wrong, t0: DS.t0 }; wSave(); render(); return true; }
+    DS.res = DS.res || {}; const first = DS.res[DS.k] === undefined; DS.res[DS.k] = right; if (right) { if (first) DS.ok++; if (WD.drill.miss[i]) WD.drill.miss[i]--; } else { if (first) DS.wrong.push(i); WD.drill.miss[i] = (WD.drill.miss[i] || 0) + 2; } WD.drill.last = WD.drill.last || {}; WD.drill.last[i] = right ? 1 : 0; WD.drill.cur = { list: DS.list, k: DS.k + 1, ok: DS.ok, wrong: DS.wrong, t0: DS.t0 }; wSave(); render(); return true; }
   if (a === "dnext") { if (DS.k + 1 < DS.list.length) { DS.k++; DS.ans = null; render(); window.scrollTo(0, 0); } else { WD.drill.cur = null; wSave(); S.view = "drillend"; render(); } return true; }
   return false;
 }
@@ -1881,7 +1881,7 @@ function skel() {
   app.innerHTML = h + `</article>`;
 }
 function skLoad() { const it = SK[KS.list[KS.k]]; KS.done = false; KS.ok = false; if (it.o) { KS.pool = shuffle(it.a); KS.pick = []; } else { KS.opts = shuffle(it.y.concat(it.x)); KS.sel = []; } }
-function skFinish(ok) { KS.done = true; KS.ok = ok; const i = KS.list[KS.k]; WD.sk = WD.sk || {}; WD.sk.miss = WD.sk.miss || {}; WD.sk.last = WD.sk.last || {}; WD.sk.last[i] = ok ? 1 : 0; WD.sk.cur = WD.sk.cur || {}; WD.sk.cur[KS.g] = { list: KS.list, k: KS.k + 1, nok: KS.nok + (ok ? 1 : 0), wrong: KS.wrong.concat(ok ? [] : [i]) }; if (ok) { KS.nok++; if (WD.sk.miss[i]) WD.sk.miss[i]--; } else { KS.wrong.push(i); WD.sk.miss[i] = (WD.sk.miss[i] || 0) + 2; } wSave(); }
+function skFinish(ok) { KS.done = true; KS.ok = ok; const i = KS.list[KS.k]; WD.sk = WD.sk || {}; WD.sk.miss = WD.sk.miss || {}; WD.sk.last = WD.sk.last || {}; WD.sk.last[i] = ok ? 1 : 0; WD.sk.cur = WD.sk.cur || {}; WD.sk.cur[KS.g] = { list: KS.list, k: KS.k + 1, nok: KS.nok + (ok ? 1 : 0), wrong: KS.wrong.concat(ok ? [] : [i]) }; KS.res = KS.res || {}; const first = KS.res[KS.k] === undefined; KS.res[KS.k] = ok; if (ok) { if (first) KS.nok++; if (WD.sk.miss[i]) WD.sk.miss[i]--; } else { if (first) KS.wrong.push(i); WD.sk.miss[i] = (WD.sk.miss[i] || 0) + 2; } wSave(); }
 function skEnd() {
   const n = KS.list.length, d = WD.sk = WD.sk || {}, today = new Date().toDateString(), sec = Math.round((Date.now() - KS.t0) / 1000);
   const P = KS.g === "slide" ? "s" : ""; if (n === SK.filter(x => gOf(x) === KS.g).length) { d[P + "laps"] = (d[P + "laps"] || 0) + 1; d[P + "todayLaps"] = (d[P + "day"] === today ? (d[P + "todayLaps"] || 0) : 0) + 1; d[P + "day"] = today; if (KS.nok === n) d[P + "perfect"] = 1; } wSave();
@@ -1996,7 +1996,7 @@ function eye() {
 }
 function eyeAct(a, b) {
   if (a === "estart") { ES = { list: shuffle(EYE.map((_, i) => i)), k: 0, ans: null, ok: 0, sw: EYE.map(() => Math.random() < 0.5) }; S.view = "eye"; render(); window.scrollTo(0, 0); return true; }
-  if (a === "eans") { if (ES.ans) return true; ES.ans = b.dataset.v; const o = EYE[ES.list[ES.k]], right = ES.sw[ES.list[ES.k]] ? (o[3] === "A" ? "B" : "A") : o[3]; if (ES.ans === right) ES.ok++; render(); return true; }
+  if (a === "eans") { if (ES.ans) return true; ES.ans = b.dataset.v; const o = EYE[ES.list[ES.k]], right = ES.sw[ES.list[ES.k]] ? (o[3] === "A" ? "B" : "A") : o[3]; ES.res = ES.res || {}; if (ES.res[ES.k] === undefined && ES.ans === right) ES.ok++; ES.res[ES.k] = ES.ans === right; render(); return true; }
   if (a === "enext") { if (ES.k + 1 < ES.list.length) { ES.k++; ES.ans = null; render(); window.scrollTo(0, 0); } else { const d = WD.eye = WD.eye || {}; d.laps = (d.laps || 0) + 1; d.best = Math.max(d.best || 0, ES.ok); wSave(); S.view = "levels"; LV = 3; render(); window.scrollTo(0, 0); alert(`スライドの目：${ES.ok} / ${EYE.length}問 正解`); } return true; }
   return false;
 }
@@ -2379,10 +2379,23 @@ const isOk = (q, p) => isMulti(q) ? Array.isArray(p) && p.length === q.a.length 
 let S = { view: "home", list: [], i: 0, picked: null, picks: {}, results: [], label: "", key: null };
 const pickAt = i => (S.picks && S.picks[i] !== undefined && S.picks[i] !== null) ? S.picks[i] : null;
 /* 進み具合のバーで問題を移動・長押しで一覧（共通部品 qnav.js） */
+const QMARK = (k, g) => { rate(S.list[k], g); render(); };
 QNav.init({
-  state: () => S.view === "quiz" ? { n: S.list.length, cur: S.i, status: S.list.map((id, k) => { const p = pickAt(k); return markOf(id, p !== null) || (p === null ? "" : (isOk(QI[id], p) ? "ok" : "ng")); }), text: k => QI[S.list[k]].q } : null,
-  mark: (k, g) => { rate(S.list[k], g); render(); },
-  jump: k => { S.i = k; S.picked = pickAt(k); S.sel = []; saveSes(); render(); window.scrollTo(0, 0); }
+  state: () => {
+    if (S.view === "quiz") return { n: S.list.length, cur: S.i, status: S.list.map((id, k) => { const p = pickAt(k); return markOf(id, p !== null) || (p === null ? "" : (isOk(QI[id], p) ? "ok" : "ng")); }), text: k => QI[S.list[k]].q };
+    if (S.view === "skel" && KS) { const last = (WD.sk || {}).last || {}; return { n: KS.list.length, cur: KS.k, status: KS.list.map((i, k) => k < KS.k || (k === KS.k && KS.done) ? (last[i] === 1 ? "ok" : last[i] === 0 ? "ng" : "") : ""), text: k => { const it = SK[KS.list[k]]; return it.o || it.p; } }; }
+    if (S.view === "drill" && DS) { const last = (WD.drill || {}).last || {}; return { n: DS.list.length, cur: DS.k, status: DS.list.map((i, k) => k < DS.k || (k === DS.k && DS.ans !== null) ? (last[i] === 1 ? "ok" : last[i] === 0 ? "ng" : "") : ""), text: k => DR[DS.list[k]][1] }; }
+    if (S.view === "eye" && ES) { ES.res = ES.res || {}; return { n: ES.list.length, cur: ES.k, status: ES.list.map((i, k) => ES.res[k] === undefined ? "" : ES.res[k] ? "ok" : "ng"), text: k => "スライドの目：" + EYE[ES.list[k]][0] }; }
+    return null;
+  },
+  get mark() { return S.view === "quiz" ? QMARK : null; },
+  jump: k => {
+    if (S.view === "quiz") { S.i = k; S.picked = pickAt(k); S.sel = []; saveSes(); }
+    else if (S.view === "skel") { KS.k = k; skLoad(); }
+    else if (S.view === "drill") { DS.k = k; DS.ans = null; }
+    else if (S.view === "eye") { ES.k = k; ES.ans = null; }
+    render(); window.scrollTo(0, 0);
+  }
 });
 /* 絞り込み：薬・副作用と対策の問題／ガイドライン・基準の問題（build.py が tg を付ける） */
 const TAGN = { cs: "添削（文章・スライドを直す）", gl: "倫理・同意・規定", sl: "学会発表", ai: "生成AI" };
@@ -2727,11 +2740,11 @@ document.addEventListener("keydown", e => {
 render();
 
 </script>
-<p class="offline">12版（初級・中級・上級を押すとすぐ課題が始まり、終わると「次の課題へ」。残り44問を点検し2問を修正）</p>
+<p class="offline">13版（骨組み暗記・直結ドリル・スライドの目の問題画面にも「一覧」（○×・まだ、タップで移動））</p>
 <p class="offline" id="offline">オフライン利用：準備中…</p>
 <script>
 (function(){
-  var el=document.getElementById("offline"),C="paper4-v12";
+  var el=document.getElementById("offline"),C="paper4-v13";
   function ok(){el.innerHTML="オフライン利用：<b>準備OK</b>（電波がなくても使えます）"}
   if(!("serviceWorker" in navigator)){el.textContent="オフライン利用：この環境では使えません";return}
   var had=!!navigator.serviceWorker.controller,reloaded=false;
