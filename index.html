@@ -689,6 +689,60 @@ textarea,input{border-radius:10px!important}
 /* コース中は、各練習の小さなバーを隠し、コースのバーだけを出す */
 .cbar ~ .qhead, .cbar ~ .qhead + .meter{display:none!important}
 </style>
+<style>
+/* 本番の見本 */
+.mhbox{margin:14px 0;border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--card)}
+.mhbox .lbl{display:inline-block;font-size:13px;font-weight:700;color:var(--acc);margin-bottom:8px}
+.mh-note{margin:8px 0 0;font-size:14px;line-height:1.7;color:var(--muted)}
+.mh-paper{background:#fff;color:#111;border:1px solid #ccc;box-shadow:0 1px 4px rgba(0,0,0,.12);padding:16px 18px;font-family:"Hiragino Mincho ProN","Yu Mincho",serif;font-size:14px;line-height:1.7;overflow-x:auto}
+.mh-paper p{margin:0 0 8px}
+.mh-small{max-width:420px}
+.mh-cap{font-size:14px;margin-bottom:6px}
+.mh-t3{border-collapse:collapse;width:100%;font-size:13.5px;font-variant-numeric:tabular-nums}
+.mh-t3 th,.mh-t3 td{border:0;padding:4px 8px;text-align:center;white-space:nowrap}
+.mh-t3 th:first-child,.mh-t3 td:first-child{text-align:left}
+.mh-t3 thead tr:first-child th{border-top:2px solid #111}
+.mh-t3 thead tr:last-child th{border-bottom:1px solid #111;font-weight:600}
+.mh-t3 tbody tr:last-child td{border-bottom:2px solid #111}
+.mh-t3.mh-sm{font-size:12px}
+.mh-own td{font-weight:700}
+.mh-fn{font-size:12px;margin-top:6px;line-height:1.6}
+.mh-grid{border-collapse:collapse;font-size:13px}
+.mh-grid th,.mh-grid td{border:1px solid #333;padding:4px 10px}
+.mh-grid tr:nth-child(odd) td{background:#ffd9d9}.mh-grid tr:nth-child(even) td{background:#d9ecff}.mh-grid th{background:#5a5;color:#fff}
+.mh-bad{margin:12px 0 4px;font-weight:700;color:var(--ng)}
+.mh-good{margin:12px 0 4px;font-weight:700;color:var(--ok)}
+.mh-fig3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.mh-fig3>div{position:relative}
+.mh-pl{position:absolute;left:6px;top:4px;color:#fff;font-family:sans-serif;font-size:18px;text-shadow:0 0 3px #000}
+.mh-leg{font-size:13px;margin-top:8px;line-height:1.7}
+.mh-abs{font-size:13.5px}
+.mh-tp1{font-size:18px;font-weight:700;text-align:center;margin:10px 0 12px!important}
+.mh-tp2{text-align:center}
+.mh-tp3{font-size:13px}
+.mh-r{text-align:right}
+.mh-cmt{background:#f2f2f2;border-left:3px solid #888;padding:6px 10px;margin:6px 0;font-family:sans-serif;font-size:13px}
+.mh-flow{display:flex;flex-direction:column;align-items:center;gap:2px;font-family:sans-serif;font-size:13px}
+.mh-frow{display:flex;gap:10px;align-items:center;justify-content:center}
+.mh-fb{border:1.5px solid #111;padding:6px 12px;text-align:center;background:#fff;line-height:1.5}
+.mh-fe{text-align:left;font-size:12px}
+.mh-fa,.mh-fx{font-size:18px;line-height:1.2}
+.mh-two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media (max-width:520px){.mh-two{grid-template-columns:1fr}}
+.mh-slide{container-type:inline-size;position:relative;aspect-ratio:16/9;background:#fff;color:#111;border:1px solid #bbb;box-shadow:0 1px 5px rgba(0,0,0,.15);font-family:"Hiragino Sans","Yu Gothic",sans-serif;overflow:hidden;margin:6px 0;display:flex;flex-direction:column}
+.mh-st{font-size:4.4cqw;font-weight:700;padding:2.4cqw 3cqw 1.4cqw;border-bottom:.5cqw solid #2a5caa;line-height:1.3}
+.mh-st:empty{display:none}
+.mh-sb{flex:1;padding:2cqw 3cqw;font-size:3cqw;line-height:1.45;display:flex;flex-direction:column;justify-content:center}
+.mh-sn{position:absolute;right:1.5cqw;bottom:1cqw;font-size:2cqw;color:#888}
+.mh-cols{display:flex;gap:2cqw;align-items:center}
+.mh-pts{font-size:3.8cqw;line-height:1.6}
+.mh-cover{text-align:center}.mh-ct{font-size:4.6cqw;font-weight:700;line-height:1.4;margin-bottom:4cqw}.mh-cs{font-size:3cqw;line-height:1.6}
+.mh-coi{font-size:3.4cqw;line-height:1.6;text-align:center}
+.mh-lab{border-collapse:collapse;font-size:3.4cqw;margin:0 auto}.mh-lab td{padding:1cqw 2cqw;border-bottom:1px solid #ccc}
+.mh-slt{font-size:2.8cqw}.mh-slt td,.mh-slt th{padding:.6cqw 1.5cqw}.mh-slt .mh-own td{background:#fff3c4}
+.mh-src{position:absolute;right:3cqw;bottom:3cqw;font-size:1.7cqw;color:#666}
+.mh-sc{font-size:2.4cqw;text-align:center}
+</style>
 <body>
 <div class="wrap" id="app"></div>
 <script>
@@ -1479,7 +1533,7 @@ function model() {
   const m = MODELS[MI]; WD.read = WD.read || {}; if (!WD.read[m.k]) { WD.read[m.k] = 1; wSave(); }
   app.innerHTML = header() + `<section class="hero"><h1>${esc(m.t)}</h1><p>${esc(m.lead)}</p></section>
   <div class="row">${MODELS.map((x, i) => `<button class="${i === MI ? "btn" : "btn sub"}" data-act="mopen" data-i="${i}">${esc(x.t.replace(/^お手本\d　/, ""))}</button>`).join("")}</div>
-  ${m.parts.map(([h, body, note]) => `<article class="qcard" style="--fc:var(--acc);margin:14px 0"><div class="qno">${esc(h)}</div><div class="qtext" style="font-size:16px;line-height:1.85;font-weight:400">${nl(body)}</div><div class="corebox" style="margin-top:10px"><span class="lbl">なぜこう書くか</span>${nl(note)}</div></article>`).join("")}
+  ${m.parts.map(([h, body, note], pi) => `<article class="qcard" style="--fc:var(--acc);margin:14px 0"><div class="qno">${esc(h)}</div>${MHMODEL[m.k] && MHMODEL[m.k][pi] ? `<div class="mh-in" style="margin:8px 0 10px">${MHMODEL[m.k][pi]}</div>` : ""}<div class="qtext" style="font-size:16px;line-height:1.85;font-weight:400">${nl(body)}</div><div class="corebox" style="margin-top:10px"><span class="lbl">なぜこう書くか</span>${nl(note)}</div></article>`).join("")}
   <div class="row"><button class="btn" data-act="wopen" data-t="${m.k === "slide" ? "slide" : "case"}">自分の症例で書いてみる（実践ワーク）</button><button class="btn sub" data-act="home">ホームへ</button></div>`;
 }
 
@@ -1636,7 +1690,8 @@ const RULES = {
 };
 const RK = ["title", "title", "title", "title", "intro", "intro", "intro", "privacy", "privacy", "privacy", "privacy", "privacy", "drug", "drug", "exam", "exam", "interp", "lab", "lab", "lab", "path", "path", "tx", "tx", "tx", "disc1", "overclaim", "lit", "lit", "lit", "limit", "concl", "concl", "abstract", "abstract", "legend", "legend", "image", "table", "numbers", "results", "results", "entense", "overclaim", "consent", "consent", "ai", "author",
   "privacy", "exam", "lab", "hedge", "abstract", "results", "entense", "legend"];
-const ruleHtml = k => { const r = RULES[k]; if (!r) return ""; return `<div class="whybox"><span class="lbl">${esc(r.n)}</span><div class="body"><p style="margin:0 0 6px"><b>なぜ大事か：</b>${esc(r.why)}</p><p style="margin:0 0 6px"><b>書き方の型：</b>${esc(r.how)}</p><p style="margin:0"><b>よい例：</b>${esc(r.ex)}</p></div></div>`; };
+const ruleHtml = (k, s) => ruleHtml0(k) + mhHtml([...(MHRULE[k] || []), ...mhKeys(s)]);
+const ruleHtml0 = k => { const r = RULES[k]; if (!r) return ""; return `<div class="whybox"><span class="lbl">${esc(r.n)}</span><div class="body"><p style="margin:0 0 6px"><b>なぜ大事か：</b>${esc(r.why)}</p><p style="margin:0 0 6px"><b>書き方の型：</b>${esc(r.how)}</p><p style="margin:0"><b>よい例：</b>${esc(r.ex)}</p></div></div>`; };
 
 /* 骨組み暗記の「なぜ」（SK と同じ順） */
 const SKW = [
@@ -1684,6 +1739,135 @@ const SKW = [
  "スライドのグラフは、言いたい線だけを強調して他は灰色に。軸と単位、大きな文字、凡例は線の近くに。立体や論文の図の縮小は読めない。",
  "最初に何の話かを言うと聴衆が集中できる。スライドを読み上げない、ポインターは示して止める、時間が足りなければ結語へ。",
 ];
+
+/* ---------- 本番の見本：表・図・抄録・表紙ページ・手紙・スライドを「実際に使う形」で見せる ----------
+   MIHON[キー] = { t: 見出し, h: HTML（本番の形）, n: 見るところ }。紙面は白い紙、スライドは16:9。
+   付け方：解説の型（RULES）→ MHRULE、4択・骨組み・ドリルの文 → MHKW（正規表現）、お手本3のスライド → MHSLIDE */
+const _sv = (vb, body) => `<svg viewBox="${vb}" style="width:100%;height:auto;display:block" role="img">${body}</svg>`;
+// 臨床写真の代わりの模式（皮膚の色の面に緊満性水疱、赤い矢印）
+const _clin = (w = 300, h = 200) => _sv(`0 0 ${w} ${h}`, `<rect width="${w}" height="${h}" fill="#e9c4a8"/><ellipse cx="${w * .3}" cy="${h * .45}" rx="26" ry="18" fill="#f6ead2" stroke="#c99a7a" stroke-width="2"/><ellipse cx="${w * .55}" cy="${h * .6}" rx="18" ry="13" fill="#f6ead2" stroke="#c99a7a" stroke-width="2"/><ellipse cx="${w * .72}" cy="${h * .35}" rx="14" ry="10" fill="#f6ead2" stroke="#c99a7a" stroke-width="2"/><ellipse cx="${w * .42}" cy="${h * .78}" rx="10" ry="7" fill="#d9a48a"/><path d="M${w * .3 + 70} ${h * .45 - 40} L${w * .3 + 32} ${h * .45 - 12}" stroke="#e00" stroke-width="5"/><path d="M${w * .3 + 28} ${h * .45 - 9} l14 -2 l-6 -10 z" fill="#e00"/><text x="8" y="${h - 8}" font-size="13" fill="#7a5a48">（臨床写真）</text>`);
+// 病理（HE）の模式：表皮下水疱、矢印、スケールバー
+const _patho = (w = 300, h = 200) => _sv(`0 0 ${w} ${h}`, `<rect width="${w}" height="${h}" fill="#f3dbe6"/><path d="M0 40 Q75 30 150 42 T300 38 L300 78 Q225 86 150 76 T0 80 Z" fill="#a7558c"/><path d="M70 80 Q150 70 230 78 Q220 120 150 124 Q80 120 70 80 Z" fill="#fbf2f6" stroke="#c78bb0"/><g fill="#7a2f6a">${[[95, 140], [130, 150], [180, 138], [210, 155], [160, 165], [110, 170], [240, 140]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="3"/>`).join("")}</g><path d="M245 20 L200 72" stroke="#111" stroke-width="4"/><path d="M196 77 l4 -15 l9 7 z" fill="#111"/><path d="M${w - 90} ${h - 18} h70" stroke="#111" stroke-width="5"/><text x="${w - 55}" y="${h - 26}" font-size="13" text-anchor="middle" fill="#111">100 µm</text><text x="8" y="${h - 8}" font-size="13" fill="#7a2f6a">（HE 染色）</text>`);
+// 蛍光抗体直接法：基底膜部の線状沈着
+const _dif = (w = 300, h = 200) => _sv(`0 0 ${w} ${h}`, `<rect width="${w}" height="${h}" fill="#0b120b"/><path d="M0 90 Q75 80 150 92 T300 88" stroke="#7dff6a" stroke-width="5" fill="none"/><path d="M0 50 Q75 40 150 52 T300 48" stroke="#1f3a1f" stroke-width="30" fill="none"/><path d="M200 140 L165 100" stroke="#fff" stroke-width="4"/><path d="M161 95 l2 15 l10 -6 z" fill="#fff"/><path d="M${w - 90} ${h - 18} h70" stroke="#fff" stroke-width="5"/><text x="${w - 55}" y="${h - 26}" font-size="13" text-anchor="middle" fill="#fff">50 µm</text>`);
+// 小さな経過図（横軸＝週、上＝薬の帯、下＝新生水疱の数）
+const _tl = _sv("0 0 600 230", `<text x="10" y="30" font-size="16" fill="#111">ビルダグリプチン</text><path d="M150 26 l12 -12 H240 V38 H162 Z" fill="#999"/><text x="196" y="31" font-size="13" text-anchor="middle" fill="#fff">2年前〜</text><text x="250" y="31" font-size="15" fill="#555">中止</text><text x="10" y="70" font-size="16" fill="#111">クロベタゾール外用</text><rect x="240" y="54" width="340" height="24" fill="#3a7bd5"/><path d="M150 100 V190 H590" stroke="#111" stroke-width="2" fill="none"/><text x="144" y="194" font-size="13" text-anchor="end" fill="#111">0</text><text x="144" y="114" font-size="13" text-anchor="end" fill="#111">10</text><text x="10" y="110" font-size="15" fill="#111">新生水疱（個/日）</text><polyline points="150,110 240,104 330,150 420,180 510,188 580,188" fill="none" stroke="#d33" stroke-width="4"/>${[150, 240, 330, 420, 510].map((x, i) => `<text x="${x}" y="212" font-size="15" text-anchor="middle" fill="#111">${["−8", "0", "4", "8", "12"][i]}</text>`).join("")}<text x="590" y="212" font-size="15" text-anchor="end" fill="#111">（週）</text><path d="M240 92 v6" stroke="#111" stroke-width="2"/><text x="244" y="100" font-size="13" fill="#111">▼生検</text>`);
+
+/* 16:9 のスライド（白地・タイトル＝結論の文） */
+const _slide = (title, body, no) => `<div class="mh-slide"><div class="mh-st">${title}</div><div class="mh-sb">${body}</div>${no ? `<div class="mh-sn">${no}</div>` : ""}</div>`;
+const _paper = (body, cls = "") => `<div class="mh-paper ${cls}">${body}</div>`;
+
+const MIHON = {
+ tbl3: { t: "表（横線3本・縦線なし）", n: "線は ①表の一番上 ②見出しの下 ③表の一番下 の3本だけ。縦線・色・影はなし。表題は表の上、略語と記号の説明は表の下（脚注）。単位は見出しに入れ、数字は小数点でそろえる。Word では「罫線なし」にしてから、この3本だけ引く。",
+  h: _paper(`<div class="mh-cap"><b>表1</b>　対象患者の背景</div><table class="mh-t3"><thead><tr><th></th><th>治療群<br>（n＝60）</th><th>対照群<br>（n＝58）</th><th>P 値</th></tr></thead><tbody>
+  <tr><td>年齢（歳）</td><td>72 ± 9</td><td>74 ± 8</td><td>0.21</td></tr><tr><td>男性</td><td>34（57）</td><td>31（53）</td><td>0.72</td></tr><tr><td>罹病期間（月）</td><td>4（2–9）</td><td>5（2–11）</td><td>0.38</td></tr><tr><td>BPDAI 総スコア</td><td>38 ± 14</td><td>41 ± 15</td><td>0.26</td></tr><tr><td>DPP-4 阻害薬の内服</td><td>18（30）</td><td>15（26）</td><td>0.62</td></tr></tbody></table>
+  <div class="mh-fn">数値は平均 ± SD、人数（%）、または中央値（四分位範囲）。<br>BPDAI：Bullous Pemphigoid Disease Area Index、DPP-4：dipeptidyl peptidase-4</div>`)
+  + `<p class="mh-bad">✕ よくある悪い表</p>` + _paper(`<div class="mh-cap">対象患者の背景（表1）</div><table class="mh-grid"><tr><th>項目</th><th>治療群</th><th>対照群</th></tr><tr><td>年齢</td><td>72.4583歳</td><td>74.1207歳</td></tr><tr><td>男性</td><td>34人</td><td>31人</td></tr><tr><td>BPDAI</td><td>38.21</td><td>41.07</td></tr></table>`, "mh-small")
+  + `<p class="pnote" style="margin:4px 0 0">✕ の理由：全マスの罫線と色、表題が下、意味のない桁、単位と割合（%）と人数（n）がない、略語の説明がない。</p>` },
+
+ littbl: { t: "既報例の表（症例報告の考察）", n: "列は診断に効く項目だけ（年齢・性別・薬・期間・抗体・治療・転帰）。最終行に自験例を太字で置く。本文では「検索した範囲では8例（表1）」と表を引用し、要点だけを1〜2文で書く。",
+  h: _paper(`<div class="mh-cap"><b>表1</b>　DPP-4 阻害薬内服中に発症し、中止と外用のみで軽快した水疱性類天疱瘡の既報例</div><table class="mh-t3 mh-sm"><thead><tr><th>No.</th><th>報告者（年）</th><th>年齢/性</th><th>薬</th><th>内服期間</th><th>NC16a 抗体</th><th>治療</th><th>転帰</th></tr></thead><tbody>
+  <tr><td>1</td><td>A ら（2016）［4］</td><td>81/M</td><td>ビルダグリプチン</td><td>18 か月</td><td>陰性</td><td>中止＋外用</td><td>軽快</td></tr>
+  <tr><td>2</td><td>B ら（2018）［5］</td><td>76/F</td><td>シタグリプチン</td><td>8 か月</td><td>陽性</td><td>中止＋外用</td><td>軽快</td></tr>
+  <tr><td>3</td><td>C ら（2020）［6］</td><td>84/M</td><td>ビルダグリプチン</td><td>30 か月</td><td>陰性</td><td>中止＋外用</td><td>軽快</td></tr>
+  <tr><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td></tr>
+  <tr class="mh-own"><td>8</td><td>自験例</td><td>78/M</td><td>ビルダグリプチン</td><td>24 か月</td><td>陰性</td><td>中止＋外用</td><td>軽快</td></tr></tbody></table>
+  <div class="mh-fn">M：男性、F：女性。NC16a 抗体：抗 BP180 NC16a 抗体（CLEIA 法）。検索：PubMed・医中誌Web、20XX年X月まで。</div>`) },
+
+ legend: { t: "図と図の説明（凡例）", n: "1枚の図に a・b・c と記号を付け、説明文で一つずつ説明する。病理には染色名とスケールバー（倍率「×400」は拡大・縮小でずれるので使わない）。矢印・矢頭の意味も説明文に書く。説明文は図の下。",
+  h: _paper(`<div class="mh-fig3"><div><b class="mh-pl">a</b>${_clin()}</div><div><b class="mh-pl">b</b>${_patho()}</div><div><b class="mh-pl">c</b>${_dif()}</div></div>
+  <div class="mh-leg"><b>図1</b>　a：初診時の臨床像。体幹に紅斑の乏しい緊満性水疱が多発する（矢印）。b：病理組織像（HE 染色）。表皮下水疱（矢印）と真皮浅層の少数の好酸球。c：蛍光抗体直接法。基底膜部に IgG の線状沈着を認める（矢印）。スケールバー＝b 100 µm、c 50 µm。</div>`) },
+
+ timeline: { t: "経過図（タイムライン）", n: "横軸＝時間（週・月）。上に薬の帯（いつからいつまで・量）、下に症状や検査値の線、生検などのできごとに印。薬と症状の時間の関係が一目で分かる。",
+  h: _paper(`<div class="mh-cap"><b>図3</b>　臨床経過</div>${_tl}<div class="mh-leg">ビルダグリプチン中止とクロベタゾールプロピオン酸エステル外用の開始から8週で、水疱の新生は止まった。</div>`) },
+
+ abstract: { t: "抄録（要旨）の形", n: "原著は見出し付き（構造化抄録：背景・目的・方法・結果・結論）が多い。症例報告は見出しなしの1段落で、年齢・性別 → 経過と所見 → 検査・病理 → 診断 → 治療と経過 → 伝えたいこと。どちらも文献の引用はしない。字数は雑誌の規定に合わせる。",
+  h: _paper(`<div class="mh-cap"><b>【原著】構造化抄録</b></div><p class="mh-abs"><b>背景：</b>水疱性類天疱瘡（BP）の初期治療として、ドキシサイクリンと全身ステロイドの再発率の差は明らかでない。<br><b>目的：</b>両治療の1年以内の再発率を比較する。<br><b>方法：</b>20XX〜20XX年に当科で初期治療を受けた BP 患者118例の診療録を後ろ向きに調べた。<br><b>結果：</b>1年以内の再発はドキシサイクリン群 12/60例（20%）、ステロイド群 21/58例（36%）であった（調整ハザード比 0.52、95% 信頼区間 0.27–0.99）。<br><b>結論：</b>ドキシサイクリンによる初期治療は、再発の少なさと関連していた。</p>
+  <div class="mh-cap" style="margin-top:12px"><b>【症例報告】1段落</b></div><p class="mh-abs">78歳、男性。2型糖尿病でビルダグリプチンを2年間内服中、体幹と四肢に紅斑の乏しい緊満性水疱が多発した。抗 BP180 NC16a 抗体は陰性であったが、病理で表皮下水疱、蛍光抗体直接法で基底膜部に IgG と C3 の線状沈着を認め、水疱性類天疱瘡と診断した。ビルダグリプチンの中止とクロベタゾール外用のみで8週後に水疱の新生は止まった。DPP-4 阻害薬内服中の紅斑の乏しい水疱では、抗体が陰性でも類天疱瘡を考える必要がある。</p>`) },
+
+ titlepage: { t: "表紙ページ（タイトルページ）", n: "投稿原稿の1枚目。題名・短い題名（ランニングタイトル）・著者と所属（上付き番号で対応）・責任著者の連絡先・字数・図表の数・キーワード・利益相反・研究費。項目と順番は雑誌の投稿規定どおりに。",
+  h: _paper(`<p class="mh-tp1">DPP-4 阻害薬の中止と外用のみで軽快した非炎症型水疱性類天疱瘡の1例</p><p class="mh-tp2">短い題名：DPP-4 阻害薬関連の非炎症型類天疱瘡</p><p class="mh-tp2">皮膚 太郎<sup>1)</sup>、病理 花子<sup>2)</sup>、指導 一郎<sup>1)</sup></p><p class="mh-tp3"><sup>1)</sup>〇〇大学医学部皮膚科学教室　<sup>2)</sup>同 病理部</p><p class="mh-tp3">責任著者：皮膚 太郎　〒000-0000 〇〇市〇〇町1-1　〇〇大学医学部皮膚科学教室<br>E-mail：xxxx@xxxx.ac.jp</p><p class="mh-tp3">本文 2,380字・図3・表1・文献12<br>キーワード：水疱性類天疱瘡、DPP-4 阻害薬、蛍光抗体法<br>利益相反：なし　研究費：なし</p>`) + `<p class="pnote" style="margin:4px 0 0">名前と所属は架空です。</p>` },
+
+ flow: { t: "対象者の流れ図（フローチャート）", n: "何人から始めて、何の理由で何人を除き、何人を解析したかを箱と矢印で。除外は横に出す。観察研究は STROBE、ランダム化比較試験は CONSORT、系統的レビューは PRISMA の形。通常は図1にする。",
+  h: _paper(`<div class="mh-cap"><b>図1</b>　対象者の選び方</div><div class="mh-flow"><div class="mh-frow"><div class="mh-fb">20XX〜20XX年に BP と診断された患者<br><b>n＝312</b></div><div class="mh-fx">→</div><div class="mh-fb mh-fe">除外 n＝136<br>・初期治療を当科で<br>　行っていない</div></div><div class="mh-fa">↓</div><div class="mh-frow"><div class="mh-fb">当科で初期治療を受けた患者<br><b>n＝176</b></div><div class="mh-fx">→</div><div class="mh-fb mh-fe">除外 n＝58<br>・前医で治療を開始 31<br>・追跡 3か月未満 19<br>・記録不十分 8</div></div><div class="mh-fa">↓</div><div class="mh-fb">解析対象 <b>n＝118</b></div><div class="mh-fa">↙　↘</div><div class="mh-frow"><div class="mh-fb">ドキシサイクリン群<br><b>n＝60</b></div><div class="mh-fb">ステロイド群<br><b>n＝58</b></div></div></div>`) },
+
+ forest: { t: "フォレストプロット（森の図）", n: "1行に1つの研究（またはサブグループ）。四角＝推定値（大きさ＝重み）、横線＝95% 信頼区間、ひし形＝全体の推定。縦の線（比なら1）をまたぐかを見る。右に数値を書く。",
+  h: _paper(`<div class="mh-cap"><b>図2</b>　再発のハザード比（サブグループ別）</div>${_sv("0 0 700 265", `<path d="M430 20 V215" stroke="#111" stroke-dasharray="4 4"/>${[["全体", .52, .27, .99, 0], ["75歳未満", .48, .18, 1.25, 1], ["75歳以上", .55, .24, 1.26, 2], ["DPP-4 阻害薬あり", .40, .12, 1.32, 3], ["DPP-4 阻害薬なし", .58, .27, 1.24, 4]].map(([n, e, l, u, i]) => { const X = v => 430 + Math.log(v) / Math.log(2) * 75, y = 40 + i * 38; return `<text x="8" y="${y + 5}" font-size="16" fill="#111">${n}</text>${i === 0 ? `<path d="M${X(l)} ${y} L${X(e)} ${y - 9} L${X(u)} ${y} L${X(e)} ${y + 9} Z" fill="#111"/>` : `<path d="M${X(l)} ${y} H${X(u)}" stroke="#111" stroke-width="2"/><rect x="${X(e) - 6}" y="${y - 6}" width="12" height="12" fill="#111"/>`}<text x="692" y="${y + 5}" font-size="15" text-anchor="end" fill="#111">${e.toFixed(2)}（${l.toFixed(2)}–${u.toFixed(2)}）</text>`; }).join("")}<path d="M190 215 H520" stroke="#111"/>${[.125, .25, .5, 1, 2].map(v => { const x = 430 + Math.log(v) / Math.log(2) * 75; return `<path d="M${x} 215 v6" stroke="#111"/><text x="${x}" y="238" font-size="14" text-anchor="middle" fill="#111">${v}</text>`; }).join("")}<text x="420" y="258" font-size="13" text-anchor="end" fill="#555">← ドキシサイクリンがよい</text><text x="440" y="258" font-size="13" fill="#555">ステロイドがよい →</text><text x="692" y="20" font-size="13" text-anchor="end" fill="#555">HR（95% CI）</text>`)}`) },
+
+ graph: { t: "グラフの形（よい例・悪い例）", n: "少人数の連続量は全員の点＋中央値の線（dot plot）。棒グラフは割合・人数に使い、縦軸は0から、棒の上に分母と割合。軸に名前と単位。赤と緑だけで区別せず、線の端に群の名前を直接書く。3D・円グラフは使わない。",
+  h: `<div class="mh-two"><div>` + _paper(`<div class="mh-cap">○ dot plot（全員の点＋中央値）</div>${_sv("0 0 300 220", `<path d="M50 20 V180 H290" stroke="#111" fill="none"/><text x="14" y="100" font-size="13" fill="#111" transform="rotate(-90 14 100)">BPDAI（点）</text>${[[110, [60, 70, 80, 95, 100, 110, 120, 140, 150]], [220, [90, 105, 115, 125, 130, 140, 150, 160, 170]]].map(([x, ys]) => ys.map((y, j) => `<circle cx="${x + (j % 3 - 1) * 9}" cy="${y}" r="4" fill="${x < 200 ? "#2a6fdb" : "#e08a00"}"/>`).join("") + `<path d="M${x - 24} ${ys[4]} h48" stroke="#111" stroke-width="3"/>`).join("")}<text x="110" y="200" font-size="14" text-anchor="middle" fill="#111">治療群</text><text x="220" y="200" font-size="14" text-anchor="middle" fill="#111">対照群</text>`)}`) + `</div><div>` + _paper(`<div class="mh-cap">○ 棒グラフは0から・分母を書く</div>${_sv("0 0 300 220", `<path d="M50 20 V180 H290" stroke="#111" fill="none"/>${[0, 20, 40].map(v => `<text x="44" y="${180 - v * 3.5 + 5}" font-size="12" text-anchor="end" fill="#111">${v}</text>`).join("")}<text x="14" y="100" font-size="13" fill="#111" transform="rotate(-90 14 100)">再発（%）</text><rect x="85" y="${180 - 20 * 3.5}" width="60" height="${20 * 3.5}" fill="#2a6fdb"/><rect x="195" y="${180 - 36 * 3.5}" width="60" height="${36 * 3.5}" fill="#e08a00"/><text x="115" y="${180 - 20 * 3.5 - 6}" font-size="13" text-anchor="middle" fill="#111">12/60（20%）</text><text x="225" y="${180 - 36 * 3.5 - 6}" font-size="13" text-anchor="middle" fill="#111">21/58（36%）</text><text x="115" y="200" font-size="14" text-anchor="middle" fill="#111">治療群</text><text x="225" y="200" font-size="14" text-anchor="middle" fill="#111">対照群</text>`)}`) + `</div></div><p class="mh-bad">✕ 縦軸が 30% から（差が大きく見える）・赤と緑だけ・凡例が遠い</p>` + _paper(_sv("0 0 600 170", `<path d="M50 15 V140 H290" stroke="#111" fill="none"/><text x="44" y="144" font-size="12" text-anchor="end" fill="#111">30</text><text x="44" y="24" font-size="12" text-anchor="end" fill="#111">40</text><rect x="85" y="128" width="60" height="12" fill="#d00"/><rect x="195" y="70" width="60" height="70" fill="#2a2"/><text x="115" y="160" font-size="13" text-anchor="middle" fill="#111">A</text><text x="225" y="160" font-size="13" text-anchor="middle" fill="#111">B</text><rect x="380" y="60" width="14" height="14" fill="#d00"/><text x="400" y="72" font-size="13" fill="#111">治療群</text><rect x="380" y="85" width="14" height="14" fill="#2a2"/><text x="400" y="97" font-size="13" fill="#111">対照群</text>`), "mh-small") },
+
+ cover: { t: "カバーレター（編集者への手紙）", n: "1ページ。①題名と論文の種類 ②何が新しいか（2〜3文）③その雑誌の読者に役立つ理由 ④二重投稿でない・全著者の同意・利益相反 ⑤同意書・倫理審査。本文の貼り付けは不要。",
+  h: _paper(`<p class="mh-r">20XX年X月X日</p><p>〇〇誌 編集委員長 殿</p><p>このたび、症例報告「DPP-4 阻害薬の中止と外用のみで軽快した非炎症型水疱性類天疱瘡の1例」を貴誌に投稿いたします。</p><p>本例は、抗 BP180 NC16a 抗体が陰性でも蛍光抗体法で診断でき、薬の中止と外用のみで軽快した点が特徴です。DPP-4 阻害薬を内服する高齢者は多く、紅斑の乏しい水疱を診る皮膚科医の診断と治療の判断に役立つと考えます。</p><p>本論文は他誌に投稿中ではなく、全著者が内容を確認し投稿に同意しています。開示すべき利益相反はありません。患者から写真を含む掲載の同意を書面で得ています。</p><p class="mh-r">〇〇大学医学部皮膚科学教室<br>皮膚 太郎</p>`) },
+
+ response: { t: "査読への回答書（response letter）", n: "コメントを1つずつ引用 → 感謝 → 何をしたか → 本文の場所（ページ・行）。本文の修正は赤字か修正履歴で分かるようにする。反論するときは文献やデータで丁寧に。",
+  h: _paper(`<p><b>査読者1</b></p><div class="mh-cmt"><b>コメント1：</b>対照群の選び方を説明してください。</div><p><b>回答：</b>ご指摘ありがとうございます。対照群は同じ期間に当科で全身ステロイドによる初期治療を受けた連続症例であり、選択基準と除外基準を方法に追記しました（p.6、l.12–18）。対象者の流れを図1に示しました。</p><div class="mh-cmt"><b>コメント2：</b>重症度の違いが結果に影響していませんか。</div><p><b>回答：</b>重要なご指摘をありがとうございます。BPDAI を共変量に加えた Cox 回帰を追加し、結果は同様でした（調整ハザード比 0.52、95% 信頼区間 0.27–0.99）。結果（p.9、l.4–8）と表2に追記し、限界にも記載しました（p.12、l.20–23）。</p><p class="pnote" style="margin:0">本文の修正箇所は<span style="color:#c00">赤字</span>で示しました。</p>`) },
+
+ s_bad: { t: "スライドの悪い例と、直した例", n: "タイトルを結論の文にし、写真を大きくして矢印で所見を示す。文章は口で話し、スライドには短い語句だけ。文字は24ポイント以上。",
+  h: `<p class="mh-bad">✕ 文章だらけ・タイトルが「臨床所見」・写真が小さい</p>` + _slide("臨床所見", `<div class="mh-cols"><div style="font-size:3.1cqw;line-height:1.35">初診時、体幹および四肢に母指頭大までの緊満性水疱が多発しており、周囲の紅斑はわずかであった。口腔粘膜には明らかな病変を認めなかった。ニコルスキー現象は陰性であった。そう痒は強く、夜間の睡眠が妨げられていた。水疱の内容は透明で、一部はびらんとなっていた。</div><div style="width:22%">${_clin()}</div></div>`) + `<p class="mh-good">○ 直した例</p>` + _slide("紅斑の乏しい緊満性水疱が体幹と四肢に多発", `<div class="mh-cols"><div style="flex:1.4">${_clin()}</div><div class="mh-pts">・母指頭大まで<br>・周囲の紅斑わずか<br>・口腔病変なし</div></div>`) },
+};
+/* お手本3（7分の症例発表）の9枚：本番の形 */
+const MHSLIDE = [
+ _slide("", `<div class="mh-cover"><div class="mh-ct">DPP-4 阻害薬の中止と外用のみで軽快した<br>非炎症型水疱性類天疱瘡の1例</div><div class="mh-cs">〇〇大学医学部皮膚科学教室<br><b>皮膚 太郎</b>、病理 花子<sup>*</sup>、指導 一郎<br><small><sup>*</sup>同 病理部</small></div></div>`, 1),
+ _slide("第XX回 日本皮膚科学会〇〇地方会<br>COI 開示", `<div class="mh-coi">筆頭演者名：皮膚 太郎<br><br>演題発表に関連し、開示すべき COI 関係にある<br>企業などはありません。</div><small style="position:absolute;left:3cqw;bottom:1.5cqw;font-size:1.8cqw;color:#666">※ 書式は学会指定のものを使う（これは例）</small>`, 2),
+ _slide("78歳男性、ビルダグリプチン内服2年後に水疱が出現", `<div class="mh-pts" style="font-size:3.6cqw">主訴：体幹・四肢の水疱、かゆみ<br>既往：2型糖尿病<br>　ビルダグリプチン 100 mg/日（2年前から）<br>現病歴：初診2か月前から体幹に水疱<br>　→ 四肢に拡大し当科紹介</div>`, 3),
+ _slide("紅斑の乏しい緊満性水疱が体幹と四肢に多発", `<div class="mh-cols"><div style="flex:1">${_clin()}</div><div style="flex:1">${_clin()}</div></div><div style="font-size:2.6cqw;margin-top:1cqw">左：体幹（全体）　右：近接　矢印：紅斑の乏しい緊満性水疱</div>`, 4),
+ _slide("抗 BP180 NC16a 抗体は陰性だった", `<table class="mh-lab"><tr><td>好酸球</td><td><b style="color:#c00">9 %</b></td><td>（基準 0–6）</td></tr><tr><td>抗 BP180 NC16a 抗体</td><td><b>陰性</b>（3.2 U/mL）</td><td>（基準 9 未満）</td></tr><tr><td>抗デスモグレイン1・3 抗体</td><td>陰性</td><td></td></tr></table>`, 5),
+ _slide("表皮下水疱と、基底膜部の IgG・C3 線状沈着を認めた", `<div class="mh-cols"><div style="flex:1">${_patho()}<div class="mh-sc">HE 染色</div></div><div style="flex:1">${_dif()}<div class="mh-sc">蛍光抗体直接法（IgG）</div></div></div>`, 6),
+ _slide("薬の中止と外用で8週後に水疱の新生は止まった", `<div style="background:#fff">${_tl}</div>`, 7),
+ _slide("中止と外用のみで軽快した既報は少ない", `<table class="mh-t3 mh-slt"><thead><tr><th>報告者</th><th>年齢/性</th><th>NC16a 抗体</th><th>治療</th></tr></thead><tbody><tr><td>A ら</td><td>81/M</td><td>陰性</td><td>中止＋外用</td></tr><tr><td>B ら</td><td>76/F</td><td>陽性</td><td>中止＋外用</td></tr><tr><td>C ら</td><td>84/M</td><td>陰性</td><td>中止＋外用</td></tr><tr class="mh-own"><td>自験例</td><td>78/M</td><td>陰性</td><td>中止＋外用</td></tr></tbody></table><div style="font-size:2.6cqw;margin-top:1cqw">・抗体陰性でも蛍光抗体法で診断できる<br>・1例であり自然軽快は否定できない</div><div class="mh-src">A et al. J Dermatol 2016; B ら 皮膚臨床 2018; C et al. …</div>`, 8),
+ _slide("結語", `<div class="mh-pts" style="font-size:3.8cqw;line-height:1.6">DPP-4 阻害薬を内服中の高齢者の<br>紅斑の乏しい水疱では、<br><b>抗体が陰性でも類天疱瘡</b>を考え、<br>蛍光抗体法と薬の中止を検討する</div>`, 9),
+];
+MIHON.s_cover = { t: "表紙スライド", n: "演題名（抄録と同じ）・所属・演者・共同演者。患者の情報は入れない。", h: MHSLIDE[0] };
+MIHON.s_coi = { t: "COI 開示スライド", n: "表紙の次。書式は学会指定のものを使う。COI がある場合は企業名と項目を書く。", h: MHSLIDE[1] };
+MIHON.s_case = { t: "症例のスライド", n: "タイトルに年齢・性別と一番の特徴。中身は文章でなく短い語句。薬と開始時期は必ず。", h: MHSLIDE[2] };
+MIHON.s_photo = { t: "臨床写真のスライド", n: "写真を大きく少なく、矢印で所見を示す。タイトルは見えている所見の文。", h: MHSLIDE[3] };
+MIHON.s_lab = { t: "検査のスライド", n: "診断に関係する値と、除外に使った陰性の値だけを大きく。単位と基準値。異常値は色か太字。", h: MHSLIDE[4] };
+MIHON.s_patho = { t: "病理のスライド", n: "弱拡大→強拡大（または HE と蛍光抗体法を並べる）、矢印、スケールバー、染色名。", h: MHSLIDE[5] };
+MIHON.s_tl = { t: "経過のスライド", n: "経過図で薬と症状の時間の関係を見せる。", h: MHSLIDE[6] };
+MIHON.s_disc = { t: "考察のスライド", n: "既報の表は列を絞り、自験例を強調。本例から言えることを2点、出典は右下に小さく。", h: MHSLIDE[7] };
+MIHON.s_concl = { t: "結語のスライド", n: "質疑の間ずっと映るので「ご清聴ありがとうございました」ではなく結語を残す。", h: MHSLIDE[8] };
+
+/* 解説の型 → 見本 */
+const MHRULE = { table: ["tbl3"], lit: ["littbl"], legend: ["legend"], path: ["legend"], image: ["legend"], tx: ["timeline"], abstract: ["abstract"], results: ["tbl3"], numbers: ["tbl3"], exam: ["s_photo"], lab: ["s_lab"] };
+/* 文 → 見本（4択の問題文・正解・ここだけ、骨組み・ドリルの文から探す） */
+const MHKW = [
+ ["tbl3", /表の形|横線3本|罫線|表の直し|縦線を使わ|表1　対象/],
+ ["littbl", /既報例の表|既報との比較|既報の表|既報例を表/],
+ ["legend", /凡例|図の説明|スケールバー|弱拡大|×400/],
+ ["timeline", /経過図|タイムライン/],
+ ["abstract", /構造化|抄録の(形|直し|書き方)|要旨の直し|抄録（要旨）|抄録に(書|入れ)/],
+ ["titlepage", /タイトルページ|表紙ページ|ランニングタイトル|責任著者/],
+ ["flow", /フローチャート|流れ図|何人から何人|除外し/],
+ ["forest", /フォレスト/],
+ ["graph", /棒グラフ|dot plot|箱ひげ|縦軸|赤と緑|グラフの/],
+ ["cover", /カバーレター/],
+ ["response", /査読(者)?(の)?コメントへの回答|response letter|回答書/],
+ ["s_cover", /表紙スライド|表紙のスライド/],
+ ["s_coi", /COI 開示のスライド|COI のスライド|表紙の次に COI/],
+ ["s_lab", /検査のスライド/],
+ ["s_photo", /写真のスライド|写真に矢印/],
+ ["s_patho", /病理のスライド/],
+ ["s_case", /症例のスライド|現病歴のスライド/],
+ ["s_disc", /考察のスライド/],
+ ["s_concl", /結語のスライド|最後は結語|結語を残す/],
+ ["s_bad", /スライドのタイトル|タイトル＝結論|1枚1メッセージ|スライドの直し|文字24/],
+];
+const mhKeysE = s => mhKeys(s).filter(k => ["forest", "flow", "titlepage"].includes(k));
+const mhKeys = s => MHKW.filter(([, r]) => r.test(s || "")).map(([k]) => k);
+const mhBox = k => { const m = MIHON[k]; if (!m) return ""; return `<div class="mhbox"><span class="lbl">本番の形：${esc(m.t)}</span><div class="mh-in">${m.h}</div><p class="mh-note"><b>見るところ：</b>${esc(m.n)}</p></div>`; };
+const mhHtml = (keys, max = 2) => [...new Set(keys)].filter(k => MIHON[k]).slice(0, max).map(mhBox).join("");
+function mihonPage() {
+  app.innerHTML = header() + `<section class="hero"><h1>本番の見本</h1><p>表・図・抄録・手紙・スライドを、実際に提出・発表する形で並べました（症例・名前は架空）。</p></section>
+  <div class="row">${Object.keys(MIHON).map(k => `<a class="btn sub" href="#mh-${k}" style="text-decoration:none">${esc(MIHON[k].t)}</a>`).join("")}</div>
+  ${Object.keys(MIHON).map(k => `<div id="mh-${k}">${mhBox(k)}</div>`).join("")}<div class="row"><button class="btn sub big" data-act="shiryo">資料へ戻る</button></div>`;
+}
+/* お手本の各部分に添える本番の形（部分の順と同じ） */
+const _caseAbs = () => { const h = MIHON.abstract.h, j = h.indexOf('<div class="mh-cap" style="margin-top:12px">'); return '<div class="mh-paper ">' + h.slice(j).replace(' style="margin-top:12px"', ""); };
+const MHMODEL = {
+ ja: [MIHON.titlepage.h, _caseAbs(), "", MIHON.legend.h, MIHON.littbl.h, "", "", MIHON.timeline.h],
+ slide: MHSLIDE,
+};
 
 /* ---------- 直結ドリル：論文の1文を見て「OK」か「直す」かを即答。1周3〜5分、何周でも ----------
    DR = [場所, 文, OKならtrue, ひとこと（直す場合は直し方）] */
@@ -1765,7 +1949,7 @@ function ditem() {
   const i = DI, d = DR[i], last = ((WD.drill || {}).last || {})[i];
   app.innerHTML = header() + `<div class="qhead"><span class="fl">直結ドリル</span><span>${esc(d[0])}</span><span class="n">${i + 1} / ${DR.length}</span></div>
   <article class="qcard"><div class="qtext">${esc(d[1])}</div><div class="verdict ${d[2] ? "ok" : "ng"}"><span class="big">${d[2] ? "○" : "×"}</span><div><h3>${d[2] ? "このままでOK" : "直す"}</h3><p>${esc(d[3])}</p></div></div>
-  <p class="pnote" style="margin:0">前回のあなた：${last === 1 ? "正解" : last === 0 ? "まちがい" : "まだ解いていない"}</p>${ruleHtml(RK[i])}
+  <p class="pnote" style="margin:0">前回のあなた：${last === 1 ? "正解" : last === 0 ? "まちがい" : "まだ解いていない"}</p>${ruleHtml(RK[i], DR[i][1] + " " + (DR[i][3] || ""))}
   <div class="qnav">${i > 0 ? `<button class="btn sub" data-act="ditem" data-i="${i - 1}">前へ</button>` : ""}<button class="btn sub" data-act="dlist">一覧へ</button>${i + 1 < DR.length ? `<button class="btn" data-act="ditem" data-i="${i + 1}">次へ</button>` : ""}</div></article>`;
 }
 let DI = 0;
@@ -1782,7 +1966,7 @@ function drill() {
   if (ans === null) h += `<div class="row" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><button class="btn big" data-act="dans" data-v="1">このままでOK</button><button class="btn big" data-act="dans" data-v="0" style="background:var(--em)">直す</button></div><p class="pnote" style="margin:0;text-align:center">キーボード：← OK ／ → 直す</p>`;
   else { const right = (ans === 1) === it[2];
     h += `<div class="verdict ${right ? "ok" : "ng"}"><span class="big">${right ? "○" : "×"}</span><div><h3>${it[2] ? "このままでOK" : "直す"}</h3><p>${esc(it[3])}</p></div></div>
-    ${ruleHtml(RK[i])}<div class="qnav"><button class="btn big" data-act="dnext" id="dnext">${C || DS.k + 1 < DS.list.length ? "次へ（Enter）" : "結果を見る"}</button></div>`; }
+    ${ruleHtml(RK[i], DR[i][1] + " " + (DR[i][3] || ""))}<div class="qnav"><button class="btn big" data-act="dnext" id="dnext">${C || DS.k + 1 < DS.list.length ? "次へ（Enter）" : "結果を見る"}</button></div>`; }
   app.innerHTML = h + `</article>`;
 }
 function drillEnd() {
@@ -1885,6 +2069,7 @@ function skel() {
     else h += `<p class="pnote" style="margin:0">✓＝${esc(ylab(it))}（選ぶもの・点線の枠は選び忘れ）、印なし＝${esc(xlab(it))}（選ばないもの）</p>`;
   }
   if (KS.done) h += `<div class="verdict ${KS.ok ? "ok" : "ng"}"><span class="big">${KS.ok ? "○" : "×"}</span><div><h3>${KS.ok ? "正解" : "もう一度覚えよう"}</h3><p>${esc(it.n)}</p></div></div>${it.o ? `<div class="whybox"><span class="lbl">正しい順番</span><div class="body">${it.a.map((x, j) => `${j + 1}. ${esc(x)}`).join("<br>")}</div></div>` : `<div class="whybox"><span class="lbl">答え</span><div class="body"><b style="color:var(--acc)">${esc(ylab(it))}：</b>${it.y.map(esc).join("・")}<br><b style="color:var(--em)">${esc(xlab(it))}：</b>${it.x.map(esc).join("・")}</div></div>`}<div class="whybox"><span class="lbl">なぜ</span><div class="body">${esc(SKW[KS.list[KS.k]] || "")}</div></div><div class="qnav"><button class="btn big" data-act="knext">${C || KS.k + 1 < KS.list.length ? "次へ" : "結果を見る"}</button></div>`;
+  if (KS.done) h += mhHtml(mhKeys((it.o || it.p) + " " + it.n + " " + (it.a || it.y || []).join(" ")));
   app.innerHTML = h + `</article>`;
 }
 function skLoad() { const it = SK[KS.list[KS.k]]; KS.done = false; KS.ok = false; if (it.o) { KS.pool = shuffle(it.a); KS.pick = []; } else { KS.opts = shuffle(it.y.concat(it.x)); KS.sel = []; } }
@@ -2419,7 +2604,7 @@ function home3() {
     <span style="display:block;color:var(--muted);font-size:14px;margin:2px 0 8px">${CGOAL[c]}</span>
     <span class="meter" aria-hidden="true" style="display:block"><i style="width:${st.ok / st.n * 100}%"></i></span>
     <span style="display:block;margin-top:8px;font-size:14px;color:var(--acc);font-weight:700">▶ ${p ? `続きから（${p + 1}問目）` : "はじめる"}　<span style="color:var(--muted);font-weight:400">${st.n}問・目安 ${cHours(c)}（1日で1コース）</span></span></button>`; }).join("")}
-  <div class="row" style="justify-content:center"><button class="btn sub" data-act="shiryo">資料（骨組みシート・お手本・雑誌ガイド・書く道具）</button></div>
+  <div class="row" style="justify-content:center"><button class="btn sub" data-act="shiryo">資料（骨組みシート・お手本・本番の見本・雑誌ガイド・書く道具）</button></div>
   <details class="panel"><summary>その他（使い方・メモ・リセット・共有）</summary>${HOMEMISC()}</details>`;
   const mt = document.getElementById("mnTools"); if (mt) mt.appendChild(MyNote.tools(() => { if (S.view === "home") render(); }));
 }
@@ -2429,6 +2614,7 @@ function shiryo() {
   <button class="btn sub big" data-act="ksheet" data-g="paper">論文の骨組みシート（書く順番・必ず書くこと）</button>
   <button class="btn sub big" data-act="ksheet" data-g="slide">スライドの骨組みシート</button>
   ${MODELS.map((m, i) => `<button class="btn sub big" data-act="mopen" data-i="${i}">${esc(m.t)}</button>`).join("")}
+  <button class="btn sub big" data-act="mhopen">本番の見本（表・図・抄録・手紙・スライドの実際の形）</button>
   <button class="btn sub big" data-act="easyopen">統計のことば（P 値・信頼区間などのやさしい説明）</button>
   <button class="btn sub big" data-act="jopen">皮膚科の雑誌ガイド（IF・投稿のチェック事項）</button>
   <button class="btn sub big" data-act="wopen" data-t="case">書く道具（症例報告の下書き・抄録・スライド構成・チェックリスト）</button>
@@ -2442,6 +2628,7 @@ function c3Act(a, b) {
   if (a === "cstart") { C = { c: +b.dataset.c, k: 0 }; cOpen(cPos(C.c)); return true; }
   if (a === "cnext") { if (C) cNext(); return true; }
   if (a === "cgo") { if (C) cOpen(+b.dataset.k); return true; }
+  if (a === "mhopen") { S.view = "mihon"; render(); window.scrollTo(0, 0); return true; }
   if (a === "easyopen") { S.view = "easy"; render(); window.scrollTo(0, 0); return true; }
   if (a === "shiryo") { C = null; S.view = "shiryo"; render(); window.scrollTo(0, 0); return true; }
   return false;
@@ -2694,7 +2881,7 @@ function quiz() {
       ${q.m ? `<div class="goro"><span class="lbl">覚え方</span>${nl(q.m)}</div>` : ""}
       ${editorHtml(q)}
       ${mtHtml(q)}
-      ${(q.fig || []).filter(k => FIGS[k]).map(svgHtml).join("")}
+      ${(() => { const mk = mhKeys(q.q + " " + (Array.isArray(q.a) ? q.a : [q.a]).map(i => q.ch[i]).join(" ") + " " + (coreOf(q) || "")).concat(mhKeysE(eOf(q) || "")); return (q.fig || []).filter(k => FIGS[k] && !mk.includes({ table: "tbl3", timeline: "timeline" }[k])).map(svgHtml).join("") + mhHtml(mk); })()}
       ${MyNote.slot(q.id)}
     </div>
     ${selfMarkHtml(q.id)}
@@ -2780,7 +2967,7 @@ function end() {
   </section>`;
 }
 
-function render() { S.view === "home" ? home3() : S.view === "cdone" ? cDone() : S.view === "cbreak" ? cBreak() : S.view === "shiryo" ? shiryo() : S.view === "easy" ? easyPage() : S.view === "quiz" ? quiz() : S.view === "work" ? work() : S.view === "model" ? model() : S.view === "step" ? step() : S.view === "drill" ? drill() : S.view === "drillend" ? drillEnd() : S.view === "skel" ? skel() : S.view === "skend" ? skEnd() : S.view === "sheet" ? sheet() : S.view === "levels" ? levels() : S.view === "eye" ? eye() : S.view === "cert" ? cert() : S.view === "journals" ? journalsPage() : S.view === "dlist" ? dlist() : S.view === "ditem" ? ditem() : S.view === "tab_sk" ? tabSk() : S.view === "tab_dr" ? tabDr() : S.view === "tab_pr" ? tabPr() : S.view === "tab_q" ? tabQ() : S.view === "disc" ? discPage() : S.view === "slideauto" ? slideAutoPage() : end(); if (S.view === "quiz") resetBar(); }
+function render() { S.view === "home" ? home3() : S.view === "cdone" ? cDone() : S.view === "cbreak" ? cBreak() : S.view === "shiryo" ? shiryo() : S.view === "easy" ? easyPage() : S.view === "mihon" ? mihonPage() : S.view === "quiz" ? quiz() : S.view === "work" ? work() : S.view === "model" ? model() : S.view === "step" ? step() : S.view === "drill" ? drill() : S.view === "drillend" ? drillEnd() : S.view === "skel" ? skel() : S.view === "skend" ? skEnd() : S.view === "sheet" ? sheet() : S.view === "levels" ? levels() : S.view === "eye" ? eye() : S.view === "cert" ? cert() : S.view === "journals" ? journalsPage() : S.view === "dlist" ? dlist() : S.view === "ditem" ? ditem() : S.view === "tab_sk" ? tabSk() : S.view === "tab_dr" ? tabDr() : S.view === "tab_pr" ? tabPr() : S.view === "tab_q" ? tabQ() : S.view === "disc" ? discPage() : S.view === "slideauto" ? slideAutoPage() : end(); if (S.view === "quiz") resetBar(); }
 /* 問題画面のいちばん下のリセット（この問題／この単元を選ぶ） */
 function resetBar() { const q = QI[S.list[S.i]]; if (!q) return; const d = document.createElement("div"); d.className = "rbar";
   d.innerHTML = `<button type="button" class="ghost" data-act="rmenu">リセット</button><div class="rmenu" hidden><p>どちらをリセットしますか？（まだ解いていない状態に戻します）</p><button type="button" class="ghost" data-act="qclr">この問題をリセット</button><button type="button" class="ghost" data-act="uclr" data-u="${q.u}">この単元（${esc(UNITS[q.u][1])}）をリセット</button><button type="button" class="ghost" data-act="rmenu">やめる</button></div>`;
@@ -2869,11 +3056,11 @@ document.addEventListener("keydown", e => {
 render();
 
 </script>
-<p class="offline">17版（1コースを1日（約2時間）で終わる量に（初級97・中級32・上級44）。残りは資料の「もっと練習」に）</p>
+<p class="offline">18版（表・図・抄録・表紙ページ・流れ図・グラフ・カバーレター・回答書・スライド9枚を「本番の形」の見本で表示（解説・お手本・資料に））</p>
 <p class="offline" id="offline">オフライン利用：準備中…</p>
 <script>
 (function(){
-  var el=document.getElementById("offline"),C="paper4-v17";
+  var el=document.getElementById("offline"),C="paper4-v18";
   function ok(){el.innerHTML="オフライン利用：<b>準備OK</b>（電波がなくても使えます）"}
   if(!("serviceWorker" in navigator)){el.textContent="オフライン利用：この環境では使えません";return}
   var had=!!navigator.serviceWorker.controller,reloaded=false;
