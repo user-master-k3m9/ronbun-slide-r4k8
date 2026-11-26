@@ -1882,6 +1882,23 @@ const MHMODEL = {
  ja: [MIHON.titlepage.h, _caseAbs(), "", MIHON.legend.h, MIHON.littbl.h, "", "", MIHON.timeline.h],
  slide: MHSLIDE,
 };
+/* スライドの目（上級）：A・B の2枚を実物の形で（EYE と同じ順。[元の A, 元の B]） */
+const _bars = (c1, c2, n1 = "治療群", n2 = "対照群") => _sv("0 0 400 200", `<path d="M50 15 V170 H390" stroke="#111" fill="none" stroke-width="2"/>${[0, 20, 40].map(v => `<text x="44" y="${170 - v * 3.6 + 5}" font-size="14" text-anchor="end" fill="#111">${v}</text>`).join("")}<rect x="100" y="${170 - 72}" width="90" height="72" fill="${c1}"/><rect x="250" y="${170 - 130}" width="90" height="130" fill="${c2}"/><text x="145" y="92" font-size="15" text-anchor="middle" fill="#111">20%</text><text x="295" y="34" font-size="15" text-anchor="middle" fill="#111">36%</text><text x="145" y="190" font-size="15" text-anchor="middle" fill="#111">${n1}</text><text x="295" y="190" font-size="15" text-anchor="middle" fill="#111">${n2}</text><text x="14" y="95" font-size="13" fill="#111" transform="rotate(-90 14 95)">再発（%）</text>`);
+const _small = t => `<div style="font-size:2.1cqw;line-height:1.35">${t}</div>`;
+const EYEH = [
+ [_slide("病理所見", `<div class="mh-pts">・表皮下水疱<br>・好酸球浸潤</div>`), _slide("表皮下水疱と好酸球浸潤を認めた", `<div style="width:62%;margin:0 auto">${_patho()}</div>`)],
+ [_slide("現病歴", `<div class="mh-pts" style="font-size:3.6cqw">3か月前　口腔内びらん<br>　歯科：含嗽薬で不変<br>1か月前　体幹に水疱</div>`), _slide("現病歴", `<div style="font-size:2.9cqw;line-height:1.45">患者は3か月前から口腔内にびらんが出現し、近くの歯科を受診して含嗽薬を処方されたが改善せず、その後も症状は持続し、1か月前からは体幹にも水疱が出現するようになったため、精査加療目的に当科を紹介され受診した。</div>`)],
+ [_slide("抗デスモグレイン3抗体が高値だった", `<table class="mh-lab"><tr><td>抗 Dsg3 抗体</td><td><b style="color:#c00">186 U/mL</b></td><td>（基準 20 未満）</td></tr><tr><td>抗 Dsg1 抗体</td><td>陰性</td><td></td></tr></table>`), _slide("検査所見", `<table style="border-collapse:collapse;font-size:1.6cqw;width:100%">${[["WBC 7800", "RBC 452", "Hb 13.2", "Plt 24.1", "AST 22"], ["ALT 18", "LDH 190", "ALP 210", "γGT 25", "TP 6.8"], ["Alb 3.9", "BUN 15", "Cr 0.7", "Na 140", "K 4.1"], ["Cl 103", "CRP 0.3", "IgG 1350", "IgA 260", "IgM 90"], ["IgE 120", "Dsg3 186", "Dsg1 <3", "BP180 <3", "ANA 40倍"], ["HbA1c 5.8", "TSH 1.2", "FT4 1.1", "CEA 2.1", "…"]].map(r => `<tr>${r.map(c => `<td style="border:1px solid #bbb;padding:.3cqw .6cqw">${c}</td>`).join("")}</tr>`).join("")}</table>`)],
+ [_slide("緊満性水疱が多発", `<div style="width:66%;margin:0 auto">${_clin()}</div>`), _slide("臨床写真", `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.8cqw">${[0, 1, 2, 3, 4, 5, 6, 7].map(i => `<div class="mh-ph"><img src="img/${i % 2 ? "clin_close.jpg" : "clin_full.jpg"}" alt="" style="aspect-ratio:4/3;object-position:${["50% 20%", "30% 40%", "50% 70%", "70% 30%", "40% 50%", "60% 60%", "50% 40%", "20% 70%"][i]}"></div>`).join("")}</div>`)],
+ [_slide("治療群で再発が少なかった", `<div style="width:62%;margin:0 auto;background:#fff">${_bars("#2a6fdb", "#9a9a9a")}</div>`), _slide("治療群で再発が少なかった", `<div style="width:62%;margin:0 auto;background:#fff">${_bars("#d62020", "#22a022")}</div>`)],
+ [_slide("", `<div style="text-align:center;font-size:5cqw;font-weight:700">ご清聴ありがとうございました</div>`), _slide("結語", `<div class="mh-pts">治りにくい口腔内びらんでは、<br>皮疹がなくても<b>天疱瘡を考えて</b><br>抗体を測る</div>`)],
+ [_slide("考察", `<table style="border-collapse:collapse;font-size:1.3cqw;width:100%">${[["No", "報告者", "年", "年齢", "性", "部位", "抗体", "病理", "DIF", "治療", "期間", "転帰"], ...Array.from({ length: 9 }, (_, i) => [i + 1, "著者" + (i + 1), 2010 + i, 60 + i * 3, i % 2 ? "F" : "M", "体幹", "陽性", "表皮下", "線状", "PSL+外用", "8週", "軽快"])].map((r, j) => `<tr>${r.map(c => `<td style="border:1px solid #bbb;padding:.2cqw .3cqw${j ? "" : ";font-weight:700"}">${c}</td>`).join("")}</tr>`).join("")}</table>`), MHSLIDE[7]],
+ [_slide("PASI の推移", `<div style="width:70%;margin:0 auto;background:#fff">${_sv("0 0 400 200", `<path d="M40 10 V170 H390" stroke="#111" fill="none"/>${["#e33", "#3a3", "#33e", "#e9e", "#9c3", "#3cc", "#c93", "#999"].map((c, i) => `<polyline fill="none" stroke="${c}" stroke-width="1.5" points="${[0, 1, 2, 3, 4].map(k => `${40 + k * 85},${28 + i * 9 + k * (8 + i * 3)}`).join(" ")}"/>`).join("")}<rect x="300" y="12" width="88" height="60" fill="#fff" stroke="#999"/>${[0, 1, 2, 3, 4, 5].map(i => `<text x="304" y="${22 + i * 9}" font-size="7" fill="#333">— 群${i + 1} (n=${12 + i})</text>`).join("")}<text x="200" y="190" font-size="8" fill="#333" text-anchor="middle">Weeks</text>`)}</div>`), _slide("16週で PASI は 24 から 6 に低下した", `<div style="width:70%;margin:0 auto;background:#fff">${_sv("0 0 400 200", `<path d="M50 10 V160 H390" stroke="#111" stroke-width="2" fill="none"/><polyline fill="none" stroke="#bbb" stroke-width="2" points="50,50 135,60 220,70 305,75 390,78"/><polyline fill="none" stroke="#2a6fdb" stroke-width="5" points="50,40 135,80 220,115 305,130 390,135"/><text x="380" y="128" font-size="16" text-anchor="end" fill="#2a6fdb" font-weight="700">治療群</text><text x="380" y="70" font-size="15" text-anchor="end" fill="#888">対照群</text>${[0, 4, 8, 12, 16].map((w, k) => `<text x="${50 + k * 85}" y="180" font-size="15" text-anchor="middle" fill="#111">${w}</text>`).join("")}<text x="220" y="198" font-size="14" text-anchor="middle" fill="#111">週</text><text x="16" y="85" font-size="14" fill="#111" transform="rotate(-90 16 85)">PASI</text>`)}</div>`)],
+ [MHSLIDE[1], _slide("（2枚目）78歳男性、ビルダグリプチン内服2年後に水疱が出現", `<div class="mh-pts" style="font-size:3.2cqw">主訴：体幹・四肢の水疱<br>既往：2型糖尿病…</div><div style="position:absolute;right:3cqw;bottom:3cqw;font-size:2.2cqw;color:#c00">表紙の次がすぐ症例（COI なし）</div>`)],
+ [_slide("症例：65歳 女性", `<div style="font-family:'Hiragino Sans',sans-serif;font-weight:600;font-size:4.4cqw;line-height:1.6">主訴：口腔内びらん<br>既往：高血圧</div>`), `<div class="mh-slide" style="font-family:'Hiragino Mincho ProN',serif"><div class="mh-st" style="font-weight:300;font-size:2.4cqw">症例：65歳 女性</div><div class="mh-sb" style="font-weight:300;font-size:2cqw">主訴：口腔内びらん<br>既往：高血圧</div></div>`],
+ [_slide("眼瞼の紅斑と腫脹", `<div style="width:60%;margin:0 auto">${_sv("0 0 300 120", `<rect width="300" height="120" fill="#e8c2a6"/><ellipse cx="90" cy="64" rx="46" ry="20" fill="#c97b7b" opacity=".7"/><ellipse cx="210" cy="64" rx="46" ry="20" fill="#c97b7b" opacity=".7"/><path d="M60 70 Q90 56 120 70 Q90 80 60 70Z M180 70 Q210 56 240 70 Q210 80 180 70Z" fill="#3a2a22"/>`)}</div>${_small("（眼の周りだけを切り取った写真）　同意取得済み")}`), _slide("眼瞼の紅斑と腫脹", `<div style="width:40%;margin:0 auto">${_sv("0 0 200 220", `<rect width="200" height="220" fill="#ddd"/><ellipse cx="100" cy="105" rx="62" ry="80" fill="#e8c2a6"/><path d="M38 80 Q100 10 162 80 Q150 30 100 22 Q50 30 38 80Z" fill="#3a2a22"/><rect x="45" y="88" width="110" height="9" fill="#000"/><path d="M85 150 Q100 158 115 150" stroke="#8a4a3a" stroke-width="3" fill="none"/>`)}</div>${_small("（顔全体の写真に、目の上だけ細い黒線）")}`)],
+ [MHSLIDE[6], _slide("経過", `<div style="font-size:2.6cqw;line-height:1.5">X月　ビルダグリプチン中止、クロベタゾール外用開始<br>X月＋2週　新生水疱やや減少<br>X＋1月　水疱は少し改善<br>X＋1月半　かゆみも軽減<br>X＋2月　だいぶ改善<br>X＋3月　新生なし<br>X＋6月　再発なし</div>`)],
+];
 
 /* ---------- 直結ドリル：論文の1文を見て「OK」か「直す」かを即答。1周3〜5分、何周でも ----------
    DR = [場所, 文, OKならtrue, ひとこと（直す場合は直し方）] */
@@ -2196,7 +2213,7 @@ function eye() {
   const o = EYE[ES.list[ES.k]], sw = ES.sw[ES.list[ES.k]], it = sw ? [o[0], o[2], o[1], o[3] === "A" ? "B" : "A", o[4]] : o;
   let h = header() + `<div class="qhead"><span class="fl">スライドの目</span><span>${esc(it[0])}</span><span class="n">${ES.k + 1} / ${ES.list.length}</span></div>
   <div class="meter" aria-hidden="true"><i style="width:${(ES.k + (ES.ans ? 1 : 0)) / ES.list.length * 100}%"></i></div>
-  <article class="qcard"><div class="qtext">伝わるのはどちらのスライド？</div><div style="display:flex;gap:12px;flex-wrap:wrap">${miniSlide(it[1], "A")}${miniSlide(it[2], "B")}</div>`;
+  <article class="qcard"><div class="qtext">伝わるのはどちらのスライド？</div><div style="display:flex;gap:12px;flex-wrap:wrap">${(() => { const ix = ES.list[ES.k], P = EYEH[ix]; if (!P) return miniSlide(it[1], "A") + miniSlide(it[2], "B"); const L = sw ? [P[1], P[0]] : P; return L.map((h, j) => `<div style="flex:1;min-width:260px"><div style="font-size:13px;color:var(--muted);margin-bottom:4px;font-weight:700">${"AB"[j]}</div>${h}</div>`).join(""); })()}</div>${[0, 3].includes(ES.list[ES.k]) ? MHCRED : ""}`;
   if (!ES.ans) h += `<div class="row" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><button class="btn big" data-act="eans" data-v="A">A</button><button class="btn big" data-act="eans" data-v="B">B</button></div>`;
   else { const ok = ES.ans === it[3]; h += `<div class="verdict ${ok ? "ok" : "ng"}"><span class="big">${ok ? "○" : "×"}</span><div><h3>正解は ${it[3]}</h3><p>${esc(it[4])}</p></div></div><div class="qnav"><button class="btn big" data-act="enext">${C || ES.k + 1 < ES.list.length ? "次へ" : "結果を見る"}</button></div>`; }
   app.innerHTML = h + `</article>`;
@@ -2895,7 +2912,7 @@ function quiz() {
       ${q.m ? `<div class="goro"><span class="lbl">覚え方</span>${nl(q.m)}</div>` : ""}
       ${editorHtml(q)}
       ${mtHtml(q)}
-      ${(() => { const mk = mhKeys(q.q + " " + (Array.isArray(q.a) ? q.a : [q.a]).map(i => q.ch[i]).join(" ") + " " + (coreOf(q) || "")).concat(mhKeysE(eOf(q) || "")); return (q.fig || []).filter(k => FIGS[k] && !mk.includes({ table: "tbl3", timeline: "timeline" }[k])).map(svgHtml).join("") + mhHtml(mk); })()}
+      ${(() => { const mk = mhKeys(q.q + " " + (Array.isArray(q.a) ? q.a : [q.a]).map(i => q.ch[i]).join(" ") + " " + (coreOf(q) || "")).concat(mhKeysE(eOf(q) || "")); const RP = { patho: "legend", slidegood: "s_bad" }; (q.fig || []).forEach(k => { if (RP[k]) mk.unshift(RP[k]); }); return (q.fig || []).filter(k => FIGS[k] && !RP[k] && !mk.includes({ table: "tbl3", timeline: "timeline" }[k])).map(svgHtml).join("") + mhHtml(mk); })()}
       ${MyNote.slot(q.id)}
     </div>
     ${selfMarkHtml(q.id)}
@@ -3070,11 +3087,11 @@ document.addEventListener("keydown", e => {
 render();
 
 </script>
-<p class="offline">20版（見本の蛍光抗体法も本物の写真に（DPP-4 阻害薬関連水疱性類天疱瘡の C3 線状沈着、CC BY））</p>
+<p class="offline">21版（上級「スライドの目」12問を実物の形のスライド（本物の写真・表・グラフ）に。問題の解説の絵の模式図も本物の写真の見本に）</p>
 <p class="offline" id="offline">オフライン利用：準備中…</p>
 <script>
 (function(){
-  var el=document.getElementById("offline"),C="paper4-v20";
+  var el=document.getElementById("offline"),C="paper4-v21";
   function ok(){el.innerHTML="オフライン利用：<b>準備OK</b>（電波がなくても使えます）"}
   if(!("serviceWorker" in navigator)){el.textContent="オフライン利用：この環境では使えません";return}
   var had=!!navigator.serviceWorker.controller,reloaded=false;
