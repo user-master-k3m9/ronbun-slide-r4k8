@@ -750,6 +750,7 @@ textarea,input{border-radius:10px!important}
 .mh-bar span{display:block;width:44px;height:4px;margin:0 auto 3px}
 .mh-slide .mh-bar{font-size:1.6cqw}.mh-slide .mh-bar span{width:6cqw;height:.6cqw}
 .mh-cred{font:11px/1.5 sans-serif;color:#666;margin:6px 0 0!important}
+.mh-dif{background:#000}.mh-dif img{object-fit:contain;filter:brightness(1.9) contrast(1.1)}
 </style>
 <body>
 <div class="wrap" id="app"></div>
@@ -1760,14 +1761,14 @@ const _clin = () => _ph("clin_close.jpg", _arw(42, 22, 200));
 const _clinFull = () => _ph("clin_full.jpg", _arw(53, 20, 200));
 const _patho = () => _ph("patho_mid.jpg", _arw(62, 30, 135, "#111") + _bar("100 µm"));
 const _pathoLow = () => _ph("patho_low.jpg");
-// 蛍光抗体直接法：本物に近い描画（基底膜部の線状沈着）。写真の再配布許可が得られなかったため描画
-const _dif = () => `<div class="mh-ph">${_sv("0 0 300 200", `<defs><filter id="dfn"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="4"/><feColorMatrix values="0 0 0 0 0  0 0 0 0 .35  0 0 0 0 0  0 0 0 .18 0"/><feComposite in2="SourceGraphic" operator="in"/></filter><filter id="dfg"><feGaussianBlur stdDeviation="2.2"/></filter><filter id="dfs"><feGaussianBlur stdDeviation=".6"/></filter></defs><rect width="300" height="200" fill="#020602"/><path d="M0 40 C60 28 100 60 150 52 S240 34 300 46 L300 98 C240 88 200 112 150 104 S60 84 0 96 Z" fill="#06160a" filter="url(#dfg)"/><path d="M0 40 C60 28 100 60 150 52 S240 34 300 46 L300 98 C240 88 200 112 150 104 S60 84 0 96 Z" fill="#1a4d1c" opacity=".35" filter="url(#dfn)"/><path d="M0 96 C60 84 100 104 150 104 S240 88 300 98 L300 200 L0 200 Z" fill="#020602" filter="url(#dfn)"/><path d="M0 96 C60 84 100 104 150 104 S240 88 300 98" stroke="#6dff5a" stroke-width="7" fill="none" opacity=".55" filter="url(#dfg)"/><path d="M0 96 C60 84 100 104 150 104 S240 88 300 98" stroke="#b6ff9e" stroke-width="2.6" fill="none" filter="url(#dfs)"/><path d="M196 150 L168 112" stroke="#fff" stroke-width="3"/><path d="M164 106 l1 14 l10 -6 z" fill="#fff"/><path d="M215 182 h65" stroke="#fff" stroke-width="4"/><text x="247" y="174" font-size="12" text-anchor="middle" fill="#fff">50 µm</text>`)}</div>`;
+// 蛍光抗体直接法（C3）：本物の写真（DPP-4 阻害薬関連水疱性類天疱瘡、CC BY）。スケールバーは元の写真のもの
+const _dif = () => _ph("dif_c3.jpg", _arw(58, 52, 160)).replace('<div class="mh-ph">', '<div class="mh-ph mh-dif">');
 // 小さな経過図（横軸＝週、上＝薬の帯、下＝新生水疱の数）
 const _tl = _sv("0 0 600 230", `<text x="10" y="30" font-size="16" fill="#111">ビルダグリプチン</text><path d="M150 26 l12 -12 H240 V38 H162 Z" fill="#999"/><text x="196" y="31" font-size="13" text-anchor="middle" fill="#fff">2年前〜</text><text x="250" y="31" font-size="15" fill="#555">中止</text><text x="10" y="70" font-size="16" fill="#111">クロベタゾール外用</text><rect x="240" y="54" width="340" height="24" fill="#3a7bd5"/><path d="M150 100 V190 H590" stroke="#111" stroke-width="2" fill="none"/><text x="144" y="194" font-size="13" text-anchor="end" fill="#111">0</text><text x="144" y="114" font-size="13" text-anchor="end" fill="#111">10</text><text x="10" y="110" font-size="15" fill="#111">新生水疱（個/日）</text><polyline points="150,110 240,104 330,150 420,180 510,188 580,188" fill="none" stroke="#d33" stroke-width="4"/>${[150, 240, 330, 420, 510].map((x, i) => `<text x="${x}" y="212" font-size="15" text-anchor="middle" fill="#111">${["−8", "0", "4", "8", "12"][i]}</text>`).join("")}<text x="590" y="212" font-size="15" text-anchor="end" fill="#111">（週）</text><path d="M240 92 v6" stroke="#111" stroke-width="2"/><text x="244" y="100" font-size="13" fill="#111">▼生検</text>`);
 
 /* 16:9 のスライド（白地・タイトル＝結論の文） */
 const _slide = (title, body, no) => `<div class="mh-slide"><div class="mh-st">${title}</div><div class="mh-sb">${body}</div>${no ? `<div class="mh-sn">${no}</div>` : ""}</div>`;
-const MHCRED = `<p class="mh-cred">写真（見本用・別の患者）：a Mohammad2018（CC BY-SA 4.0）／b Sarahkayb（CC BY-SA 4.0）／弱拡大 Giang J ほか, Front Immunol 2018（CC BY 4.0）。いずれも Wikimedia Commons、切り出して使用。矢印・スケールバーは見本用に書き足したもの。c は蛍光抗体法の見え方を再現した描画。</p>`;
+const MHCRED = `<p class="mh-cred">写真（見本用・別の患者）：a Mohammad2018（CC BY-SA 4.0）／b Sarahkayb（CC BY-SA 4.0）／弱拡大 Giang J ほか, Front Immunol 2018（CC BY 4.0）。以上 Wikimedia Commons。c Fujii Y ほか, Cureus 2026; 18: e105274（CC BY）。いずれも切り出して使用。矢印と b のスケールバーは見本用に書き足したもの（c は写真全体の明るさだけ調整）。</p>`;
 const _paper = (body, cls = "") => `<div class="mh-paper ${cls}">${body}</div>`;
 
 const MIHON = {
@@ -1789,7 +1790,7 @@ const MIHON = {
 
  legend: { t: "図と図の説明（凡例）", n: "1枚の図に a・b・c と記号を付け、説明文で一つずつ説明する。病理には染色名とスケールバー（倍率「×400」は拡大・縮小でずれるので使わない）。矢印・矢頭の意味も説明文に書く。説明文は図の下。",
   h: _paper(`<div class="mh-fig3"><div><b class="mh-pl">a</b>${_clin()}</div><div><b class="mh-pl">b</b>${_patho()}</div><div><b class="mh-pl">c</b>${_dif()}</div></div>${MHCRED}
-  <div class="mh-leg"><b>図1</b>　a：初診時の臨床像。下腿の緊満性水疱（矢印）。b：病理組織像（HE 染色）。表皮下水疱（矢印）と、水疱内・真皮浅層の好酸球を主とする炎症細胞。c：蛍光抗体直接法。基底膜部に IgG の線状沈着を認める（矢印）。スケールバー＝b 100 µm、c 50 µm。</div>`) },
+  <div class="mh-leg"><b>図1</b>　a：初診時の臨床像。下腿の緊満性水疱（矢印）。b：病理組織像（HE 染色）。表皮下水疱（矢印）と、水疱内・真皮浅層の好酸球を主とする炎症細胞。c：蛍光抗体直接法。基底膜部に C3 の線状沈着を認める（矢印）。スケールバー＝100 µm。</div>`) },
 
  timeline: { t: "経過図（タイムライン）", n: "横軸＝時間（週・月）。上に薬の帯（いつからいつまで・量）、下に症状や検査値の線、生検などのできごとに印。薬と症状の時間の関係が一目で分かる。",
   h: _paper(`<div class="mh-cap"><b>図3</b>　臨床経過</div>${_tl}<div class="mh-leg">ビルダグリプチン中止とクロベタゾールプロピオン酸エステル外用の開始から8週で、水疱の新生は止まった。</div>`) },
@@ -1826,7 +1827,7 @@ const MHSLIDE = [
  _slide("78歳男性、ビルダグリプチン内服2年後に水疱が出現", `<div class="mh-pts" style="font-size:3.6cqw">主訴：体幹・四肢の水疱、かゆみ<br>既往：2型糖尿病<br>　ビルダグリプチン 100 mg/日（2年前から）<br>現病歴：初診2か月前から体幹に水疱<br>　→ 四肢に拡大し当科紹介</div>`, 3),
  _slide("紅斑の乏しい緊満性水疱が多発", `<div class="mh-cols"><div style="flex:.75">${_clinFull()}</div><div style="flex:1">${_clin()}</div></div><div style="font-size:2.6cqw;margin-top:1cqw">左：下腿（全体）　右：近接　矢印：緊満性水疱</div>`, 4),
  _slide("抗 BP180 NC16a 抗体は陰性だった", `<table class="mh-lab"><tr><td>好酸球</td><td><b style="color:#c00">9 %</b></td><td>（基準 0–6）</td></tr><tr><td>抗 BP180 NC16a 抗体</td><td><b>陰性</b>（3.2 U/mL）</td><td>（基準 9 未満）</td></tr><tr><td>抗デスモグレイン1・3 抗体</td><td>陰性</td><td></td></tr></table>`, 5),
- _slide("表皮下水疱と、基底膜部の IgG・C3 線状沈着を認めた", `<div class="mh-cols"><div style="flex:1">${_pathoLow()}<div class="mh-sc">HE 弱拡大</div></div><div style="flex:1">${_patho()}<div class="mh-sc">HE 強拡大</div></div><div style="flex:1">${_dif()}<div class="mh-sc">蛍光抗体直接法（IgG）</div></div></div>`, 6),
+ _slide("表皮下水疱と、基底膜部の IgG・C3 線状沈着を認めた", `<div class="mh-cols"><div style="flex:1">${_pathoLow()}<div class="mh-sc">HE 弱拡大</div></div><div style="flex:1">${_patho()}<div class="mh-sc">HE 強拡大</div></div><div style="flex:1">${_dif()}<div class="mh-sc">蛍光抗体直接法（C3）</div></div></div>`, 6),
  _slide("薬の中止と外用で8週後に水疱の新生は止まった", `<div style="background:#fff">${_tl}</div>`, 7),
  _slide("中止と外用のみで軽快した既報は少ない", `<table class="mh-t3 mh-slt"><thead><tr><th>報告者</th><th>年齢/性</th><th>NC16a 抗体</th><th>治療</th></tr></thead><tbody><tr><td>A ら</td><td>81/M</td><td>陰性</td><td>中止＋外用</td></tr><tr><td>B ら</td><td>76/F</td><td>陽性</td><td>中止＋外用</td></tr><tr><td>C ら</td><td>84/M</td><td>陰性</td><td>中止＋外用</td></tr><tr class="mh-own"><td>自験例</td><td>78/M</td><td>陰性</td><td>中止＋外用</td></tr></tbody></table><div style="font-size:2.6cqw;margin-top:1cqw">・抗体陰性でも蛍光抗体法で診断できる<br>・1例であり自然軽快は否定できない</div><div class="mh-src">A et al. J Dermatol 2016; B ら 皮膚臨床 2018; C et al. …</div>`, 8),
  _slide("結語", `<div class="mh-pts" style="font-size:3.8cqw;line-height:1.6">DPP-4 阻害薬を内服中の高齢者の<br>紅斑の乏しい水疱では、<br><b>抗体が陰性でも類天疱瘡</b>を考え、<br>蛍光抗体法と薬の中止を検討する</div>`, 9),
@@ -3069,11 +3070,11 @@ document.addEventListener("keydown", e => {
 render();
 
 </script>
-<p class="offline">19版（見本の臨床写真・病理写真を本物の写真（自由ライセンス、出典表示つき）に。蛍光抗体法は本物に近い描画）</p>
+<p class="offline">20版（見本の蛍光抗体法も本物の写真に（DPP-4 阻害薬関連水疱性類天疱瘡の C3 線状沈着、CC BY））</p>
 <p class="offline" id="offline">オフライン利用：準備中…</p>
 <script>
 (function(){
-  var el=document.getElementById("offline"),C="paper4-v19";
+  var el=document.getElementById("offline"),C="paper4-v20";
   function ok(){el.innerHTML="オフライン利用：<b>準備OK</b>（電波がなくても使えます）"}
   if(!("serviceWorker" in navigator)){el.textContent="オフライン利用：この環境では使えません";return}
   var had=!!navigator.serviceWorker.controller,reloaded=false;
