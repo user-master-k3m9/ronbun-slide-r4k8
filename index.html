@@ -2312,12 +2312,13 @@ function tabDr() {
   <section class="panel" style="display:block"><h3>1問ずつ選ぶ</h3>${DR.map((d, i) => `<div style="display:flex;gap:10px;align-items:center;border-bottom:1px solid var(--line);padding:8px 2px"><span>${last[i] === 1 ? "✅" : last[i] === 0 ? "❌" : "⬜"}</span><span style="flex:1"><small style="color:var(--muted)">${esc(d[0])}</small><br>${esc(d[1])}</span><button class="ghost" data-act="done1" data-i="${i}">解く</button><button class="ghost" data-act="ditem" data-i="${i}">解説</button></div>`).join("")}</section>`;
 }
 /* 実践のタブ */
-function tabPr() { app.innerHTML = header() + `<section class="hero"><h1>実践</h1><p>自分の症例（または練習用の症例）で書き、お手本と見比べます。</p></section>${practiceHtml()}${modelHtml()}${workCardHtml()}`; }
+function tabPr() { app.innerHTML = header() + `<section class="hero"><h1>実践</h1><p>自分の症例（または練習用の症例）で書き、お手本と見比べます。</p></section>${practiceHtml()}${modelHtml()}${workCardHtml()}<section class="path course"><h2>段階の課題（中級・上級）</h2><p class="pnote">考察トレーニング・スライドの目・自動採点・認定テストは、段階の課題の一覧から。</p><div class="row">${[1, 2, 3].map(n => `<button class="btn sub" data-act="lvopen" data-n="${n}">${["", "初級", "中級", "上級"][n]}の課題の一覧</button>`).join("")}</div></section>`; }
 /* 4択のタブ：章・単元を開いて表示、絞り込み・検索 */
 function tabQ() {
   const s = stat(Q), w = wrongIds().length, y = yetIds().length;
   app.innerHTML = header() + `<section class="hero"><h1>4択（全${s.n}問）</h1><p>章・単元を選んで解けます。正解 ${s.ok} / ${s.n}問。</p></section>
   ${todayHtml()}
+  ${(() => { const ks = Object.keys(store.ses).filter(k => validSes(k) && !k.startsWith("review:") && !k.startsWith("today5:")).sort((a, b) => store.ses[b].ts - store.ses[a].ts); return ks.length ? `<section class="resume"><h2>続きから解く</h2>${ks.map(k => { const v = store.ses[k]; return `<div class="resitem"><span class="t">${esc(v.label)}<small>全${v.list.length}問のうち${doneNo(v)}問を解答ずみ。次は${nextNo(v)}問目から</small></span><button class="btn" data-act="resume" data-k="${k}">続きから</button><button class="ghost" data-act="drop" data-k="${k}">やめる</button></div>`; }).join("")}</section>` : ""; })()}
   <div class="row">${Object.keys(TAGN).map(t => `<button class="btn sub" data-act="tag" data-t="${t}">${TAGN[t]}だけ（${qsOf(null, t).length}問）</button>`).join("")}<button class="btn sub" data-act="yet" ${y || validSes("all:yet") ? "" : "disabled"}>まだの問題（${y}問）</button><button class="btn sub" data-act="wrong" ${w || validSes("all:wrong") ? "" : "disabled"}>まちがえた問題（${w}問）</button><button class="btn sub" data-act="all">全問シャッフル</button></div>
   ${courseHtml().replace('<details class="more"><summary>章・単元を選んで解く', '<details class="more" open><summary>章・単元を選んで解く')}
   ${searchHtml()}${reviewHtml()}`;
@@ -2441,41 +2442,21 @@ function courseHtml() {
   </section>`;
 }
 function home() {
-  const s = stat(Q); const pct = s.n ? Math.round(s.ok / s.n * 100) : 0;
-  const w = wrongIds().length, y = yetIds().length;
-  const ks = Object.keys(store.ses).filter(k => validSes(k) && !k.startsWith("review:")).sort((a, b) => store.ses[b].ts - store.ses[a].ts);
+  const cur = curLevel(), lv = cur > 3 ? 3 : cur, it = lvItems()[lv], d = it.filter(x => x[0]).length, k = lvNextIdx(lv), nm = ["", "初級", "中級", "上級"][lv];
+  const skp = skStats("paper").today, sks = skStats("slide").today, drt = drillStats().today;
+  const t5 = store.ses["today5:" + todayKey()], t5n = t5 && Array.isArray(t5.list) ? doneNo(t5) + "/" + t5.list.length : (todayIds().length ? "0/" + todayIds().length : "済");
   app.innerHTML = header() + `
-  <section class="hero">
-    <h1>書いて、直して、<span class="ox">書ける</span>ようになる。</h1>
-    <p>皮膚科の症例報告と学会発表を、<b>実際に書きながら</b>身に付けます。毎日：<b>骨組み暗記</b>と<b>直結ドリル</b>を何周か（各1周3〜5分）＋<b>実践コース</b>を1ステップ＋<b>今日の5問</b>。</p>
+  <section class="path course" style="padding:22px">
+    <p class="pnote" style="margin:0 0 4px">いまの段階</p>
+    <h2 style="font-size:22px;margin:0 0 6px">${cur > 3 ? "上級まで完了 🎓" : esc(LVN[lv])}</h2>
+    <div class="meter" aria-hidden="true" style="margin:6px 0 8px"><i style="width:${d / it.length * 100}%"></i></div>
+    <p style="margin:0 0 14px;font-size:15px">課題 ${d} / ${it.length} 完了${k >= 0 ? `<br><b>次：</b>${esc(it[k][1])}` : ""}</p>
+    <button class="btn big" data-act="lvgo" data-n="${lv}" style="width:100%;font-size:19px;padding:16px">▶ ${k >= 0 ? "続きをはじめる" : "課題の一覧を見る"}</button>
+    <p class="pnote" style="margin:12px 0 0;text-align:center">段階を選ぶ：${[1, 2, 3].map(n => `<button class="ghost" data-act="lvgo" data-n="${n}" style="margin:0 2px">${lvPassed(n) ? "✅" : ""}${["", "初級", "中級", "上級"][n]}</button>`).join("")}</p>
   </section>
-  ${levelCardHtml()}
-  ${skHtml()}
-  ${drillHtml()}
-  ${practiceHtml()}
-  ${todayHtml()}
-  <section class="hero" style="padding-top:0">
-    <div class="total"><span><strong>${s.ok}</strong> / ${s.n}問 正解ずみ</span><span>${pct}%</span></div>
-    <div class="meter" aria-hidden="true"><i style="width:${pct}%"></i></div>
-  </section>
-  ${journalCardHtml()}
-  ${modelHtml()}
-  ${workCardHtml()}
-  <details class="panel"><summary>4択をまとめて解く・検索（全${s.n}問）</summary>
-  ${searchHtml()}
-  ${reviewHtml()}
-  ${courseHtml()}
-  ${ks.length ? `<section class="resume"><h2>続きから解く</h2>${ks.map(k => { const v = store.ses[k]; return `
-    <div class="resitem" style="--fc:${keyColor(k)}"><span class="t">${esc(v.label)}<small>全${v.list.length}問のうち${doneNo(v)}問を解答ずみ。<b>次は${nextNo(v)}問目から</b></small></span>
-    <button class="btn" data-act="resume" data-k="${k}">続きから</button><button class="ghost" data-act="drop" data-k="${k}" aria-label="${esc(v.label)}の途中の記録を消す">やめる</button></div>`; }).join("")}</section>` : ""}
-  <div class="row">
-${Object.keys(TAGN).map(t => `    <button class="btn sub" data-act="tag" data-t="${t}">${TAGN[t]}だけ（${qsOf(null, t).length}問）</button>`).join("")}
-    <button class="btn sub" data-act="yet" ${y || validSes("all:yet") ? "" : "disabled"}>まだの問題（${y}問）</button>
-    <button class="btn sub" data-act="wrong" ${w || validSes("all:wrong") ? "" : "disabled"}>まちがえた問題だけ（${w}問）</button>
-    <button class="btn sub" data-act="memo" ${MyNote.ids().some(id => QI[id]) ? "" : "disabled"}>メモした問題だけ（${MyNote.ids().filter(id => QI[id]).length}問）</button>
-    <button class="btn sub" data-act="all">全${s.n}問をシャッフル</button>
-  </div>
-  </details>
+  <section class="panel" style="display:block;padding:14px 18px"><p style="margin:0;font-size:14px"><b>今日</b>　論文の骨組み ${skp}周 ／ スライドの骨組み ${sks}周 ／ ドリル ${drt}周 ／ 今日の5問 ${t5n}</p></section>
+  <p class="pnote" style="text-align:center;margin:4px 0">ほかの練習は上のタブから：骨組み・ドリル・実践（症例を書く・お手本）・4択・雑誌ガイド</p>
+  <details class="panel"><summary>その他（使い方・メモ・資料・リセット・共有）</summary>
   <details class="panel">
     <summary>このアプリの使い方</summary>
     <p>① ホームの「ステップ1」から順に解きます。途中でやめても、次に開いたときに<b>続きから</b>再開できます。<br>② 答えると、正解の番号と文、<b>ここだけ読めば大丈夫</b>（要点）、<b>理由と周辺知識</b>（例文つき）、ほかの選択肢が<b>なぜ違うか</b>、まとめ表と図が、折りたたまずに全部出ます。<br>③ 「この問題の評価」で○△×を付けると、忘れかけたころに「今日の復習」に出ます。<br>④ 毎日のおすすめ：<b>直結ドリル</b>を何周か・<b>実践コース</b>を1ステップ・<b>今日の5問</b>。<b>実践ワーク</b>では自分の症例を書いてみます。下書き・抄録・スライドの構成・提出前のチェックリスト・生成AI に英文校正を頼む指示文が作れます。</p>
@@ -2498,7 +2479,9 @@ ${Object.keys(TAGN).map(t => `    <button class="btn sub" data-act="tag" data-t=
     <p style="margin-top:12px"><button class="ghost danger" data-act="reset">全部リセット</button></p>
   </details>
   <p class="foot">記録はこの端末にだけ保存されます。</p>
-  ${shareHtml()}`;
+  <p class="foot">記録はこの端末にだけ保存されます。</p>
+  ${shareHtml()}
+  </details>`;
   const mt = document.getElementById("mnTools"); if (mt) mt.appendChild(MyNote.tools(() => { if (S.view === "home") render(); }));
 }
 
@@ -2740,11 +2723,11 @@ document.addEventListener("keydown", e => {
 render();
 
 </script>
-<p class="offline">13版（骨組み暗記・直結ドリル・スライドの目の問題画面にも「一覧」（○×・まだ、タップで移動））</p>
+<p class="offline">14版（ホームを「今日やること」だけに整理（続きをはじめるボタン1つ・今日の記録・その他は折りたたみ））</p>
 <p class="offline" id="offline">オフライン利用：準備中…</p>
 <script>
 (function(){
-  var el=document.getElementById("offline"),C="paper4-v13";
+  var el=document.getElementById("offline"),C="paper4-v14";
   function ok(){el.innerHTML="オフライン利用：<b>準備OK</b>（電波がなくても使えます）"}
   if(!("serviceWorker" in navigator)){el.textContent="オフライン利用：この環境では使えません";return}
   var had=!!navigator.serviceWorker.controller,reloaded=false;
